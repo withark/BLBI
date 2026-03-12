@@ -3,6 +3,27 @@ import { listSeoReferences, listSeoSnapshots } from "@/lib/store/db";
 
 export const dynamic = "force-dynamic";
 
+function collectTopPatterns(values: string[][], limit = 5): Array<{ label: string; count: number }> {
+  const counts = new Map<string, number>();
+
+  for (const group of values) {
+    for (const value of group) {
+      const key = value.trim();
+
+      if (!key) {
+        continue;
+      }
+
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+  }
+
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([label, count]) => ({ label, count }));
+}
+
 function formatDate(value: string | null): string {
   if (!value) {
     return "아직 분석 전";
@@ -19,9 +40,62 @@ function formatDate(value: string | null): string {
 export default async function AdminSeoReferencesPage(): Promise<React.ReactNode> {
   const [references, snapshots] = await Promise.all([listSeoReferences(), listSeoSnapshots()]);
   const latestSnapshots = snapshots.slice(0, 8);
+  const statusCounts = {
+    candidate: references.filter((reference) => reference.status === "candidate").length,
+    approved: references.filter((reference) => reference.status === "approved").length,
+    rejected: references.filter((reference) => reference.status === "rejected").length,
+    archived: references.filter((reference) => reference.status === "archived").length
+  };
+  const topKeywordPatterns = collectTopPatterns(snapshots.map((snapshot) => snapshot.keywordPatterns));
+  const topSectionPatterns = collectTopPatterns(snapshots.map((snapshot) => snapshot.sectionPatterns));
+  const topTonePatterns = collectTopPatterns(snapshots.map((snapshot) => snapshot.tonePatterns), 4);
 
   return (
     <div className="page-stack">
+      <section className="admin-overview-grid">
+        <article className="card section-stack tone-surface">
+          <span className="eyebrow">Queue Status</span>
+          <h2 className="section-title">참고 URL 상태</h2>
+          <div className="info-grid">
+            <div className="compact-card">
+              <strong>후보</strong>
+              <div>{statusCounts.candidate}개</div>
+            </div>
+            <div className="compact-card">
+              <strong>승인</strong>
+              <div>{statusCounts.approved}개</div>
+            </div>
+            <div className="compact-card">
+              <strong>제외</strong>
+              <div>{statusCounts.rejected}개</div>
+            </div>
+            <div className="compact-card">
+              <strong>보관</strong>
+              <div>{statusCounts.archived}개</div>
+            </div>
+          </div>
+        </article>
+
+        <article className="card section-stack tone-surface">
+          <span className="eyebrow">Learned Signals</span>
+          <h2 className="section-title">누적 학습 시그널</h2>
+          <div className="history-list">
+            <div className="compact-card">
+              <strong>상위 키워드 패턴</strong>
+              <div className="chips">
+                {topKeywordPatterns.length === 0 ? <span className="help">아직 없음</span> : topKeywordPatterns.map((item) => <span key={item.label} className="chip">{item.label} · {item.count}</span>)}
+              </div>
+            </div>
+            <div className="compact-card">
+              <strong>상위 톤 패턴</strong>
+              <div className="chips">
+                {topTonePatterns.length === 0 ? <span className="help">아직 없음</span> : topTonePatterns.map((item) => <span key={item.label} className="chip">{item.label} · {item.count}</span>)}
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
       <section className="two-column">
         <section className="card section-stack tone-surface">
           <span className="eyebrow">Manual Input</span>
@@ -102,6 +176,24 @@ export default async function AdminSeoReferencesPage(): Promise<React.ReactNode>
             </div>
           )}
         </section>
+      </section>
+
+      <section className="card section-stack tone-surface">
+        <span className="eyebrow">Section Intelligence</span>
+        <h2 className="section-title">자주 학습된 소제목 구조</h2>
+        {topSectionPatterns.length === 0 ? (
+          <div className="surface-muted">
+            <p className="small-note">아직 누적된 소제목 패턴이 없습니다.</p>
+          </div>
+        ) : (
+          <div className="chips">
+            {topSectionPatterns.map((item) => (
+              <span key={item.label} className="chip">
+                {item.label} · {item.count}
+              </span>
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="card section-stack">
