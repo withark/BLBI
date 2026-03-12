@@ -304,6 +304,9 @@ export async function getAdminStats(): Promise<{
   userCount: number;
   postCount: number;
   monthPostCount: number;
+  businessProfileCount: number;
+  recommendationCount: number;
+  planCounts: Record<UserPlan, number>;
   recentPosts: PostRecord[];
   users: UserRecord[];
 }> {
@@ -316,6 +319,13 @@ export async function getAdminStats(): Promise<{
     userCount: db.users.length,
     postCount: db.posts.length,
     monthPostCount: db.posts.filter((post) => new Date(post.createdAt).getTime() >= monthStart.getTime()).length,
+    businessProfileCount: db.businessProfiles.length,
+    recommendationCount: db.recommendations.length,
+    planCounts: {
+      FREE: db.users.filter((user) => user.plan === "FREE").length,
+      BASIC: db.users.filter((user) => user.plan === "BASIC").length,
+      PREMIUM: db.users.filter((user) => user.plan === "PREMIUM").length
+    },
     recentPosts: db.posts
       .slice()
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
