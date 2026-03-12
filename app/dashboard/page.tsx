@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 type UsageResponse = {
@@ -26,7 +26,7 @@ type RecommendationResponse = {
   recommendations: Array<{ id: string; keyword: string }>;
 };
 
-export default function DashboardPage(): React.ReactNode {
+function DashboardContent(): React.ReactNode {
   const router = useRouter();
   const searchParams = useSearchParams();
   const seeded = useRef(false);
@@ -315,5 +315,13 @@ export default function DashboardPage(): React.ReactNode {
         </Link>
       </section>
     </div>
+  );
+}
+
+export default function DashboardPage(): React.ReactNode {
+  return (
+    <Suspense fallback={<div className="status">대시보드 로딩 중...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
