@@ -20,6 +20,7 @@ The app listens on port `3000` and is configured for forwarded preview access.
 - `Auto PR` opens or updates a pull request from `codex/**` branches into `main`.
 - `Nightly Check` runs every day at `03:00` Korea time (`18:00 UTC`) and can also be triggered manually.
 - `Deploy Vercel` runs on pushes to `main` only when the repository secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` are configured.
+- Deployment secret setup is documented in [docs/DEPLOYMENT_SETUP.md](docs/DEPLOYMENT_SETUP.md).
 
 This means validation can continue on GitHub even after the local machine is off, but actual coding work is still separate from CI.
 
