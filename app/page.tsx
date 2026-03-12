@@ -1,11 +1,13 @@
 import Link from "next/link";
 
+import { HomeOperationsOverview } from "@/components/home-operations-overview";
 import { KeywordQuickStart } from "@/components/keyword-quick-start";
 
 export default function HomePage(): React.ReactNode {
   return (
     <div className="page-stack">
       <KeywordQuickStart />
+      <HomeOperationsOverview />
 
       <section className="card section-stack">
         <div className="section-stack">

@@ -56,6 +56,7 @@ export function DashboardClient(): React.ReactNode {
   const [length, setLength] = useState<"short" | "medium" | "long">("medium");
   const [tone, setTone] = useState<"friendly" | "professional" | "warm">("friendly");
   const [includeFaq, setIncludeFaq] = useState(true);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const [usage, setUsage] = useState<UsageResponse["usage"] | null>(null);
   const [profile, setProfile] = useState<ProfileResponse["profile"]>(null);
@@ -240,6 +241,7 @@ export function DashboardClient(): React.ReactNode {
     : "사용량을 확인하는 중입니다.";
 
   const canUseSeries = usage?.plan === "PREMIUM";
+  const hasCustomOptions = length !== "medium" || tone !== "friendly" || Boolean(details.trim()) || !includeFaq;
   const profileChecklist = useMemo(() => {
     if (!profile) {
       return [];
@@ -296,56 +298,73 @@ export function DashboardClient(): React.ReactNode {
               <p className="field-help">메뉴, 지역, 상황 키워드 한 줄이면 충분합니다.</p>
             </div>
 
-            <div className="row">
-              <div className="field-stack">
-                <label className="field-label" htmlFor="dashboard-length">
-                  글 길이
-                </label>
-                <select id="dashboard-length" className="select" value={length} onChange={(event) => setLength(event.target.value as typeof length)}>
-                  <option value="short">짧게</option>
-                  <option value="medium">기본 길이</option>
-                  <option value="long">길게</option>
-                </select>
-              </div>
-
-              <div className="field-stack">
-                <label className="field-label" htmlFor="dashboard-tone">
-                  문체
-                </label>
-                <select id="dashboard-tone" className="select" value={tone} onChange={(event) => setTone(event.target.value as typeof tone)}>
-                  <option value="friendly">친근한 톤</option>
-                  <option value="professional">전문적인 톤</option>
-                  <option value="warm">따뜻한 톤</option>
-                </select>
-              </div>
+            <div className="surface-muted section-stack">
+              <strong>가장 쉬운 사용법</strong>
+              <p className="small-note">키워드만 적고 바로 생성해도 됩니다. 길이, 문체, 요청사항은 필요할 때만 열어 쓰면 됩니다.</p>
             </div>
-
-            <div className="field-stack">
-              <label className="field-label" htmlFor="dashboard-details">
-                추가 반영 내용
-              </label>
-              <textarea
-                id="dashboard-details"
-                className="textarea"
-                placeholder="예: 점심 손님이 많고, 만두 사진이 꼭 들어가면 좋겠어요"
-                value={details}
-                onChange={(event) => setDetails(event.target.value)}
-              />
-            </div>
-
-            <label className="help" style={{ display: "flex", gap: "0.45rem", alignItems: "center" }}>
-              <input type="checkbox" checked={includeFaq} onChange={(event) => setIncludeFaq(event.target.checked)} />
-              FAQ 포함
-            </label>
 
             <div className="inline-actions">
               <button className="btn btn-primary" type="submit" disabled={loading}>
                 {loading ? "생성 중..." : "블로그 글 생성"}
               </button>
+              <button className="btn btn-secondary" type="button" onClick={() => setShowAdvanced((prev) => !prev)}>
+                {showAdvanced ? "세부 설정 닫기" : hasCustomOptions ? "세부 설정 다시 보기" : "세부 설정 열기"}
+              </button>
               <Link className="btn btn-secondary" href="/onboarding">
                 가게 정보 수정
               </Link>
             </div>
+
+            {hasCustomOptions && !showAdvanced && (
+              <p className="small-note">세부 설정이 적용된 상태입니다. 길이, 문체, 추가 요청, FAQ 포함 여부를 다시 확인하려면 세부 설정을 열어 주세요.</p>
+            )}
+
+            {showAdvanced && (
+              <div className="advanced-panel section-stack">
+                <div className="row">
+                  <div className="field-stack">
+                    <label className="field-label" htmlFor="dashboard-length">
+                      글 길이
+                    </label>
+                    <select id="dashboard-length" className="select" value={length} onChange={(event) => setLength(event.target.value as typeof length)}>
+                      <option value="short">짧게</option>
+                      <option value="medium">기본 길이</option>
+                      <option value="long">길게</option>
+                    </select>
+                  </div>
+
+                  <div className="field-stack">
+                    <label className="field-label" htmlFor="dashboard-tone">
+                      문체
+                    </label>
+                    <select id="dashboard-tone" className="select" value={tone} onChange={(event) => setTone(event.target.value as typeof tone)}>
+                      <option value="friendly">친근한 톤</option>
+                      <option value="professional">전문적인 톤</option>
+                      <option value="warm">따뜻한 톤</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="field-stack">
+                  <label className="field-label" htmlFor="dashboard-details">
+                    추가 반영 내용
+                  </label>
+                  <textarea
+                    id="dashboard-details"
+                    className="textarea"
+                    placeholder="예: 점심 손님이 많고, 만두 사진이 꼭 들어가면 좋겠어요"
+                    value={details}
+                    onChange={(event) => setDetails(event.target.value)}
+                  />
+                  <p className="field-help">사장님이 꼭 넣고 싶은 문장이나 사진 포인트가 있으면 여기에 적습니다.</p>
+                </div>
+
+                <label className="help" style={{ display: "flex", gap: "0.45rem", alignItems: "center" }}>
+                  <input type="checkbox" checked={includeFaq} onChange={(event) => setIncludeFaq(event.target.checked)} />
+                  FAQ 포함
+                </label>
+              </div>
+            )}
           </form>
         </section>
 
