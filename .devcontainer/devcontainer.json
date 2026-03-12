@@ -2,6 +2,7 @@
   "name": "BLBI",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
   "updateContentCommand": "npm install",
+  "postStartCommand": "bash -lc 'pgrep -f \"next dev -H 0.0.0.0 -p 3000\" >/dev/null || nohup npm run dev >/tmp/blbi-dev.log 2>&1 &'",
   "remoteEnv": {
     "NEXT_TELEMETRY_DISABLED": "1"
   },
