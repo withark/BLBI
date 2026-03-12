@@ -1,0 +1,281 @@
+name: Remote Coder
+
+on:
+  issue_comment:
+    types:
+      - created
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "What the remote coder should implement"
+        required: true
+        type: string
+      work_branch:
+        description: "Branch to update or create"
+        required: true
+        default: "codex/remote-worker"
+        type: string
+      base_branch:
+        description: "Base branch when creating a new work branch"
+        required: true
+        default: "main"
+        type: string
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  run:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.issue.pull_request && startsWith(github.event.comment.body, '/codex')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      OPENAI_REMOTE_CODER_MODEL: ${{ vars.OPENAI_REMOTE_CODER_MODEL || 'gpt-5.3-codex' }}
+      OPENAI_REMOTE_CODER_REASONING: ${{ vars.OPENAI_REMOTE_CODER_REASONING || 'high' }}
+      REMOTE_CODER_CHECK_COMMAND: ${{ vars.REMOTE_CODER_CHECK_COMMAND || 'npm run check' }}
+
+    steps:
+      - name: Resolve request context
+        id: request
+        uses: actions/github-script@v7
+        env:
+          INPUT_TASK: ${{ inputs.task }}
+          INPUT_WORK_BRANCH: ${{ inputs.work_branch }}
+          INPUT_BASE_BRANCH: ${{ inputs.base_branch }}
+        with:
+          script: |
+            const eventName = context.eventName;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            if (eventName === "issue_comment") {
+              const allowed = new Set(["OWNER", "MEMBER", "COLLABORATOR"]);
+              const association = context.payload.comment.author_association;
+
+              if (!allowed.has(association)) {
+                core.setOutput("should_run", "false");
+                core.setOutput("skip_reason", `Comment author association ${association} is not allowed.`);
+                return;
+              }
+
+              const body = (context.payload.comment.body || "").trim();
+              const task = body.replace(/^\/codex\b/, "").trim();
+
+              if (!task) {
+                core.setFailed("The /codex command must include a task.");
+                return;
+              }
+
+              const prNumber = context.payload.issue.number;
+              const { data: pull } = await github.rest.pulls.get({
+                owner,
+                repo,
+                pull_number: prNumber
+              });
+
+              if (pull.head.repo.full_name !== `${owner}/${repo}`) {
+                core.setOutput("should_run", "false");
+                core.setOutput("skip_reason", "Pull requests from forks are not supported by the remote coder workflow.");
+                return;
+              }
+
+              core.setOutput("should_run", "true");
+              core.setOutput("task", task);
+              core.setOutput("work_branch", pull.head.ref);
+              core.setOutput("base_branch", pull.base.ref);
+              core.setOutput("pr_number", String(prNumber));
+              core.setOutput("comment_target", "pr");
+              return;
+            }
+
+            const workBranch = process.env.INPUT_WORK_BRANCH || "codex/remote-worker";
+            const baseBranch = process.env.INPUT_BASE_BRANCH || "main";
+            const task = (process.env.INPUT_TASK || "").trim();
+
+            if (!task) {
+              core.setFailed("workflow_dispatch requires a task.");
+              return;
+            }
+
+            if (workBranch === "main" || workBranch === "master") {
+              core.setFailed("Refusing to write directly to the default branch.");
+              return;
+            }
+
+            core.setOutput("should_run", "true");
+            core.setOutput("task", task);
+            core.setOutput("work_branch", workBranch);
+            core.setOutput("base_branch", baseBranch);
+            core.setOutput("pr_number", "");
+            core.setOutput("comment_target", "none");
+
+      - name: Skip unauthorized request
+        if: ${{ steps.request.outputs.should_run != 'true' }}
+        run: |
+          echo "${{ steps.request.outputs.skip_reason || 'Request skipped.' }}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Checkout repository
+        if: ${{ steps.request.outputs.should_run == 'true' }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ steps.request.outputs.base_branch }}
+
+      - name: Prepare work branch
+        if: ${{ steps.request.outputs.should_run == 'true' }}
+        env:
+          WORK_BRANCH: ${{ steps.request.outputs.work_branch }}
+          BASE_BRANCH: ${{ steps.request.outputs.base_branch }}
+        run: |
+          git fetch origin "$BASE_BRANCH"
+
+          if git ls-remote --exit-code --heads origin "$WORK_BRANCH" >/dev/null 2>&1; then
+            git fetch origin "$WORK_BRANCH"
+            git switch -C "$WORK_BRANCH" "origin/$WORK_BRANCH"
+          else
+            git switch -c "$WORK_BRANCH" "origin/$BASE_BRANCH"
+          fi
+
+      - name: Configure git author
+        if: ${{ steps.request.outputs.should_run == 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Run remote coder
+        if: ${{ steps.request.outputs.should_run == 'true' }}
+        continue-on-error: true
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TASK: ${{ steps.request.outputs.task }}
+        run: |
+          python3 scripts/remote_coder.py \
+            --repo . \
+            --task "$TASK" \
+            --result-file remote-coder-result.json
+
+      - name: Extract remote coder result
+        if: ${{ steps.request.outputs.should_run == 'true' }}
+        id: result
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          result_path = Path("remote-coder-result.json")
+          if result_path.exists():
+            with result_path.open("r", encoding="utf-8") as handle:
+              data = json.load(handle)
+          else:
+            data = {
+              "status": "failed",
+              "summary": "Remote coder workflow failed before producing a result file.",
+              "commit_message": "",
+              "notes": "Inspect the workflow logs for the failing step.",
+              "changed_files": [],
+              "check_output": "",
+            }
+
+          def emit(name: str, value: str) -> None:
+            with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"{name}<<__EOF__\n{value}\n__EOF__\n")
+
+          emit("status", str(data.get("status", "")))
+          emit("summary", str(data.get("summary", "")))
+          emit("notes", str(data.get("notes", "")))
+          emit("commit_message", str(data.get("commit_message", "")))
+          emit("changed_files", "\n".join(data.get("changed_files", [])))
+          emit("check_output", str(data.get("check_output", "")))
+          PY
+
+      - name: Commit changes
+        if: ${{ steps.request.outputs.should_run == 'true' && steps.result.outputs.status == 'success' && steps.result.outputs.changed_files != '' }}
+        env:
+          COMMIT_MESSAGE: ${{ steps.result.outputs.commit_message }}
+        run: |
+          git add -A
+          if [ -z "$COMMIT_MESSAGE" ]; then
+            COMMIT_MESSAGE="Remote coder update"
+          fi
+
+          git commit -m "$COMMIT_MESSAGE"
+
+      - name: Push branch
+        if: ${{ steps.request.outputs.should_run == 'true' && steps.result.outputs.status == 'success' && steps.result.outputs.changed_files != '' }}
+        env:
+          WORK_BRANCH: ${{ steps.request.outputs.work_branch }}
+          REMOTE_CODER_GIT_TOKEN: ${{ secrets.REMOTE_CODER_GIT_TOKEN }}
+        run: |
+          if [ -n "$REMOTE_CODER_GIT_TOKEN" ]; then
+            git remote set-url origin "https://x-access-token:${REMOTE_CODER_GIT_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          fi
+
+          git push origin "HEAD:$WORK_BRANCH"
+
+      - name: Write workflow summary
+        if: ${{ steps.request.outputs.should_run == 'true' }}
+        run: |
+          echo "Status: ${{ steps.result.outputs.status }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Task:" >> "$GITHUB_STEP_SUMMARY"
+          echo "${{ steps.request.outputs.task }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Summary:" >> "$GITHUB_STEP_SUMMARY"
+          echo "${{ steps.result.outputs.summary }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Notes:" >> "$GITHUB_STEP_SUMMARY"
+          echo "${{ steps.result.outputs.notes }}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment on pull request
+        if: ${{ steps.request.outputs.should_run == 'true' && steps.request.outputs.comment_target == 'pr' }}
+        uses: actions/github-script@v7
+        env:
+          TASK: ${{ steps.request.outputs.task }}
+          STATUS: ${{ steps.result.outputs.status }}
+          SUMMARY: ${{ steps.result.outputs.summary }}
+          NOTES: ${{ steps.result.outputs.notes }}
+          CHANGED_FILES: ${{ steps.result.outputs.changed_files }}
+          CHECK_OUTPUT: ${{ steps.result.outputs.check_output }}
+          WORK_BRANCH: ${{ steps.request.outputs.work_branch }}
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = Number("${{ steps.request.outputs.pr_number }}");
+            const changed = process.env.CHANGED_FILES
+              ? process.env.CHANGED_FILES.split("\n").filter(Boolean).map((item) => `- \`${item}\``).join("\n")
+              : "- none";
+
+            let body = [
+              "<!-- blbi-remote-coder -->",
+              `Remote coder status: **${process.env.STATUS || "unknown"}**`,
+              "",
+              `Branch: \`${process.env.WORK_BRANCH}\``,
+              "",
+              "Task:",
+              process.env.TASK || "",
+              "",
+              "Summary:",
+              process.env.SUMMARY || "",
+              "",
+              "Changed files:",
+              changed,
+            ].join("\n");
+
+            if (process.env.NOTES) {
+              body += `\n\nNotes:\n${process.env.NOTES}`;
+            }
+
+            if (process.env.STATUS === "failed" && process.env.CHECK_OUTPUT) {
+              body += `\n\nCheck output:\n\`\`\`\n${process.env.CHECK_OUTPUT}\n\`\`\``;
+            }
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body
+            });

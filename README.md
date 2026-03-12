@@ -22,6 +22,7 @@ The app listens on port `3000` and is configured for forwarded preview access.
 - `Preview Vercel` deploys preview builds for `codex/**` pushes and pull requests, then comments the preview URL on the PR.
 - `Deploy Vercel` runs on pushes to `main` only when the repository secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` are configured.
 - Deployment secret setup is documented in [docs/DEPLOYMENT_SETUP.md](docs/DEPLOYMENT_SETUP.md).
+- Remote coding workflow usage is documented in [docs/REMOTE_CODER.md](docs/REMOTE_CODER.md).
 
 This means validation can continue on GitHub even after the local machine is off, but actual coding work is still separate from CI.
 
