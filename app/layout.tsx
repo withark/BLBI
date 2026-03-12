@@ -2,20 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import "@/app/globals.css";
+import { MainNav } from "@/components/main-nav";
 
 export const metadata: Metadata = {
   title: "블비 | 지역 음식점 블로그 자동 운영 AI",
   description: "키워드 한 개로 네이버 블로그에 붙여넣기 좋은 원고를 생성하는 서비스"
 };
-
-const NAV_ITEMS = [
-  { href: "/dashboard", label: "만들기" },
-  { href: "/history", label: "히스토리" },
-  { href: "/onboarding", label: "가게 정보" },
-  { href: "/pricing", label: "요금제" },
-  { href: "/settings", label: "설정" },
-  { href: "/admin", label: "관리자" }
-];
 
 export default function RootLayout({ children }: { children: React.ReactNode }): React.ReactNode {
   return (
@@ -25,15 +17,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
           <header className="topbar">
             <div className="container topbar-inner">
               <Link href="/" className="brand">
-                블비
+                <span className="brand-mark">BLBI</span>
+                <span className="brand-copy">
+                  <strong>블비</strong>
+                  <span>지역 사장님용 블로그 운영 도구</span>
+                </span>
               </Link>
-              <nav className="nav" aria-label="메인 탐색">
-                {NAV_ITEMS.map((item) => (
-                  <Link key={item.href} href={item.href}>
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
+              <MainNav />
             </div>
           </header>
           <main>
@@ -41,7 +31,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
           </main>
           <footer className="footer">
             <div className="container footer-inner">
-              키워드 한 개 입력으로 시작하는 지역 사장님용 블로그 자동 운영 도구
+              <div className="section-stack" style={{ gap: "0.3rem" }}>
+                <strong>블비</strong>
+                <span>키워드 한 개 입력으로 시작하는 지역 사장님용 블로그 자동 운영 도구</span>
+              </div>
             </div>
           </footer>
         </div>

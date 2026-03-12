@@ -16,6 +16,7 @@ interface PostItem {
   cta: string;
   exportText: string;
   keyword: string;
+  nextSuggestions: string[];
   createdAt: string;
 }
 
@@ -303,6 +304,24 @@ function ResultContent(): React.ReactNode {
               <strong>다음 행동</strong>
               <p className="small-note">복사 후 네이버 블로그에 붙여넣고, 사진은 위 가이드 순서대로 준비하면 됩니다.</p>
             </div>
+          </div>
+        </section>
+      )}
+
+      {post && (
+        <section className="card section-stack">
+          <div className="section-stack">
+            <h2 className="section-title">다음 글 이어쓰기</h2>
+            <p className="help">이번 글과 자연스럽게 이어지는 다음 키워드를 바로 눌러 새 글로 넘어갈 수 있습니다.</p>
+          </div>
+
+          <div className="chips">
+            {post.nextSuggestions.length === 0 && <span className="help">아직 추천 키워드가 없습니다.</span>}
+            {post.nextSuggestions.map((suggestion) => (
+              <Link key={suggestion} href={`/dashboard?keyword=${encodeURIComponent(suggestion)}`} className="chip">
+                {suggestion}
+              </Link>
+            ))}
           </div>
         </section>
       )}

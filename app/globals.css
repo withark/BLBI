@@ -54,9 +54,39 @@ a {
 }
 
 .brand {
-  font-size: 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text);
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 58px;
+  height: 42px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
+  color: #ffffff;
+  font-size: 0.82rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.08em;
+}
+
+.brand-copy {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.brand-copy strong {
+  font-size: 1.08rem;
+  letter-spacing: -0.03em;
+}
+
+.brand-copy span {
+  color: var(--muted);
+  font-size: 0.8rem;
 }
 
 .nav {
@@ -65,16 +95,24 @@ a {
   gap: 0.75rem;
 }
 
-.nav a {
+.nav-link {
   font-size: 0.92rem;
   color: var(--muted);
   padding: 0.35rem 0.6rem;
   border-radius: 999px;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+  border: 1px solid transparent;
 }
 
-.nav a:hover {
+.nav-link:hover {
   color: var(--text);
   background: var(--surface-strong);
+}
+
+.nav-link.is-active {
+  color: var(--primary-strong);
+  background: rgba(29, 78, 216, 0.08);
+  border-color: rgba(29, 78, 216, 0.16);
 }
 
 main {
@@ -462,6 +500,10 @@ p {
   .topbar-inner {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .brand {
+    width: 100%;
   }
 
   .kv {
