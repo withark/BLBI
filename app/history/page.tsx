@@ -12,6 +12,9 @@ interface PostItem {
   plan: "FREE" | "BASIC" | "PREMIUM";
 }
 
+type PlanFilter = "ALL" | PostItem["plan"];
+type PeriodFilter = "ALL" | "TODAY" | "MONTH";
+
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat("ko-KR", {
     month: "long",
@@ -28,9 +31,31 @@ function buildExcerpt(text: string): string {
     .slice(0, 160);
 }
 
+function isWithinPeriod(value: string, period: PeriodFilter): boolean {
+  if (period === "ALL") {
+    return true;
+  }
+
+  const createdAt = new Date(value).getTime();
+  const now = new Date();
+
+  if (period === "TODAY") {
+    const dayStart = new Date(now);
+    dayStart.setHours(0, 0, 0, 0);
+    return createdAt >= dayStart.getTime();
+  }
+
+  const monthStart = new Date(now);
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
+  return createdAt >= monthStart.getTime();
+}
+
 export default function HistoryPage(): React.ReactNode {
   const [posts, setPosts] = useState<PostItem[]>([]);
   const [keywordFilter, setKeywordFilter] = useState("");
+  const [planFilter, setPlanFilter] = useState<PlanFilter>("ALL");
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>("ALL");
   const [status, setStatus] = useState<{ type: "info" | "error" | "success"; message: string } | null>(null);
 
   useEffect(() => {
@@ -60,8 +85,25 @@ export default function HistoryPage(): React.ReactNode {
       return posts;
     }
 
-    return posts.filter((post) => post.keyword.toLowerCase().includes(q) || post.title.toLowerCase().includes(q));
-  }, [posts, keywordFilter]);
+    return posts.filter((post) => {
+      const matchesQuery = !q || post.keyword.toLowerCase().includes(q) || post.title.toLowerCase().includes(q);
+      const matchesPlan = planFilter === "ALL" || post.plan === planFilter;
+      const matchesPeriod = isWithinPeriod(post.createdAt, periodFilter);
+      return matchesQuery && matchesPlan && matchesPeriod;
+    });
+  }, [keywordFilter, periodFilter, planFilter, posts]);
+  const keywordChips = useMemo(() => {
+    const counts = new Map<string, number>();
+
+    for (const post of posts) {
+      counts.set(post.keyword, (counts.get(post.keyword) ?? 0) + 1);
+    }
+
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([keyword]) => keyword);
+  }, [posts]);
 
   async function copyText(text: string): Promise<void> {
     try {
@@ -114,6 +156,43 @@ export default function HistoryPage(): React.ReactNode {
           value={keywordFilter}
           onChange={(event) => setKeywordFilter(event.target.value)}
         />
+
+        <div className="chips">
+          <button type="button" className={`chip ${planFilter === "ALL" ? "chip-active" : ""}`.trim()} onClick={() => setPlanFilter("ALL")}>
+            전체 플랜
+          </button>
+          <button type="button" className={`chip ${planFilter === "FREE" ? "chip-active" : ""}`.trim()} onClick={() => setPlanFilter("FREE")}>
+            Free
+          </button>
+          <button type="button" className={`chip ${planFilter === "BASIC" ? "chip-active" : ""}`.trim()} onClick={() => setPlanFilter("BASIC")}>
+            Basic
+          </button>
+          <button type="button" className={`chip ${planFilter === "PREMIUM" ? "chip-active" : ""}`.trim()} onClick={() => setPlanFilter("PREMIUM")}>
+            Premium
+          </button>
+          <button type="button" className={`chip ${periodFilter === "ALL" ? "chip-active" : ""}`.trim()} onClick={() => setPeriodFilter("ALL")}>
+            전체 기간
+          </button>
+          <button type="button" className={`chip ${periodFilter === "TODAY" ? "chip-active" : ""}`.trim()} onClick={() => setPeriodFilter("TODAY")}>
+            오늘 생성
+          </button>
+          <button type="button" className={`chip ${periodFilter === "MONTH" ? "chip-active" : ""}`.trim()} onClick={() => setPeriodFilter("MONTH")}>
+            이번 달
+          </button>
+        </div>
+
+        {keywordChips.length > 0 && (
+          <div className="section-stack">
+            <p className="small-note">자주 쓴 키워드를 누르면 바로 검색됩니다.</p>
+            <div className="chips">
+              {keywordChips.map((keyword) => (
+                <button key={keyword} type="button" className="chip" onClick={() => setKeywordFilter(keyword)}>
+                  {keyword}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
       {filtered.length === 0 ? (

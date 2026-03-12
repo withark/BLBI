@@ -23,7 +23,15 @@ export function buildNaverKeywordBundle(input: GenerateInput): KeywordBundle {
   };
 }
 
-function buildToneLine(tone: GenerateInput["tone"]): string {
+function buildToneLine(input: GenerateInput): string {
+  const toneGuide = input.businessProfile?.toneGuide?.trim();
+
+  if (toneGuide) {
+    return `${toneGuide}라는 가게 문체 가이드를 우선 반영해 손님이 부담 없이 읽도록 구성합니다.`;
+  }
+
+  const tone = input.tone;
+
   if (tone === "professional") {
     return "사장님이 직접 안내하는 것처럼 신뢰감 있게, 정보는 정확하고 간결하게 전달합니다.";
   }
@@ -74,12 +82,13 @@ function repeatLines(lines: string[], multiplier: number): string[] {
 function buildPhotoGuides(input: GenerateInput): string[] {
   const businessName = input.businessProfile?.businessName || "매장";
   const menus = input.businessProfile?.representativeMenus || [];
+  const facilities = input.businessProfile?.facilities?.trim();
 
   return [
     `${businessName} 외관과 간판이 한 프레임에 들어오도록 거리에서 정면 샷으로 촬영해 주세요.`,
     `${menus[0] || "대표 메뉴"}의 단면과 재료가 보이게 45도 각도로 가까이 촬영해 주세요.`,
     `테이블 간격과 좌석 분위기가 보이도록 매장 내부를 넓게 촬영해 주세요.`,
-    `식사 전후 손님 동선이 자연스럽게 보이도록 카운터 주변을 짧게 기록해 주세요.`
+    `${facilities || "주차, 예약, 단체석"} 정보가 있다면 해당 편의 요소가 보이게 입구나 안내 표기를 함께 담아 주세요.`
   ];
 }
 
@@ -96,55 +105,59 @@ function buildNextSuggestions(keyword: string, bundle: KeywordBundle): string[] 
 function buildSections(input: GenerateInput, bundle: KeywordBundle): Array<{ subtitle: string; body: string }> {
   const profile = input.businessProfile;
   const businessName = profile?.businessName || "매장";
-  const openingHours = profile?.openingHours || "운영시간 정보는 방문 전 확인";
-  const facilities = profile?.facilities || "편의 정보는 매장 문의 시 가장 정확";
+  const region = profile?.region || "우리 동네";
+  const openingHours = profile?.openingHours || "운영시간은 방문 전 확인";
+  const facilities = profile?.facilities || "주차, 예약, 단체석 여부";
   const description = profile?.storeDescription || "동네 손님이 부담 없이 방문하기 좋은 분위기";
+  const address = profile?.address || "";
+  const menus = profile?.representativeMenus || [];
+  const mainMenu = menus[0] || input.keyword;
+  const supportingMenu = menus[1] || `${mainMenu}와 함께 주문하기 좋은 메뉴`;
   const details = input.details?.trim();
 
   const sections = [
     {
-      subtitle: `1. ${bundle.regional[0]}에서 이 매장을 먼저 확인해야 하는 이유`,
+      subtitle: `1. ${bundle.regional[0]}로 찾는 손님에게 먼저 보여줄 정보`,
       lines: [
-        `${businessName}은(는) ${bundle.regional[1] || bundle.regional[0]}를 찾는 손님에게 위치와 접근성이 좋아 첫 방문 장벽이 낮습니다.`,
-        `검색에서 자주 찾는 ${bundle.regional[2] || bundle.regional[0]} 흐름에 맞춰 방문 포인트를 정리하면 선택이 빨라집니다.`,
-        `${description}이라는 장점이 있어 재방문을 고민하는 손님에게도 설득력이 있습니다.`
+        `${businessName}은(는) ${region}에서 ${bundle.regional[1] || bundle.regional[0]}를 찾는 손님이 가장 먼저 비교하는 후보로 설명하기 좋습니다.`,
+        address
+          ? `위치는 ${address} 기준으로 안내해 두면 길 찾기와 방문 동선을 함께 설명할 수 있습니다.`
+          : `위치 안내는 ${region} 안에서 찾기 쉬운 동선 중심으로 설명하면 방문 전 이해가 빠릅니다.`,
+        `${description}이라는 강점이 있어 처음 방문하는 손님에게도 선택 이유를 분명하게 전달할 수 있습니다.`
       ]
     },
     {
-      subtitle: "2. 대표 메뉴 선택 팁과 주문 동선",
+      subtitle: "2. 대표 메뉴 선택과 주문 흐름",
       lines: [
-        `${bundle.menu[0] || input.keyword} 관련 메뉴는 처음 방문한 손님이 체감 만족도를 높이기 좋은 선택입니다.`,
-        `${bundle.menu[1] || "대표 메뉴"}와 함께 곁들이면 맛의 균형이 좋아지고, 주문 동선도 간단해집니다.`,
-        `특히 피크 시간대에는 미리 메뉴를 정해 두면 대기 시간을 줄일 수 있습니다.`
+        `${mainMenu}는 첫 방문 손님이 가장 쉽게 선택할 수 있는 대표 메뉴로 소개하기 좋습니다.`,
+        `${supportingMenu}까지 함께 제안하면 주문 장면이 더 구체적으로 그려지고 후기형 문장도 자연스럽게 이어집니다.`,
+        details
+          ? `이번 글에는 '${details}' 요청도 반영해 메뉴 소개와 문장 순서를 실제 운영 상황에 맞게 조정합니다.`
+          : `추가 요청사항이 없으므로 메뉴 설명은 초보 손님도 이해하기 쉬운 순서로 단순하게 정리합니다.`
       ]
     },
     {
-      subtitle: "3. 매장 분위기와 방문 상황별 추천",
+      subtitle: "3. 매장 분위기와 방문 상황별 안내",
       lines: [
-        `${bundle.situation[0]}이나 ${bundle.situation[1]} 상황에서 좌석 선택 기준을 먼저 안내하면 방문 만족도가 높습니다.`,
-        `${facilities} 같은 정보는 검색 사용자가 가장 궁금해하는 포인트라 본문에 자연스럽게 포함하는 것이 좋습니다.`,
-        `가볍게 식사하려는 손님과 오래 머무는 손님을 나눠 안내하면 글의 실용성이 좋아집니다.`
+        `${bundle.situation[0]}이나 ${bundle.situation[1]} 같은 상황을 먼저 짚어 주면 손님이 자기 방문 목적에 맞게 글을 읽게 됩니다.`,
+        `${facilities} 정보는 검색 사용자가 자주 확인하는 포인트라 본문 중간에 자연스럽게 섞어 주는 편이 좋습니다.`,
+        `${buildToneLine(input)}`
       ]
     },
     {
-      subtitle: "4. 재방문으로 이어지는 마무리 안내",
+      subtitle: "4. 방문 전 체크와 재방문 유도",
       lines: [
-        `방문 전 체크 포인트를 간단히 정리해 두면 ${bundle.regional[3] || bundle.regional[0]} 검색에서 이탈을 줄일 수 있습니다.`,
-        `영업시간은 ${openingHours} 기준으로 안내하고, 변동이 생기면 최신 정보로 업데이트하는 것이 좋습니다.`,
-        `마지막 문단에서는 손님이 바로 행동할 수 있도록 방문 동기와 기대 포인트를 짧게 제시해 주세요.`
+        `방문 전 체크 포인트를 짧게 정리하면 ${bundle.regional[3] || bundle.regional[0]} 검색에서 이탈을 줄이고 행동으로 이어지기 쉽습니다.`,
+        `${openingHours} 기준 안내를 넣고, 변동 가능성이 있으면 방문 전 재확인을 권하는 문장을 함께 두는 편이 안전합니다.`,
+        `${businessName}의 강점과 다시 방문할 이유를 한 문단으로 마무리하면 검색형 글과 후기형 글 사이 균형을 맞추기 좋습니다.`
       ]
     }
   ];
 
   return sections.map((section) => {
-    const base = repeatLines(section.lines, paragraphLengthMultiplier(input.length));
-    const detailLine = details
-      ? `사장님 추가 요청사항(${details})을 반영해 문장 톤과 정보 순서를 조정했습니다.`
-      : "추가 요청사항이 없어 기본 운영 관점에서 읽기 쉬운 순서로 정리했습니다.";
-
     return {
       subtitle: section.subtitle,
-      body: [...base, detailLine].join("\n")
+      body: repeatLines(section.lines, paragraphLengthMultiplier(input.length)).join("\n")
     };
   });
 }
@@ -154,14 +167,18 @@ function buildFaq(input: GenerateInput, bundle: KeywordBundle): string {
     return "";
   }
 
+  const businessName = input.businessProfile?.businessName || "매장";
+  const openingHours = input.businessProfile?.openingHours || "영업시간";
+  const facilities = input.businessProfile?.facilities || "주차, 예약, 단체석";
+
   return [
     "자주 묻는 질문",
     `Q. ${bundle.regional[0]} 방문 전에 꼭 확인할 점이 있나요?`,
-    "A. 영업시간과 혼잡 시간을 먼저 확인하면 대기 시간을 줄일 수 있습니다.",
+    `A. ${openingHours}과 혼잡 시간을 먼저 확인하면 대기 시간을 줄일 수 있습니다.`,
     `Q. ${bundle.menu[0] || input.keyword} 메뉴는 처음 방문해도 괜찮나요?`,
     "A. 대표 메뉴 중심으로 주문하면 실패 확률이 낮고 후기 작성도 쉬워집니다.",
     "Q. 단체 방문도 가능한가요?",
-    "A. 단체 인원은 사전 문의를 권장하며 좌석/주차 조건은 매장 정책에 따라 달라집니다."
+    `A. ${businessName}의 ${facilities} 여부는 변동될 수 있으니 단체 인원은 사전 문의를 권장합니다.`
   ].join("\n");
 }
 
@@ -178,11 +195,6 @@ function buildCta(input: GenerateInput): string {
 export function generatePost(input: GenerateInput): GeneratedPost {
   const bundle = buildNaverKeywordBundle(input);
   const title = buildTitle(input);
-  const intro = [
-    `${input.keyword}로 검색해 들어온 손님이 가장 궁금해하는 정보부터 빠르게 정리했습니다.`,
-    buildToneLine(input.tone)
-  ].join("\n");
-
   const photoGuides = buildPhotoGuides(input);
   const sections = buildSections(input, bundle);
   const sectionBlocks = sections.map((section, index) => {
@@ -191,16 +203,9 @@ export function generatePost(input: GenerateInput): GeneratedPost {
     return [section.subtitle, section.body, `${PHOTO_GUIDE_MARKER} ${guide}`].join("\n");
   });
 
-  const closing = [
-    "마무리",
-    `${input.keyword} 관련 검색에서는 정보가 빠르고 명확할수록 체류시간이 늘어나는 경향이 있습니다.`,
-    "오늘 글을 기반으로 실제 방문 후기를 한두 문단 추가하면 더 자연스럽고 신뢰도 높은 콘텐츠가 됩니다."
-  ].join("\n");
-
   const faq = buildFaq(input, bundle);
   const cta = buildCta(input);
-
-  const body = [intro, ...sectionBlocks, closing].join("\n\n");
+  const body = sectionBlocks.join("\n\n");
   const exportText = toExportText({ title, body, faq, cta });
 
   return {

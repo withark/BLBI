@@ -294,6 +294,12 @@ p {
   cursor: pointer;
 }
 
+.chip-active {
+  border-color: rgba(29, 78, 216, 0.28);
+  background: rgba(219, 234, 254, 0.9);
+  color: var(--primary-strong);
+}
+
 .pill {
   display: inline-flex;
   align-items: center;

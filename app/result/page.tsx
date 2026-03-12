@@ -59,6 +59,8 @@ function ResultContent(): React.ReactNode {
   const [post, setPost] = useState<PostItem | null>(null);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [faq, setFaq] = useState("");
+  const [cta, setCta] = useState("");
   const [status, setStatus] = useState<{ type: "info" | "error" | "success"; message: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -78,6 +80,8 @@ function ResultContent(): React.ReactNode {
         setPost(json.post);
         setTitle(json.post.title);
         setBody(json.post.body);
+        setFaq(json.post.faq);
+        setCta(json.post.cta);
       } catch {
         setStatus({ type: "error", message: "결과를 불러오는 중 오류가 발생했습니다." });
       } finally {
@@ -99,10 +103,10 @@ function ResultContent(): React.ReactNode {
     return toExportText({
       title,
       body,
-      faq: post.faq,
-      cta: post.cta
+      faq,
+      cta
     });
-  }, [body, post, title]);
+  }, [body, cta, faq, post, title]);
   const photoGuides = useMemo(() => extractPhotoGuides(previewExportText), [previewExportText]);
 
   async function handleSave(): Promise<void> {
@@ -116,7 +120,7 @@ function ResultContent(): React.ReactNode {
       const response = await fetch(`/api/posts/${post.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, body })
+        body: JSON.stringify({ title, body, faq, cta })
       });
 
       if (!response.ok) {
@@ -126,6 +130,8 @@ function ResultContent(): React.ReactNode {
 
       const json = (await response.json()) as { post: PostItem };
       setPost(json.post);
+      setFaq(json.post.faq);
+      setCta(json.post.cta);
       setStatus({ type: "success", message: "수정 내용을 저장했습니다." });
     } catch {
       setStatus({ type: "error", message: "저장 중 오류가 발생했습니다." });
@@ -236,6 +242,32 @@ function ResultContent(): React.ReactNode {
               <textarea id="post-body" className="textarea" value={body} onChange={(event) => setBody(event.target.value)} />
             </div>
 
+            <div className="field-stack">
+              <label className="field-label" htmlFor="post-faq">
+                FAQ
+              </label>
+              <textarea
+                id="post-faq"
+                className="textarea"
+                value={faq}
+                onChange={(event) => setFaq(event.target.value)}
+                placeholder="자주 묻는 질문이 있으면 그대로 두고, 필요 없으면 비워도 됩니다."
+              />
+            </div>
+
+            <div className="field-stack">
+              <label className="field-label" htmlFor="post-cta">
+                마무리 안내
+              </label>
+              <textarea
+                id="post-cta"
+                className="textarea"
+                value={cta}
+                onChange={(event) => setCta(event.target.value)}
+                placeholder="방문 전 확인할 점이나 마지막 안내 문구를 넣어 주세요."
+              />
+            </div>
+
             <div className="inline-actions">
               <button className="btn btn-primary" onClick={() => void handleSave()} type="button">
                 수정 저장
@@ -255,7 +287,7 @@ function ResultContent(): React.ReactNode {
           <div className="copy-panel">
             <div className="section-stack">
               <h2 className="section-title">네이버 복붙용 결과</h2>
-              <p className="help">아래 텍스트가 실제 복사되는 결과입니다. HTML 없이 그대로 복사됩니다.</p>
+              <p className="help">아래 텍스트가 실제 복사되는 결과입니다. FAQ와 마무리 안내까지 즉시 반영됩니다.</p>
             </div>
 
             <div className="pre">{previewExportText}</div>
@@ -277,33 +309,52 @@ function ResultContent(): React.ReactNode {
           <div className="card section-stack">
             <div className="section-stack">
               <h2 className="section-title">원고 미리보기</h2>
-              <p className="help">사진 가이드 줄도 화면에서 그대로 확인할 수 있게 정리했습니다.</p>
+              <p className="help">사진 가이드 줄과 본문 구조를 화면에서도 바로 확인할 수 있게 정리했습니다.</p>
             </div>
             <div className="pre">{preview}</div>
           </div>
 
           <div className="card section-stack">
             <div className="section-stack">
-              <h2 className="section-title">사진 촬영 가이드</h2>
-              <p className="help">복사 결과에 포함되는 사진 가이드만 따로 빠르게 훑어볼 수 있습니다.</p>
+              <h2 className="section-title">FAQ와 마무리 안내</h2>
+              <p className="help">복사 결과에 포함되는 마지막 블록도 화면에서 같이 확인합니다.</p>
             </div>
-
-            {photoGuides.length === 0 ? (
-              <div className="surface-muted">
-                <p className="small-note">이번 결과에는 별도 사진 가이드가 없습니다.</p>
-              </div>
-            ) : (
-              <ul className="list-clean">
-                {photoGuides.map((guide) => (
-                  <li key={guide}>{guide}</li>
-                ))}
-              </ul>
-            )}
 
             <div className="surface-muted section-stack">
-              <strong>다음 행동</strong>
-              <p className="small-note">복사 후 네이버 블로그에 붙여넣고, 사진은 위 가이드 순서대로 준비하면 됩니다.</p>
+              <strong>FAQ</strong>
+              <div className="pre">{faq.trim() || "현재 FAQ가 없습니다."}</div>
             </div>
+
+            <div className="surface-muted section-stack">
+              <strong>마무리 안내</strong>
+              <div className="pre">{cta.trim() || "현재 마무리 안내가 없습니다."}</div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {post && (
+        <section className="card section-stack">
+          <div className="section-stack">
+            <h2 className="section-title">사진 촬영 가이드</h2>
+            <p className="help">복사 결과에 포함되는 사진 가이드만 따로 빠르게 훑어볼 수 있습니다.</p>
+          </div>
+
+          {photoGuides.length === 0 ? (
+            <div className="surface-muted">
+              <p className="small-note">이번 결과에는 별도 사진 가이드가 없습니다.</p>
+            </div>
+          ) : (
+            <ul className="list-clean">
+              {photoGuides.map((guide) => (
+                <li key={guide}>{guide}</li>
+              ))}
+            </ul>
+          )}
+
+          <div className="surface-muted section-stack">
+            <strong>다음 행동</strong>
+            <p className="small-note">복사 후 네이버 블로그에 붙여넣고, 사진은 위 가이드 순서대로 준비하면 됩니다.</p>
           </div>
         </section>
       )}

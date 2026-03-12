@@ -34,25 +34,31 @@ export async function PATCH(request: NextRequest, context: Context): Promise<Nex
   const payload = (await request.json()) as {
     title?: string;
     body?: string;
+    faq?: string;
+    cta?: string;
     exportText?: string;
   };
 
   const nextTitle = payload.title ?? existing.title;
   const nextBody = payload.body ?? existing.body;
+  const nextFaq = payload.faq ?? existing.faq;
+  const nextCta = payload.cta ?? existing.cta;
   const nextExportText =
     payload.exportText ??
-    (payload.title !== undefined || payload.body !== undefined
+    (payload.title !== undefined || payload.body !== undefined || payload.faq !== undefined || payload.cta !== undefined
       ? toExportText({
           title: nextTitle,
           body: nextBody,
-          faq: existing.faq,
-          cta: existing.cta
+          faq: nextFaq,
+          cta: nextCta
         })
       : sanitizeExportText(existing.exportText));
 
   const updated = await updatePost(userId, id, {
     title: payload.title,
     body: payload.body,
+    faq: payload.faq,
+    cta: payload.cta,
     exportText: nextExportText
   });
 

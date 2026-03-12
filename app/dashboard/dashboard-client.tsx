@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 type UsageResponse = {
@@ -19,6 +19,10 @@ type ProfileResponse = {
   profile: {
     businessName: string;
     region: string;
+    openingHours: string;
+    representativeMenus: string[];
+    storeDescription: string;
+    facilities: string;
   } | null;
 };
 
@@ -46,7 +50,6 @@ function formatDate(value: string): string {
 export function DashboardClient(): React.ReactNode {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const seeded = useRef(false);
 
   const [keyword, setKeyword] = useState("");
   const [details, setDetails] = useState("");
@@ -65,10 +68,6 @@ export function DashboardClient(): React.ReactNode {
   const [status, setStatus] = useState<{ type: "info" | "error" | "success"; message: string } | null>(null);
 
   useEffect(() => {
-    if (seeded.current) {
-      return;
-    }
-
     const initialKeyword = searchParams.get("keyword");
     const welcome = searchParams.get("welcome");
 
@@ -79,8 +78,6 @@ export function DashboardClient(): React.ReactNode {
     if (welcome === "profile-saved") {
       setStatus({ type: "success", message: "가게 정보를 저장했습니다. 이제 키워드 하나로 바로 생성해 보세요." });
     }
-
-    seeded.current = true;
   }, [searchParams]);
 
   useEffect(() => {
@@ -243,6 +240,20 @@ export function DashboardClient(): React.ReactNode {
     : "사용량을 확인하는 중입니다.";
 
   const canUseSeries = usage?.plan === "PREMIUM";
+  const profileChecklist = useMemo(() => {
+    if (!profile) {
+      return [];
+    }
+
+    return [
+      { label: "상호명과 지역", ready: Boolean(profile.businessName && profile.region) },
+      { label: "대표 메뉴", ready: profile.representativeMenus.length > 0 },
+      { label: "가게 설명", ready: Boolean(profile.storeDescription.trim()) },
+      { label: "영업시간", ready: Boolean(profile.openingHours.trim()) },
+      { label: "편의 정보", ready: Boolean(profile.facilities.trim()) }
+    ];
+  }, [profile]);
+  const profileReadyCount = profileChecklist.filter((item) => item.ready).length;
 
   return (
     <div className="page-stack">
@@ -356,6 +367,26 @@ export function DashboardClient(): React.ReactNode {
                 <div>{profile?.businessName ?? "미등록"}</div>
                 <div className="meta-line">{profile?.region ? `${profile.region} 기준으로 생성됩니다.` : "지역 정보가 없으면 글이 더 일반적으로 생성됩니다."}</div>
               </div>
+            </div>
+
+            <div className="surface-muted section-stack">
+              <strong>생성 품질 점검</strong>
+              {!profile ? (
+                <p className="small-note">가게 정보가 없으면 결과가 일반적인 안내문 형태로 생성됩니다.</p>
+              ) : (
+                <>
+                  <p className="small-note">
+                    가게 정보 {profileChecklist.length}개 항목 중 {profileReadyCount}개가 채워져 있습니다. 많이 채울수록 본문과 사진 가이드가 더 구체적으로 생성됩니다.
+                  </p>
+                  <div className="chips">
+                    {profileChecklist.map((item) => (
+                      <span key={item.label} className="pill" style={item.ready ? undefined : { opacity: 0.55 }}>
+                        {item.ready ? "완료" : "보강 필요"} · {item.label}
+                      </span>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="inline-actions">
