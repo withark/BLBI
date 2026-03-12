@@ -260,7 +260,7 @@ export function DashboardClient(): React.ReactNode {
   return (
     <div className="page-stack">
       <section className="two-column">
-        <section className="card hero-card">
+        <section className="card hero-card dashboard-compose">
           <div className="section-stack">
             <div className="chips" aria-label="생성 핵심">
               <span className="pill">키워드 1개 입력</span>
@@ -368,8 +368,8 @@ export function DashboardClient(): React.ReactNode {
           </form>
         </section>
 
-        <section className="section-stack">
-          <section className="card section-stack">
+        <section className="section-stack dashboard-side-column">
+          <section className="card section-stack tone-surface">
             <div className="section-stack">
               <h2 className="section-title">오늘 상태</h2>
               <p className="help">{usageText}</p>
@@ -418,7 +418,7 @@ export function DashboardClient(): React.ReactNode {
             </div>
           </section>
 
-          <section className="card section-stack">
+          <section className="card section-stack tone-surface">
             <div className="section-stack">
               <h2 className="section-title">오늘 할 일</h2>
               <p className="help">복잡하게 찾지 말고 아래 순서대로 움직이면 됩니다.</p>
@@ -445,7 +445,7 @@ export function DashboardClient(): React.ReactNode {
         </section>
       </section>
 
-      <section className="card section-stack">
+      <section className="card section-stack tone-surface">
         <div className="section-stack">
           <h2 className="section-title">비서 추천 키워드</h2>
           <p className="help">추천은 키워드만 채웁니다. 생성은 반드시 위 버튼으로 직접 실행됩니다.</p>
@@ -461,7 +461,7 @@ export function DashboardClient(): React.ReactNode {
       </section>
 
       <section className="two-column">
-        <section className="card section-stack">
+        <section className="card section-stack tone-surface">
           <div className="section-stack">
             <h2 className="section-title">최근 작성한 글</h2>
             <p className="help">다시 열거나 복사하거나, 키워드를 재사용해 다음 글로 이어갈 수 있습니다.</p>
@@ -508,7 +508,7 @@ export function DashboardClient(): React.ReactNode {
           </Link>
         </section>
 
-        <section className="card section-stack">
+        <section className="card section-stack tone-surface">
           <div className="section-stack">
             <h2 className="section-title">시리즈 주제 만들기</h2>
             <p className="help">Premium에서 한 번에 여러 주제를 만든 뒤 원하는 주제를 눌러 키워드를 채울 수 있습니다.</p>

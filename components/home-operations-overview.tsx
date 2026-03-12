@@ -110,7 +110,7 @@ export function HomeOperationsOverview(): React.ReactNode {
 
   return (
     <section className="overview-grid">
-      <article className="card section-stack accent-card">
+      <article className="card section-stack accent-card accent-card-hero">
         <div className="section-stack">
           <span className="eyebrow">지금 할 일</span>
           <h2 className="section-title">{nextAction.title}</h2>
@@ -126,7 +126,7 @@ export function HomeOperationsOverview(): React.ReactNode {
         </div>
       </article>
 
-      <article className="card section-stack">
+      <article className="card section-stack tone-surface">
         <div className="section-stack">
           <span className="eyebrow">현재 상태</span>
           <h2 className="section-title">운영 준비도</h2>
@@ -148,7 +148,7 @@ export function HomeOperationsOverview(): React.ReactNode {
         </div>
       </article>
 
-      <article className="card section-stack">
+      <article className="card section-stack tone-surface">
         <div className="section-stack">
           <span className="eyebrow">최근 흐름</span>
           <h2 className="section-title">다시 쓰기 쉬운 키워드</h2>

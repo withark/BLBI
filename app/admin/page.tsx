@@ -16,7 +16,7 @@ export default async function AdminPage(): Promise<React.ReactNode> {
 
   return (
     <div className="page-stack">
-      <section className="card hero-card">
+      <section className="card hero-card accent-card">
         <div className="chips" aria-label="관리 지표">
           <span className="pill">실사용 지표</span>
           <span className="pill">최근 생성 흐름</span>

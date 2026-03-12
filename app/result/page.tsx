@@ -182,7 +182,7 @@ function ResultContent(): React.ReactNode {
 
   return (
     <div className="result-grid">
-      <section className="card hero-card">
+      <section className="card hero-card accent-card">
         <div className="chips" aria-label="결과 요약">
           <span className="pill">순수 텍스트 복사</span>
           <span className="pill">사진 가이드 포함</span>
@@ -222,7 +222,7 @@ function ResultContent(): React.ReactNode {
 
       {post && (
         <section className="result-grid-primary">
-          <div className="card section-stack">
+          <div className="card section-stack tone-surface">
             <div className="section-stack">
               <h2 className="section-title">본문 확인 및 수정</h2>
               <p className="help">제목과 본문을 가볍게 다듬은 뒤 저장할 수 있습니다.</p>
@@ -306,7 +306,7 @@ function ResultContent(): React.ReactNode {
 
       {post && (
         <section className="result-grid-primary">
-          <div className="card section-stack">
+          <div className="card section-stack tone-surface">
             <div className="section-stack">
               <h2 className="section-title">원고 미리보기</h2>
               <p className="help">사진 가이드 줄과 본문 구조를 화면에서도 바로 확인할 수 있게 정리했습니다.</p>
@@ -334,7 +334,7 @@ function ResultContent(): React.ReactNode {
       )}
 
       {post && (
-        <section className="card section-stack">
+        <section className="card section-stack tone-surface">
           <div className="section-stack">
             <h2 className="section-title">사진 촬영 가이드</h2>
             <p className="help">복사 결과에 포함되는 사진 가이드만 따로 빠르게 훑어볼 수 있습니다.</p>
@@ -360,7 +360,7 @@ function ResultContent(): React.ReactNode {
       )}
 
       {post && (
-        <section className="card section-stack">
+        <section className="card section-stack tone-surface">
           <div className="section-stack">
             <h2 className="section-title">다음 글 이어쓰기</h2>
             <p className="help">이번 글과 자연스럽게 이어지는 다음 키워드를 바로 눌러 새 글로 넘어갈 수 있습니다.</p>

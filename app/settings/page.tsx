@@ -80,7 +80,7 @@ export default function SettingsPage(): React.ReactNode {
 
   return (
     <div className="page-stack">
-      <section className="card hero-card">
+      <section className="card hero-card accent-card">
         <div className="chips" aria-label="설정 안내">
           <span className="pill">데모 플랜 전환</span>
           <span className="pill">즉시 반영</span>

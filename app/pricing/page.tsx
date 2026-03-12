@@ -53,7 +53,7 @@ export default function PricingPage(): React.ReactNode {
 
   return (
     <div className="page-stack">
-      <section className="card hero-card">
+      <section className="card hero-card accent-card">
         <div className="chips" aria-label="요금제 안내">
           <span className="pill">체험부터 시작</span>
           <span className="pill">필요할 때 업그레이드</span>

@@ -96,7 +96,7 @@ export default function OnboardingPage(): React.ReactNode {
 
   return (
     <div className="page-stack">
-      <section className="card hero-card">
+      <section className="card hero-card accent-card">
         <div className="chips" aria-label="입력 안내">
           <span className="pill">처음 1회만 입력</span>
           <span className="pill">모르면 비워도 됨</span>

@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
                 <span className="brand-mark">BLBI</span>
                 <span className="brand-copy">
                   <strong>블비</strong>
-                  <span>지역 사장님용 블로그 운영 도구</span>
+                  <span>지역 사장님용 블로그 운영 스튜디오</span>
                 </span>
               </Link>
               <MainNav />
@@ -31,9 +31,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
           </main>
           <footer className="footer">
             <div className="container footer-inner">
-              <div className="section-stack" style={{ gap: "0.3rem" }}>
-                <strong>블비</strong>
-                <span>키워드 한 개 입력으로 시작하는 지역 사장님용 블로그 자동 운영 도구</span>
+              <div className="footer-grid">
+                <div className="section-stack" style={{ gap: "0.3rem" }}>
+                  <strong>블비</strong>
+                  <span>키워드 한 개 입력으로 시작하는 지역 사장님용 블로그 자동 운영 도구</span>
+                </div>
+                <div className="footer-note">겉은 단순하게, 결과는 바로 복붙 가능하게.</div>
               </div>
             </div>
           </footer>

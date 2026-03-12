@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function BillingPage(): React.ReactNode {
   return (
     <div className="page-stack">
-      <section className="card hero-card">
+      <section className="card hero-card accent-card">
         <div className="chips" aria-label="결제 상태">
           <span className="pill">결제 연동 준비 중</span>
           <span className="pill">데모 플랜 전환 가능</span>

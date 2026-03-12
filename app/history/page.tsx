@@ -116,7 +116,7 @@ export default function HistoryPage(): React.ReactNode {
 
   return (
     <div className="page-stack">
-      <section className="card hero-card">
+      <section className="card hero-card accent-card">
         <div className="chips" aria-label="히스토리 안내">
           <span className="pill">다시 보기</span>
           <span className="pill">복사</span>
