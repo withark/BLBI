@@ -54,7 +54,11 @@ async function readDb(): Promise<AppDatabase> {
     return {
       users: parsed.users ?? [],
       businessProfiles: parsed.businessProfiles ?? [],
-      posts: parsed.posts ?? [],
+      posts: (parsed.posts ?? []).map((post) => ({
+        ...post,
+        faq: post.faq ?? "",
+        cta: post.cta ?? ""
+      })),
       recommendations: parsed.recommendations ?? []
     };
   } catch {
@@ -189,6 +193,8 @@ interface CreatePostInput {
   keyword: string;
   title: string;
   body: string;
+  faq: string;
+  cta: string;
   exportText: string;
   nextSuggestions: string[];
   plan: UserPlan;
@@ -205,6 +211,8 @@ export async function createPost(userId: string, payload: CreatePostInput): Prom
       keyword: payload.keyword,
       title: payload.title,
       body: payload.body,
+      faq: payload.faq,
+      cta: payload.cta,
       exportText: payload.exportText,
       nextSuggestions: payload.nextSuggestions,
       plan: payload.plan,
@@ -229,9 +237,16 @@ export async function getPost(postId: string): Promise<PostRecord | null> {
   return db.posts.find((post) => post.id === postId) ?? null;
 }
 
+export async function getUserPost(userId: string, postId: string): Promise<PostRecord | null> {
+  const db = await readDb();
+  return db.posts.find((post) => post.id === postId && post.userId === userId) ?? null;
+}
+
 interface UpdatePostInput {
   title?: string;
   body?: string;
+  faq?: string;
+  cta?: string;
   exportText?: string;
 }
 
@@ -249,6 +264,14 @@ export async function updatePost(userId: string, postId: string, input: UpdatePo
 
     if (input.body !== undefined) {
       post.body = input.body;
+    }
+
+    if (input.faq !== undefined) {
+      post.faq = input.faq;
+    }
+
+    if (input.cta !== undefined) {
+      post.cta = input.cta;
     }
 
     if (input.exportText !== undefined) {

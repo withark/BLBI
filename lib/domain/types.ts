@@ -33,6 +33,8 @@ export interface PostRecord {
   keyword: string;
   title: string;
   body: string;
+  faq: string;
+  cta: string;
   exportText: string;
   nextSuggestions: string[];
   plan: UserPlan;
@@ -67,6 +69,8 @@ export interface GenerateInput {
 export interface GeneratedPost {
   title: string;
   body: string;
+  faq: string;
+  cta: string;
   exportText: string;
   nextSuggestions: string[];
 }

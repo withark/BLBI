@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { sanitizeExportText, toExportText } from "@/lib/domain/export";
 import { getUserIdFromRequest } from "@/lib/server-user";
-import { getPost, updatePost } from "@/lib/store/db";
+import { getUserPost, updatePost } from "@/lib/store/db";
 
 export const dynamic = "force-dynamic";
 
@@ -10,9 +10,10 @@ interface Context {
   params: Promise<{ id: string }>;
 }
 
-export async function GET(_: NextRequest, context: Context): Promise<NextResponse> {
+export async function GET(request: NextRequest, context: Context): Promise<NextResponse> {
+  const userId = getUserIdFromRequest(request);
   const { id } = await context.params;
-  const post = await getPost(id);
+  const post = await getUserPost(userId, id);
 
   if (!post) {
     return NextResponse.json({ error: "NOT_FOUND" }, { status: 404 });
@@ -24,7 +25,7 @@ export async function GET(_: NextRequest, context: Context): Promise<NextRespons
 export async function PATCH(request: NextRequest, context: Context): Promise<NextResponse> {
   const userId = getUserIdFromRequest(request);
   const { id } = await context.params;
-  const existing = await getPost(id);
+  const existing = await getUserPost(userId, id);
 
   if (!existing) {
     return NextResponse.json({ error: "NOT_FOUND" }, { status: 404 });
@@ -43,7 +44,9 @@ export async function PATCH(request: NextRequest, context: Context): Promise<Nex
     (payload.title !== undefined || payload.body !== undefined
       ? toExportText({
           title: nextTitle,
-          body: nextBody
+          body: nextBody,
+          faq: existing.faq,
+          cta: existing.cta
         })
       : sanitizeExportText(existing.exportText));
 

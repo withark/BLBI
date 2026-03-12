@@ -60,6 +60,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       keyword,
       title: generated.title,
       body: generated.body,
+      faq: generated.faq,
+      cta: generated.cta,
       exportText: generated.exportText,
       nextSuggestions: generated.nextSuggestions,
       plan: user.plan,

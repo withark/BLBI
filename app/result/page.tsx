@@ -4,12 +4,16 @@ import Link from "next/link";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
+import { toExportText } from "@/lib/domain/export";
+
 const PHOTO_MARKER = "[사진 촬영 가이드]";
 
 interface PostItem {
   id: string;
   title: string;
   body: string;
+  faq: string;
+  cta: string;
   exportText: string;
   keyword: string;
   createdAt: string;
@@ -86,7 +90,19 @@ function ResultContent(): React.ReactNode {
   }, [postId]);
 
   const preview = useMemo(() => previewBody(body), [body]);
-  const photoGuides = useMemo(() => extractPhotoGuides(post?.exportText ?? ""), [post]);
+  const previewExportText = useMemo(() => {
+    if (!post) {
+      return "";
+    }
+
+    return toExportText({
+      title,
+      body,
+      faq: post.faq,
+      cta: post.cta
+    });
+  }, [body, post, title]);
+  const photoGuides = useMemo(() => extractPhotoGuides(previewExportText), [previewExportText]);
 
   async function handleSave(): Promise<void> {
     if (!post) {
@@ -150,7 +166,7 @@ function ResultContent(): React.ReactNode {
     }
 
     try {
-      await navigator.clipboard.writeText(post.exportText);
+      await navigator.clipboard.writeText(previewExportText);
       setStatus({ type: "success", message: "네이버 복붙용 텍스트를 복사했습니다." });
     } catch {
       setStatus({ type: "error", message: "복사에 실패했습니다." });
@@ -241,7 +257,7 @@ function ResultContent(): React.ReactNode {
               <p className="help">아래 텍스트가 실제 복사되는 결과입니다. HTML 없이 그대로 복사됩니다.</p>
             </div>
 
-            <div className="pre">{post.exportText}</div>
+            <div className="pre">{previewExportText}</div>
 
             <div className="inline-actions">
               <button className="btn btn-primary" onClick={() => void handleCopy()} type="button">

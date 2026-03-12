@@ -206,6 +206,8 @@ export function generatePost(input: GenerateInput): GeneratedPost {
   return {
     title,
     body,
+    faq,
+    cta,
     exportText,
     nextSuggestions: buildNextSuggestions(input.keyword, bundle)
   };
