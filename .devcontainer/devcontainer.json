@@ -1,0 +1,36 @@
+{
+  "name": "BLBI",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "updateContentCommand": "npm install",
+  "remoteEnv": {
+    "NEXT_TELEMETRY_DISABLED": "1"
+  },
+  "forwardPorts": [
+    3000
+  ],
+  "portsAttributes": {
+    "3000": {
+      "label": "BLBI App",
+      "onAutoForward": "openPreview",
+      "visibility": "private"
+    }
+  },
+  "customizations": {
+    "codespaces": {
+      "openFiles": [
+        "docs/project-master-spec.md",
+        "app/dashboard/page.tsx"
+      ]
+    },
+    "vscode": {
+      "settings": {
+        "files.eol": "\n",
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}
