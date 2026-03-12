@@ -97,6 +97,15 @@ export interface AppDatabase {
   seoLearnedSnapshots: SeoLearnedSnapshot[];
 }
 
+export interface SeoLearningContext {
+  referenceCount: number;
+  keywordPatterns: string[];
+  sectionPatterns: string[];
+  ctaPatterns: string[];
+  tonePatterns: string[];
+  averageQualityScore: number;
+}
+
 export interface GenerateInput {
   keyword: string;
   details?: string;
@@ -104,6 +113,7 @@ export interface GenerateInput {
   tone: BlogTone;
   includeFaq: boolean;
   businessProfile?: BusinessProfile | null;
+  seoLearning?: SeoLearningContext | null;
 }
 
 export interface GeneratedPost {

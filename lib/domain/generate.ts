@@ -7,6 +7,11 @@ interface KeywordBundle {
   situation: string[];
 }
 
+function firstMeaningful(value?: string | null): string | null {
+  const normalized = value?.trim();
+  return normalized ? normalized : null;
+}
+
 function unique(values: string[]): string[] {
   return [...new Set(values.map((v) => v.trim()).filter(Boolean))];
 }
@@ -15,19 +20,25 @@ export function buildNaverKeywordBundle(input: GenerateInput): KeywordBundle {
   const region = input.businessProfile?.region || "우리 동네";
   const menus = input.businessProfile?.representativeMenus || [];
   const keyword = input.keyword;
+  const learnedKeywords = input.seoLearning?.keywordPatterns ?? [];
 
   return {
-    regional: unique([keyword, `${region} 맛집`, `${region} 점심`, `${region} 저녁`]),
-    menu: unique([keyword, ...menus.map((menu) => `${menu} 추천`), ...menus.map((menu) => `${region} ${menu}`)]),
+    regional: unique([keyword, `${region} 맛집`, `${region} 점심`, `${region} 저녁`, ...learnedKeywords.slice(0, 2)]),
+    menu: unique([keyword, ...menus.map((menu) => `${menu} 추천`), ...menus.map((menu) => `${region} ${menu}`), ...learnedKeywords.slice(2, 4)]),
     situation: unique([`${region} 모임`, `${region} 회식`, `${region} 가족외식`, `${region} 데이트`])
   };
 }
 
 function buildToneLine(input: GenerateInput): string {
   const toneGuide = input.businessProfile?.toneGuide?.trim();
+  const learnedTone = firstMeaningful(input.seoLearning?.tonePatterns[0]);
 
   if (toneGuide) {
     return `${toneGuide}라는 가게 문체 가이드를 우선 반영해 손님이 부담 없이 읽도록 구성합니다.`;
+  }
+
+  if (learnedTone) {
+    return `${learnedTone} 톤이 상위노출 참고 패턴에서 자주 보이므로, 정보 전달을 앞세운 자연스러운 후기형 문장으로 맞춥니다.`;
   }
 
   const tone = input.tone;
@@ -46,6 +57,11 @@ function buildToneLine(input: GenerateInput): string {
 function buildTitle(input: GenerateInput): string {
   const region = input.businessProfile?.region?.trim();
   const businessName = input.businessProfile?.businessName?.trim();
+  const learnedKeyword = firstMeaningful(input.seoLearning?.keywordPatterns[0]);
+
+  if (region && businessName && learnedKeyword) {
+    return `${learnedKeyword}, ${businessName} 방문 전에 먼저 확인할 포인트`;
+  }
 
   if (region && businessName) {
     return `${region} ${input.keyword}, ${businessName} 방문 전 꼭 보면 좋은 가이드`;
@@ -93,12 +109,15 @@ function buildPhotoGuides(input: GenerateInput): string[] {
 }
 
 function buildNextSuggestions(keyword: string, bundle: KeywordBundle): string[] {
+  const learned = bundle.menu.slice(1, 3);
+
   return unique([
     `${keyword} 점심 추천`,
     `${keyword} 저녁 모임`,
     bundle.menu[0],
     bundle.situation[0],
-    `${keyword} 주차 되는 곳`
+    `${keyword} 주차 되는 곳`,
+    ...learned
   ]).slice(0, 4);
 }
 
@@ -114,20 +133,27 @@ function buildSections(input: GenerateInput, bundle: KeywordBundle): Array<{ sub
   const mainMenu = menus[0] || input.keyword;
   const supportingMenu = menus[1] || `${mainMenu}와 함께 주문하기 좋은 메뉴`;
   const details = input.details?.trim();
+  const learnedSections = input.seoLearning?.sectionPatterns ?? [];
+  const learnedKeyword = firstMeaningful(input.seoLearning?.keywordPatterns[0]);
+  const learnedQualityNote =
+    input.seoLearning && input.seoLearning.referenceCount > 0
+      ? `승인된 상위노출 참고 ${input.seoLearning.referenceCount}건에서 자주 보인 구조를 반영해 문단 순서를 정리했습니다.`
+      : null;
 
   const sections = [
     {
-      subtitle: `1. ${bundle.regional[0]}로 찾는 손님에게 먼저 보여줄 정보`,
+      subtitle: learnedSections[0] || `1. ${bundle.regional[0]}로 찾는 손님에게 먼저 보여줄 정보`,
       lines: [
         `${businessName}은(는) ${region}에서 ${bundle.regional[1] || bundle.regional[0]}를 찾는 손님이 가장 먼저 비교하는 후보로 설명하기 좋습니다.`,
         address
           ? `위치는 ${address} 기준으로 안내해 두면 길 찾기와 방문 동선을 함께 설명할 수 있습니다.`
           : `위치 안내는 ${region} 안에서 찾기 쉬운 동선 중심으로 설명하면 방문 전 이해가 빠릅니다.`,
-        `${description}이라는 강점이 있어 처음 방문하는 손님에게도 선택 이유를 분명하게 전달할 수 있습니다.`
+        `${description}이라는 강점이 있어 처음 방문하는 손님에게도 선택 이유를 분명하게 전달할 수 있습니다.`,
+        learnedKeyword ? `${learnedKeyword} 같은 검색 패턴을 함께 의식해 정보 순서를 앞쪽에 배치합니다.` : learnedQualityNote || "검색형 글 흐름에 맞게 핵심 정보를 먼저 배치합니다."
       ]
     },
     {
-      subtitle: "2. 대표 메뉴 선택과 주문 흐름",
+      subtitle: learnedSections[1] || "2. 대표 메뉴 선택과 주문 흐름",
       lines: [
         `${mainMenu}는 첫 방문 손님이 가장 쉽게 선택할 수 있는 대표 메뉴로 소개하기 좋습니다.`,
         `${supportingMenu}까지 함께 제안하면 주문 장면이 더 구체적으로 그려지고 후기형 문장도 자연스럽게 이어집니다.`,
@@ -137,7 +163,7 @@ function buildSections(input: GenerateInput, bundle: KeywordBundle): Array<{ sub
       ]
     },
     {
-      subtitle: "3. 매장 분위기와 방문 상황별 안내",
+      subtitle: learnedSections[2] || "3. 매장 분위기와 방문 상황별 안내",
       lines: [
         `${bundle.situation[0]}이나 ${bundle.situation[1]} 같은 상황을 먼저 짚어 주면 손님이 자기 방문 목적에 맞게 글을 읽게 됩니다.`,
         `${facilities} 정보는 검색 사용자가 자주 확인하는 포인트라 본문 중간에 자연스럽게 섞어 주는 편이 좋습니다.`,
@@ -145,7 +171,7 @@ function buildSections(input: GenerateInput, bundle: KeywordBundle): Array<{ sub
       ]
     },
     {
-      subtitle: "4. 방문 전 체크와 재방문 유도",
+      subtitle: learnedSections[3] || "4. 방문 전 체크와 재방문 유도",
       lines: [
         `방문 전 체크 포인트를 짧게 정리하면 ${bundle.regional[3] || bundle.regional[0]} 검색에서 이탈을 줄이고 행동으로 이어지기 쉽습니다.`,
         `${openingHours} 기준 안내를 넣고, 변동 가능성이 있으면 방문 전 재확인을 권하는 문장을 함께 두는 편이 안전합니다.`,
@@ -184,9 +210,14 @@ function buildFaq(input: GenerateInput, bundle: KeywordBundle): string {
 
 function buildCta(input: GenerateInput): string {
   const profile = input.businessProfile;
+  const learnedCta = firstMeaningful(input.seoLearning?.ctaPatterns[0]);
 
   if (!profile) {
-    return "방문 전 영업시간과 위치를 확인하고, 오늘의 대표 메뉴로 가볍게 시작해 보세요.";
+    return learnedCta || "방문 전 영업시간과 위치를 확인하고, 오늘의 대표 메뉴로 가볍게 시작해 보세요.";
+  }
+
+  if (learnedCta) {
+    return `${profile.businessName}은(는) ${profile.region} 기준으로 찾기 쉬운 위치에 있습니다. ${learnedCta}`;
   }
 
   return `${profile.businessName}은(는) ${profile.region}에서 찾기 쉬운 위치에 있습니다. 방문 전 ${profile.openingHours}를 확인하고 편하게 들러 보세요.`;

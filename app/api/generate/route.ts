@@ -8,6 +8,7 @@ import {
   createPost,
   getBusinessProfile,
   getOrCreateUser,
+  getSeoLearningContext,
   listPosts,
   saveRecommendations
 } from "@/lib/store/db";
@@ -47,13 +48,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const businessProfile = await getBusinessProfile(userId);
+    const seoLearning = await getSeoLearningContext({
+      keyword,
+      region: businessProfile?.region,
+      businessType: businessProfile?.storeDescription || businessProfile?.representativeMenus[0] || ""
+    });
     const generated = generatePost({
       keyword,
       details: payload.details,
       length: payload.length ?? "medium",
       tone: payload.tone ?? "friendly",
       includeFaq: payload.includeFaq ?? true,
-      businessProfile
+      businessProfile,
+      seoLearning
     });
 
     const post = await createPost(userId, {

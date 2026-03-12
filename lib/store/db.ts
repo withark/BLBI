@@ -7,6 +7,7 @@ import type {
   BusinessProfile,
   PostRecord,
   RecommendationRecord,
+  SeoLearningContext,
   SeoLearnedSnapshot,
   SeoReferenceRecord,
   SeoReferenceSource,
@@ -504,6 +505,80 @@ export async function listSeoSnapshots(): Promise<SeoLearnedSnapshot[]> {
   return db.seoLearnedSnapshots
     .slice()
     .sort((a, b) => new Date(b.fetchedAt).getTime() - new Date(a.fetchedAt).getTime());
+}
+
+function normalizeToken(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+function collectTopValues(values: string[][], limit = 6): string[] {
+  const counts = new Map<string, number>();
+
+  for (const group of values) {
+    for (const value of group) {
+      const normalized = value.trim();
+
+      if (!normalized) {
+        continue;
+      }
+
+      counts.set(normalized, (counts.get(normalized) ?? 0) + 1);
+    }
+  }
+
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([value]) => value);
+}
+
+export async function getSeoLearningContext(input: {
+  keyword: string;
+  region?: string;
+  businessType?: string;
+}): Promise<SeoLearningContext | null> {
+  const db = await readDb();
+  const keywordToken = normalizeToken(input.keyword);
+  const regionToken = normalizeToken(input.region || "");
+  const businessTypeToken = normalizeToken(input.businessType || "");
+
+  const approvedReferences = db.seoReferences.filter((reference) => reference.status === "approved");
+  const referenceMap = new Map(approvedReferences.map((reference) => [reference.id, reference]));
+
+  const matchedSnapshots = db.seoLearnedSnapshots.filter((snapshot) => {
+    const reference = referenceMap.get(snapshot.referenceId);
+
+    if (!reference) {
+      return false;
+    }
+
+    const referenceKeyword = normalizeToken(reference.keyword);
+    const referenceRegion = normalizeToken(reference.region);
+    const referenceBusinessType = normalizeToken(reference.businessType);
+
+    const matchesKeyword = keywordToken.includes(referenceKeyword) || referenceKeyword.includes(keywordToken);
+    const matchesRegion = regionToken ? regionToken.includes(referenceRegion) || referenceRegion.includes(regionToken) : true;
+    const matchesBusinessType = businessTypeToken
+      ? businessTypeToken.includes(referenceBusinessType) || referenceBusinessType.includes(businessTypeToken)
+      : true;
+
+    return matchesKeyword || (matchesRegion && matchesBusinessType);
+  });
+
+  if (matchedSnapshots.length === 0) {
+    return null;
+  }
+
+  const qualitySum = matchedSnapshots.reduce((sum, snapshot) => sum + snapshot.qualityScore, 0);
+
+  return {
+    referenceCount: matchedSnapshots.length,
+    keywordPatterns: collectTopValues(matchedSnapshots.map((snapshot) => snapshot.keywordPatterns)),
+    sectionPatterns: collectTopValues(matchedSnapshots.map((snapshot) => snapshot.sectionPatterns), 4),
+    ctaPatterns: collectTopValues(matchedSnapshots.map((snapshot) => snapshot.ctaPatterns), 4),
+    tonePatterns: collectTopValues(matchedSnapshots.map((snapshot) => snapshot.tonePatterns), 4),
+    averageQualityScore: Math.round(qualitySum / matchedSnapshots.length)
+  };
 }
 
 export async function getAdminStats(): Promise<{
