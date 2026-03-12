@@ -12,6 +12,14 @@ Remote-ready Next.js workspace for the BLBI MVP.
 
 The app listens on port `3000` and is configured for forwarded preview access.
 
+## GitHub Actions
+
+- `CI` runs automatically on pushes to `main` and `codex/**` branches.
+- The workflow also runs on pull requests and can be started manually with `workflow_dispatch`.
+- Remote checks run `npm ci`, `npm run typecheck`, and `npm run build`.
+
+This means validation can continue on GitHub even after the local machine is off, but actual coding work is still separate from CI.
+
 ## Local
 
 ```bash
