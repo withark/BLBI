@@ -1,0 +1,143 @@
+name: Preview Vercel
+
+on:
+  push:
+    branches:
+      - "codex/**"
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: preview-vercel-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check-config:
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.verify.outputs.ready }}
+    steps:
+      - name: Verify deployment secrets
+        id: verify
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          missing=""
+
+          if [ -z "$VERCEL_TOKEN" ]; then
+            missing="$missing VERCEL_TOKEN"
+          fi
+
+          if [ -z "$VERCEL_ORG_ID" ]; then
+            missing="$missing VERCEL_ORG_ID"
+          fi
+
+          if [ -z "$VERCEL_PROJECT_ID" ]; then
+            missing="$missing VERCEL_PROJECT_ID"
+          fi
+
+          if [ -n "$missing" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Preview deploy skipped. Missing:$missing" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+          echo "Preview deployment configuration is ready." >> "$GITHUB_STEP_SUMMARY"
+
+  deploy:
+    needs: check-config
+    if: ${{ needs.check-config.outputs.ready == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    outputs:
+      preview-url: ${{ steps.deploy.outputs.preview-url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel preview environment
+        run: vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
+
+      - name: Build preview deployment
+        run: vercel build --token="$VERCEL_TOKEN"
+
+      - name: Deploy preview
+        id: deploy
+        run: |
+          preview_url=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN" | tail -n 1)
+          echo "preview-url=$preview_url" >> "$GITHUB_OUTPUT"
+          echo "Preview deployment: $preview_url" >> "$GITHUB_STEP_SUMMARY"
+
+  comment-pr:
+    needs:
+      - check-config
+      - deploy
+    if: ${{ github.event_name == 'pull_request' && needs.check-config.outputs.ready == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Comment preview URL on PR
+        uses: actions/github-script@v7
+        env:
+          PREVIEW_URL: ${{ needs.deploy.outputs.preview-url }}
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = context.payload.pull_request.number;
+            const marker = "<!-- blbi-preview-comment -->";
+            const body = [
+              marker,
+              "Preview deployment is ready.",
+              "",
+              `- URL: ${process.env.PREVIEW_URL}`
+            ].join("\n");
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number
+            });
+
+            const existing = comments.find((comment) => comment.body && comment.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body
+              });
+              return;
+            }
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body
+            });

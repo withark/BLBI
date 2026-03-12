@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 const PHOTO_MARKER = "[사진 촬영 가이드]";
@@ -29,7 +29,7 @@ function previewBody(body: string): string {
     .join("\n");
 }
 
-export default function ResultPage(): React.ReactNode {
+function ResultContent(): React.ReactNode {
   const searchParams = useSearchParams();
   const postId = searchParams.get("postId");
 
@@ -191,5 +191,13 @@ export default function ResultPage(): React.ReactNode {
         </Link>
       </section>
     </div>
+  );
+}
+
+export default function ResultPage(): React.ReactNode {
+  return (
+    <Suspense fallback={<div className="status">결과 페이지 로딩 중...</div>}>
+      <ResultContent />
+    </Suspense>
   );
 }
