@@ -12,10 +12,26 @@ interface PostItem {
   plan: "FREE" | "BASIC" | "PREMIUM";
 }
 
+function formatDate(value: string): string {
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(new Date(value));
+}
+
+function buildExcerpt(text: string): string {
+  return text
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 160);
+}
+
 export default function HistoryPage(): React.ReactNode {
   const [posts, setPosts] = useState<PostItem[]>([]);
   const [keywordFilter, setKeywordFilter] = useState("");
-  const [status, setStatus] = useState<string>("");
+  const [status, setStatus] = useState<{ type: "info" | "error" | "success"; message: string } | null>(null);
 
   useEffect(() => {
     async function loadPosts(): Promise<void> {
@@ -23,14 +39,14 @@ export default function HistoryPage(): React.ReactNode {
         const response = await fetch("/api/posts", { cache: "no-store" });
 
         if (!response.ok) {
-          setStatus("히스토리를 불러오지 못했습니다.");
+          setStatus({ type: "error", message: "히스토리를 불러오지 못했습니다." });
           return;
         }
 
         const json = (await response.json()) as { posts: PostItem[] };
         setPosts(json.posts);
       } catch {
-        setStatus("히스토리를 불러오지 못했습니다.");
+        setStatus({ type: "error", message: "히스토리를 불러오지 못했습니다." });
       }
     }
 
@@ -50,44 +66,102 @@ export default function HistoryPage(): React.ReactNode {
   async function copyText(text: string): Promise<void> {
     try {
       await navigator.clipboard.writeText(text);
-      setStatus("복사했습니다.");
+      setStatus({ type: "success", message: "복사했습니다. 바로 붙여넣어 사용할 수 있습니다." });
     } catch {
-      setStatus("복사에 실패했습니다.");
+      setStatus({ type: "error", message: "복사에 실패했습니다." });
     }
   }
 
   return (
-    <div style={{ display: "grid", gap: "0.9rem" }}>
-      <section className="card" style={{ display: "grid", gap: "0.75rem" }}>
-        <h1 style={{ fontSize: "1.4rem" }}>히스토리</h1>
-        <p className="help">작성한 글을 다시 열고 복사할 수 있습니다.</p>
+    <div className="page-stack">
+      <section className="card hero-card">
+        <div className="chips" aria-label="히스토리 안내">
+          <span className="pill">다시 보기</span>
+          <span className="pill">복사</span>
+          <span className="pill">키워드 재사용</span>
+        </div>
+
+        <div className="section-stack">
+          <h1 className="hero-title" style={{ fontSize: "1.9rem" }}>
+            저장된 글을 다시 열고, 복사하고, 다음 글로 이어서 씁니다
+          </h1>
+          <p className="help">이전 글을 그대로 두고 필요할 때 다시 꺼내 쓰는 운영 화면입니다.</p>
+        </div>
+
+        <div className="info-grid">
+          <div className="compact-card">
+            <strong>저장된 글</strong>
+            <div>{posts.length}개</div>
+            <div className="meta-line">최근에 만든 글부터 다시 확인할 수 있습니다.</div>
+          </div>
+          <div className="compact-card">
+            <strong>현재 검색 결과</strong>
+            <div>{filtered.length}개</div>
+            <div className="meta-line">키워드나 제목 일부만 입력해도 찾을 수 있습니다.</div>
+          </div>
+        </div>
+      </section>
+
+      <section className="card section-stack">
+        <div className="section-stack">
+          <h2 className="section-title">글 찾기</h2>
+          <p className="help">메뉴명, 지역명, 제목 일부로 검색해 보세요.</p>
+        </div>
+
         <input
           className="input"
-          placeholder="키워드 또는 제목 검색"
+          placeholder="예: 칼국수, 브런치, 회식"
           value={keywordFilter}
           onChange={(event) => setKeywordFilter(event.target.value)}
         />
       </section>
 
-      {filtered.map((post) => (
-        <article key={post.id} className="card" style={{ display: "grid", gap: "0.6rem" }}>
-          <h2 style={{ fontSize: "1.08rem", lineHeight: 1.4 }}>{post.title}</h2>
-          <p className="help">
-            키워드: {post.keyword} · 플랜: {post.plan} · {new Date(post.createdAt).toLocaleString("ko-KR")}
+      {filtered.length === 0 ? (
+        <section className="card section-stack">
+          <strong>{posts.length === 0 ? "아직 저장된 글이 없습니다" : "검색 결과가 없습니다"}</strong>
+          <p className="small-note">
+            {posts.length === 0
+              ? "대시보드에서 첫 글을 만들면 이 화면에서 다시 열고 복사할 수 있습니다."
+              : "다른 키워드나 제목으로 다시 검색해 보세요."}
           </p>
-          <div className="row">
-            <Link className="btn btn-secondary" href={`/result?postId=${post.id}`}>
-              결과 보기
+          <div className="inline-actions">
+            <Link className="btn btn-primary" href="/dashboard">
+              새 글 만들기
             </Link>
-            <button type="button" className="btn btn-secondary" onClick={() => void copyText(post.exportText)}>
-              소스 없이 복사
-            </button>
+            <Link className="btn btn-secondary" href="/dashboard">
+              대시보드로 이동
+            </Link>
           </div>
-        </article>
-      ))}
+        </section>
+      ) : (
+        <section className="history-list">
+          {filtered.map((post) => (
+            <article key={post.id} className="card history-card">
+              <div className="section-stack">
+                <h2 style={{ fontSize: "1.08rem", lineHeight: 1.45 }}>{post.title}</h2>
+                <p className="meta-line">
+                  키워드: {post.keyword} · 플랜: {post.plan} · {formatDate(post.createdAt)}
+                </p>
+                <p className="excerpt">{buildExcerpt(post.exportText)}...</p>
+              </div>
 
-      {filtered.length === 0 && <div className="status">저장된 글이 없습니다.</div>}
-      {status && <div className="status">{status}</div>}
+              <div className="inline-actions">
+                <Link className="btn btn-secondary" href={`/result?postId=${post.id}`}>
+                  결과 보기
+                </Link>
+                <button type="button" className="btn btn-secondary" onClick={() => void copyText(post.exportText)}>
+                  복사
+                </button>
+                <Link className="btn btn-secondary" href={`/dashboard?keyword=${encodeURIComponent(post.keyword)}`}>
+                  키워드 재사용
+                </Link>
+              </div>
+            </article>
+          ))}
+        </section>
+      )}
+
+      {status && <div className={`status ${status.type === "error" ? "error" : status.type === "success" ? "success" : ""}`}>{status.message}</div>}
     </div>
   );
 }
