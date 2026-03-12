@@ -11,7 +11,20 @@ import type {
   UserRecord
 } from "@/lib/domain/types";
 
-const DB_PATH = path.join(process.cwd(), "data", "app-db.json");
+function resolveDbPath(): string {
+  if (process.env.BLBI_DB_PATH) {
+    return process.env.BLBI_DB_PATH;
+  }
+
+  if (process.env.VERCEL === "1") {
+    // Vercel Functions expose a read-only filesystem except for /tmp.
+    return path.join("/tmp", "blbi", "app-db.json");
+  }
+
+  return path.join(process.cwd(), "data", "app-db.json");
+}
+
+const DB_PATH = resolveDbPath();
 
 const EMPTY_DB: AppDatabase = {
   users: [],
