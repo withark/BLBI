@@ -1,0 +1,55 @@
+import { applyLimitBypass, getUsageSnapshot } from "@/lib/domain/usage";
+import { listAllPosts, listAllUsers } from "@/lib/store/db";
+
+export const dynamic = "force-dynamic";
+
+function buildUsageLabel(limit: number | null, used: number, remaining: number | null): string {
+  if (limit === null) {
+    return `${used}회 사용 · 무제한`;
+  }
+
+  return `${used} / ${limit}회 · 남음 ${remaining}회`;
+}
+
+export default async function AdminUsagePage(): Promise<React.ReactNode> {
+  const [users, posts] = await Promise.all([listAllUsers(), listAllPosts()]);
+
+  return (
+    <div className="page-stack">
+      <section className="card section-stack tone-surface">
+        <span className="eyebrow">Usage</span>
+        <h2 className="section-title">사용량 점검</h2>
+        <p className="help">플랜 정책 계산과 실제 생성 이력이 같은 데이터 소스에서 나오도록 확인하는 화면입니다.</p>
+      </section>
+
+      <section className="history-list">
+        {users.map((user) => {
+          const userPosts = posts.filter((post) => post.userId === user.id);
+          const usage = applyLimitBypass(getUsageSnapshot(userPosts, user.plan), user.limitBypass);
+
+          return (
+            <article key={user.id} className="card section-stack tone-surface">
+              <div className="info-grid">
+                <div className="compact-card">
+                  <strong>사용자</strong>
+                  <div>{user.id}</div>
+                  <div className="meta-line">플랜 {user.plan}</div>
+                </div>
+                <div className="compact-card">
+                  <strong>현재 사용량</strong>
+                  <div>{buildUsageLabel(usage.limit, usage.used, usage.remaining)}</div>
+                  <div className="meta-line">집계 창 {usage.window}</div>
+                </div>
+                <div className="compact-card">
+                  <strong>우회 상태</strong>
+                  <div>{user.limitBypass ? "활성" : "비활성"}</div>
+                  <div className="meta-line">{user.limitBypass ? "관리자 한도 우회 적용 중" : "기본 한도 정책 사용 중"}</div>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </section>
+    </div>
+  );
+}

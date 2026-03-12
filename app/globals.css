@@ -724,6 +724,67 @@ p {
     linear-gradient(180deg, rgba(255, 251, 246, 0.98) 0%, rgba(252, 243, 234, 0.96) 100%);
 }
 
+.admin-hero {
+  background:
+    radial-gradient(circle at top right, rgba(30, 90, 74, 0.24), transparent 36%),
+    radial-gradient(circle at bottom left, rgba(213, 154, 48, 0.18), transparent 32%),
+    linear-gradient(180deg, rgba(246, 251, 246, 0.96) 0%, rgba(247, 243, 233, 0.98) 100%);
+}
+
+.admin-panel {
+  padding: 1rem 1.1rem;
+}
+
+.admin-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.admin-nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.58rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(133, 96, 66, 0.14);
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 700;
+  transition: transform 150ms ease, background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.admin-nav-link:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 248, 236, 0.88);
+  color: var(--text);
+}
+
+.admin-nav-link.is-active {
+  background: rgba(30, 90, 74, 0.12);
+  border-color: rgba(30, 90, 74, 0.22);
+  color: var(--accent);
+}
+
+.admin-overview-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.admin-link-card {
+  min-height: 160px;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.admin-link-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(30, 90, 74, 0.22);
+  box-shadow: var(--shadow-strong);
+}
+
 @media (max-width: 720px) {
   .container {
     width: min(1080px, 100% - 1rem);
@@ -748,7 +809,8 @@ p {
   .two-column,
   .info-grid,
   .overview-grid,
-  .metric-card-grid {
+  .metric-card-grid,
+  .admin-overview-grid {
     grid-template-columns: 1fr;
   }
 

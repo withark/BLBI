@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { generatePost } from "@/lib/domain/generate";
 import { getLimitExceededMessage } from "@/lib/domain/plan";
-import { getUsageSnapshot, isLimitExceeded } from "@/lib/domain/usage";
+import { applyLimitBypass, getUsageSnapshot, isLimitExceeded } from "@/lib/domain/usage";
 import { getUserIdFromRequest } from "@/lib/server-user";
 import {
   createPost,
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const userId = getUserIdFromRequest(request);
     const user = await getOrCreateUser(userId);
     const posts = await listPosts(userId);
-    const usage = getUsageSnapshot(posts, user.plan);
+    const usage = applyLimitBypass(getUsageSnapshot(posts, user.plan), user.limitBypass);
 
     if (isLimitExceeded(usage)) {
       return NextResponse.json(
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     await saveRecommendations(userId, post.id, generated.nextSuggestions);
 
-    const nextUsage = getUsageSnapshot(await listPosts(userId), user.plan);
+    const nextUsage = applyLimitBypass(getUsageSnapshot(await listPosts(userId), user.plan), user.limitBypass);
 
     return NextResponse.json({ post, usage: nextUsage });
   } catch (error) {

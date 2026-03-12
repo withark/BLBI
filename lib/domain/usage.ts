@@ -63,6 +63,19 @@ export function getUsageSnapshot(posts: PostRecord[], plan: UserPlan, now = new 
   };
 }
 
+export function applyLimitBypass(snapshot: UsageSnapshot, enabled: boolean): UsageSnapshot {
+  if (!enabled) {
+    return snapshot;
+  }
+
+  return {
+    ...snapshot,
+    limit: null,
+    remaining: null,
+    window: "unlimited"
+  };
+}
+
 export function isLimitExceeded(snapshot: UsageSnapshot): boolean {
   return snapshot.limit !== null && snapshot.used >= snapshot.limit;
 }

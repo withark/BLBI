@@ -7,6 +7,7 @@ export type BlogTone = "friendly" | "professional" | "warm";
 export interface UserRecord {
   id: string;
   plan: UserPlan;
+  limitBypass: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -50,11 +51,50 @@ export interface RecommendationRecord {
   createdAt: string;
 }
 
+export type SeoReferenceStatus = "candidate" | "approved" | "rejected" | "archived";
+
+export type SeoReferenceSource = "manual" | "search_api" | "import";
+
+export interface SeoReferenceRecord {
+  id: string;
+  keyword: string;
+  region: string;
+  businessType: string;
+  url: string;
+  title: string;
+  summary: string;
+  sourceType: SeoReferenceSource;
+  status: SeoReferenceStatus;
+  lastAnalyzedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SeoLearnedSnapshot {
+  id: string;
+  referenceId: string;
+  fetchedAt: string;
+  headingCount: number;
+  photoGuideCount: number;
+  faqExists: boolean;
+  ctaExists: boolean;
+  avgParagraphLength: number;
+  keywordPatterns: string[];
+  sectionPatterns: string[];
+  ctaPatterns: string[];
+  tonePatterns: string[];
+  freshnessScore: number;
+  qualityScore: number;
+  notes: string;
+}
+
 export interface AppDatabase {
   users: UserRecord[];
   businessProfiles: BusinessProfile[];
   posts: PostRecord[];
   recommendations: RecommendationRecord[];
+  seoReferences: SeoReferenceRecord[];
+  seoLearnedSnapshots: SeoLearnedSnapshot[];
 }
 
 export interface GenerateInput {
