@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { sanitizeExportText } from "@/lib/domain/export";
+import { sanitizeExportText, toExportText } from "@/lib/domain/export";
 import { getUserIdFromRequest } from "@/lib/server-user";
 import { getPost, updatePost } from "@/lib/store/db";
 
@@ -24,6 +24,11 @@ export async function GET(_: NextRequest, context: Context): Promise<NextRespons
 export async function PATCH(request: NextRequest, context: Context): Promise<NextResponse> {
   const userId = getUserIdFromRequest(request);
   const { id } = await context.params;
+  const existing = await getPost(id);
+
+  if (!existing) {
+    return NextResponse.json({ error: "NOT_FOUND" }, { status: 404 });
+  }
 
   const payload = (await request.json()) as {
     title?: string;
@@ -31,7 +36,16 @@ export async function PATCH(request: NextRequest, context: Context): Promise<Nex
     exportText?: string;
   };
 
-  const nextExportText = payload.exportText ?? (payload.body ? sanitizeExportText(payload.body) : undefined);
+  const nextTitle = payload.title ?? existing.title;
+  const nextBody = payload.body ?? existing.body;
+  const nextExportText =
+    payload.exportText ??
+    (payload.title !== undefined || payload.body !== undefined
+      ? toExportText({
+          title: nextTitle,
+          body: nextBody
+        })
+      : sanitizeExportText(existing.exportText));
 
   const updated = await updatePost(userId, id, {
     title: payload.title,

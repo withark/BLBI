@@ -52,9 +52,14 @@ export function DashboardClient(): React.ReactNode {
     }
 
     const initialKeyword = searchParams.get("keyword");
+    const welcome = searchParams.get("welcome");
 
     if (initialKeyword) {
       setKeyword(initialKeyword);
+    }
+
+    if (welcome === "profile-saved") {
+      setStatus({ type: "success", message: "가게 정보를 저장했습니다. 이제 키워드 하나로 바로 생성해 보세요." });
     }
 
     seeded.current = true;
