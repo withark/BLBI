@@ -19,6 +19,7 @@ The app listens on port `3000` and is configured for forwarded preview access.
 - Remote checks run `npm ci`, `npm run typecheck`, and `npm run build`.
 - `Auto PR` opens or updates a pull request from `codex/**` branches into `main`.
 - `Nightly Check` runs every day at `03:00` Korea time (`18:00 UTC`) and can also be triggered manually.
+- `Preview Vercel` deploys preview builds for `codex/**` pushes and pull requests, then comments the preview URL on the PR.
 - `Deploy Vercel` runs on pushes to `main` only when the repository secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` are configured.
 - Deployment secret setup is documented in [docs/DEPLOYMENT_SETUP.md](docs/DEPLOYMENT_SETUP.md).
 

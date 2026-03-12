@@ -41,5 +41,7 @@ In the GitHub repository:
 ## What happens after setup
 
 - Push to `main` triggers production deploy
+- Push to `codex/**` or pull requests triggers preview deploy
+- Pull requests receive a comment with the preview URL
 - Manual `Deploy Vercel` workflow runs are also enabled
 - If a secret is missing, the workflow writes a skip reason to the workflow summary
