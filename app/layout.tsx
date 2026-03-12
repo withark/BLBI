@@ -36,7 +36,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
                   <strong>블비</strong>
                   <span>키워드 한 개 입력으로 시작하는 지역 사장님용 블로그 자동 운영 도구</span>
                 </div>
-                <div className="footer-note">겉은 단순하게, 결과는 바로 복붙 가능하게.</div>
+                <div className="section-stack" style={{ gap: "0.45rem", justifyItems: "end" }}>
+                  <div className="footer-links">
+                    <Link href="/features">기능</Link>
+                    <Link href="/guide">가이드</Link>
+                    <Link href="/support">지원</Link>
+                  </div>
+                  <div className="footer-note">겉은 단순하게, 결과는 바로 복붙 가능하게.</div>
+                </div>
               </div>
             </div>
           </footer>

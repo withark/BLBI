@@ -664,6 +664,21 @@ p {
   text-align: right;
 }
 
+.footer-links {
+  display: flex;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  font-size: 0.88rem;
+}
+
+.footer-links a {
+  color: var(--muted);
+}
+
+.footer-links a:hover {
+  color: var(--primary-strong);
+}
+
 .hero-side,
 .dashboard-side-column {
   display: grid;
@@ -821,6 +836,10 @@ p {
 
   .footer-note {
     text-align: left;
+  }
+
+  .footer-links {
+    justify-content: flex-start;
   }
 }
 
