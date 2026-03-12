@@ -12,6 +12,8 @@ from typing import Any
 from urllib import error, request
 
 
+DEFAULT_REMOTE_CODER_MODEL = "gpt-5-codex"
+
 TEXT_EXTENSIONS = {
     ".css",
     ".gitignore",
@@ -83,6 +85,10 @@ Rules:
 - Assume you will be followed by automated checks. Prefer changes that are likely to pass immediately.
 - Output must match the JSON schema exactly.
 """.strip()
+
+MODEL_ALIASES = {
+    "gpt-5.3-codex": DEFAULT_REMOTE_CODER_MODEL,
+}
 
 
 def run(cmd: list[str], cwd: Path, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -193,6 +199,13 @@ def http_request(method: str, url: str, api_key: str, payload: dict[str, Any] | 
     except error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")
         raise RuntimeError(f"OpenAI API error {exc.code}: {body}") from exc
+
+
+def normalize_model_name(model: str) -> str:
+    candidate = model.strip()
+    if not candidate:
+        return DEFAULT_REMOTE_CODER_MODEL
+    return MODEL_ALIASES.get(candidate, candidate)
 
 
 def extract_output_text(response_json: dict[str, Any]) -> str:
@@ -327,6 +340,7 @@ def sanitize_commit_message(message: str) -> str:
 
 
 def save_json(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
@@ -341,97 +355,117 @@ def main() -> int:
     repo = Path(args.repo).resolve()
     result_file = Path(args.result_file).resolve()
     api_key = os.environ.get("OPENAI_API_KEY")
-    model = os.environ.get("OPENAI_REMOTE_CODER_MODEL", "gpt-5.3-codex")
+    model = normalize_model_name(os.environ.get("OPENAI_REMOTE_CODER_MODEL", DEFAULT_REMOTE_CODER_MODEL))
     reasoning_effort = os.environ.get("OPENAI_REMOTE_CODER_REASONING", "high")
     check_command = os.environ.get("REMOTE_CODER_CHECK_COMMAND", "npm run check")
 
-    if not api_key:
-        save_json(
-            result_file,
-            {
-                "status": "skipped",
-                "summary": "OPENAI_API_KEY is missing.",
-                "commit_message": "",
-                "notes": "Add the OPENAI_API_KEY GitHub secret to enable the remote coder workflow.",
-                "changed_files": [],
-                "check_output": "",
-            },
-        )
-        return 0
-
-    feedback: str | None = None
-    last_summary = ""
-    last_notes = ""
-    last_commit_message = ""
-    last_check_output = ""
-
-    for _ in range(max(args.attempts, 1)):
-        repo_context = build_repo_context(repo)
-        result = call_remote_coder(
-            api_key=api_key,
-            model=model,
-            reasoning_effort=reasoning_effort,
-            task=args.task,
-            repo_context=repo_context,
-            feedback=feedback,
-        )
-
-        apply_result(repo, result)
-
-        last_summary = result.get("summary", "")
-        last_notes = result.get("notes", "")
-        last_commit_message = sanitize_commit_message(result.get("commit_message", ""))
-
-        files = changed_files(repo)
-        if not files:
+    try:
+        if not api_key:
             save_json(
                 result_file,
                 {
-                    "status": "no_changes",
-                    "summary": last_summary or "No changes were required.",
-                    "commit_message": last_commit_message,
-                    "notes": last_notes,
+                    "status": "skipped",
+                    "summary": "OPENAI_API_KEY is missing.",
+                    "commit_message": "",
+                    "notes": "Add the OPENAI_API_KEY GitHub secret to enable the remote coder workflow.",
                     "changed_files": [],
                     "check_output": "",
                 },
             )
             return 0
 
-        ok, output = run_check_command(repo, check_command)
-        last_check_output = tail_lines(output)
+        feedback: str | None = None
+        last_summary = ""
+        last_notes = ""
+        last_commit_message = ""
+        last_check_output = ""
 
-        if ok:
-            save_json(
-                result_file,
-                {
-                    "status": "success",
-                    "summary": last_summary,
-                    "commit_message": last_commit_message,
-                    "notes": last_notes,
-                    "changed_files": files,
-                    "check_output": last_check_output,
-                },
+        for _ in range(max(args.attempts, 1)):
+            repo_context = build_repo_context(repo)
+            result = call_remote_coder(
+                api_key=api_key,
+                model=model,
+                reasoning_effort=reasoning_effort,
+                task=args.task,
+                repo_context=repo_context,
+                feedback=feedback,
             )
-            return 0
 
-        feedback = (
-            "Automated checks failed after the previous patch.\n\n"
-            f"Command: {check_command}\n\n"
-            f"Output:\n{last_check_output}"
+            apply_result(repo, result)
+
+            last_summary = result.get("summary", "")
+            last_notes = result.get("notes", "")
+            last_commit_message = sanitize_commit_message(result.get("commit_message", ""))
+
+            files = changed_files(repo)
+            if not files:
+                save_json(
+                    result_file,
+                    {
+                        "status": "no_changes",
+                        "summary": last_summary or "No changes were required.",
+                        "commit_message": last_commit_message,
+                        "notes": last_notes,
+                        "changed_files": [],
+                        "check_output": "",
+                    },
+                )
+                return 0
+
+            ok, output = run_check_command(repo, check_command)
+            last_check_output = tail_lines(output)
+
+            if ok:
+                save_json(
+                    result_file,
+                    {
+                        "status": "success",
+                        "summary": last_summary,
+                        "commit_message": last_commit_message,
+                        "notes": last_notes,
+                        "changed_files": files,
+                        "check_output": last_check_output,
+                    },
+                )
+                return 0
+
+            feedback = (
+                "Automated checks failed after the previous patch.\n\n"
+                f"Command: {check_command}\n\n"
+                f"Output:\n{last_check_output}"
+            )
+
+        save_json(
+            result_file,
+            {
+                "status": "failed",
+                "summary": last_summary or "Remote coder could not produce a passing change.",
+                "commit_message": last_commit_message,
+                "notes": last_notes or "The repository did not pass automated checks.",
+                "changed_files": changed_files(repo),
+                "check_output": last_check_output,
+            },
         )
+        return 1
+    except Exception as exc:
+        try:
+            files = changed_files(repo)
+        except Exception:
+            files = []
 
-    save_json(
-        result_file,
-        {
-            "status": "failed",
-            "summary": last_summary or "Remote coder could not produce a passing change.",
-            "commit_message": last_commit_message,
-            "notes": last_notes or "The repository did not pass automated checks.",
-            "changed_files": changed_files(repo),
-            "check_output": last_check_output,
-        },
-    )
-    return 1
+        save_json(
+            result_file,
+            {
+                "status": "failed",
+                "summary": "Remote coder execution failed.",
+                "commit_message": "",
+                "notes": f"{type(exc).__name__}: {exc}",
+                "changed_files": files,
+                "check_output": "",
+            },
+        )
+        print(f"Remote coder failed: {exc}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":

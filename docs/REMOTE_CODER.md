@@ -46,7 +46,7 @@ Without `REMOTE_CODER_GIT_TOKEN`, the workflow falls back to `GITHUB_TOKEN`, whi
 
 Recommended defaults:
 
-- model: `gpt-5.3-codex`
+- model: `gpt-5-codex`
 - reasoning: `high`
 - check command: `npm run check`
 
