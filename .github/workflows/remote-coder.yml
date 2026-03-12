@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      OPENAI_REMOTE_CODER_MODEL: ${{ vars.OPENAI_REMOTE_CODER_MODEL || 'gpt-5.3-codex' }}
+      OPENAI_REMOTE_CODER_MODEL: ${{ vars.OPENAI_REMOTE_CODER_MODEL || 'gpt-5-codex' }}
       OPENAI_REMOTE_CODER_REASONING: ${{ vars.OPENAI_REMOTE_CODER_REASONING || 'high' }}
       REMOTE_CODER_CHECK_COMMAND: ${{ vars.REMOTE_CODER_CHECK_COMMAND || 'npm run check' }}
 
@@ -146,6 +146,7 @@ jobs:
 
       - name: Run remote coder
         if: ${{ steps.request.outputs.should_run == 'true' }}
+        id: remote_coder
         continue-on-error: true
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -157,8 +158,11 @@ jobs:
             --result-file remote-coder-result.json
 
       - name: Extract remote coder result
-        if: ${{ steps.request.outputs.should_run == 'true' }}
+        if: ${{ always() && steps.request.outputs.should_run == 'true' }}
         id: result
+        env:
+          REMOTE_CODER_OUTCOME: ${{ steps.remote_coder.outcome }}
+          REMOTE_CODER_CONCLUSION: ${{ steps.remote_coder.conclusion }}
         run: |
           python3 - <<'PY'
           import json
@@ -170,11 +174,13 @@ jobs:
             with result_path.open("r", encoding="utf-8") as handle:
               data = json.load(handle)
           else:
+            outcome = os.environ.get("REMOTE_CODER_OUTCOME", "unknown")
+            conclusion = os.environ.get("REMOTE_CODER_CONCLUSION", "unknown")
             data = {
               "status": "failed",
-              "summary": "Remote coder workflow failed before producing a result file.",
+              "summary": "Remote coder workflow did not produce a result file.",
               "commit_message": "",
-              "notes": "Inspect the workflow logs for the failing step.",
+              "notes": f"Run step outcome: {outcome}; conclusion: {conclusion}. Inspect the workflow logs for details.",
               "changed_files": [],
               "check_output": "",
             }
@@ -216,7 +222,7 @@ jobs:
           git push origin "HEAD:$WORK_BRANCH"
 
       - name: Write workflow summary
-        if: ${{ steps.request.outputs.should_run == 'true' }}
+        if: ${{ always() && steps.request.outputs.should_run == 'true' }}
         run: |
           echo "Status: ${{ steps.result.outputs.status }}" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
@@ -230,7 +236,7 @@ jobs:
           echo "${{ steps.result.outputs.notes }}" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Comment on pull request
-        if: ${{ steps.request.outputs.should_run == 'true' && steps.request.outputs.comment_target == 'pr' }}
+        if: ${{ always() && steps.request.outputs.should_run == 'true' && steps.request.outputs.comment_target == 'pr' }}
         uses: actions/github-script@v7
         env:
           TASK: ${{ steps.request.outputs.task }}
@@ -279,3 +285,7 @@ jobs:
               issue_number,
               body
             });
+
+      - name: Fail job when remote coder fails
+        if: ${{ steps.request.outputs.should_run == 'true' && steps.result.outputs.status == 'failed' }}
+        run: exit 1
