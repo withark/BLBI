@@ -6,6 +6,7 @@ import type { SeoReferenceStatus, UserPlan } from "@/lib/domain/types";
 import {
   analyzeSeoReference,
   createSeoReference,
+  generateSeoReferenceCandidates,
   setUserLimitBypass,
   setUserPlan,
   updateSeoReferenceStatus
@@ -65,6 +66,7 @@ export async function createSeoReferenceAction(formData: FormData): Promise<void
 
   revalidatePath("/admin");
   revalidatePath("/admin/seo-references");
+  revalidatePath("/admin/jobs");
 }
 
 export async function updateSeoReferenceStatusAction(formData: FormData): Promise<void> {
@@ -78,6 +80,7 @@ export async function updateSeoReferenceStatusAction(formData: FormData): Promis
   await updateSeoReferenceStatus(referenceId, status);
   revalidatePath("/admin");
   revalidatePath("/admin/seo-references");
+  revalidatePath("/admin/jobs");
 }
 
 export async function analyzeSeoReferenceAction(formData: FormData): Promise<void> {
@@ -90,4 +93,15 @@ export async function analyzeSeoReferenceAction(formData: FormData): Promise<voi
   await analyzeSeoReference(referenceId);
   revalidatePath("/admin");
   revalidatePath("/admin/seo-references");
+  revalidatePath("/admin/jobs");
+}
+
+export async function generateSeoCandidatesAction(formData: FormData): Promise<void> {
+  const rawLimit = Number(formData.get("limit") || 12);
+  const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(Math.floor(rawLimit), 1), 24) : 12;
+
+  await generateSeoReferenceCandidates(limit);
+  revalidatePath("/admin");
+  revalidatePath("/admin/seo-references");
+  revalidatePath("/admin/jobs");
 }

@@ -88,6 +88,17 @@ export interface SeoLearnedSnapshot {
   notes: string;
 }
 
+export type AdminJobStatus = "success" | "failed";
+
+export interface AdminJobRecord {
+  id: string;
+  jobType: string;
+  status: AdminJobStatus;
+  summary: string;
+  affectedCount: number;
+  createdAt: string;
+}
+
 export interface AppDatabase {
   users: UserRecord[];
   businessProfiles: BusinessProfile[];
@@ -95,6 +106,7 @@ export interface AppDatabase {
   recommendations: RecommendationRecord[];
   seoReferences: SeoReferenceRecord[];
   seoLearnedSnapshots: SeoLearnedSnapshot[];
+  adminJobs: AdminJobRecord[];
 }
 
 export interface SeoLearningContext {

@@ -3,6 +3,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 
 import type {
+  AdminJobRecord,
   AppDatabase,
   BusinessProfile,
   PostRecord,
@@ -37,7 +38,8 @@ const EMPTY_DB: AppDatabase = {
   posts: [],
   recommendations: [],
   seoReferences: [],
-  seoLearnedSnapshots: []
+  seoLearnedSnapshots: [],
+  adminJobs: []
 };
 
 let mutationQueue = Promise.resolve();
@@ -71,7 +73,8 @@ async function readDb(): Promise<AppDatabase> {
       })),
       recommendations: parsed.recommendations ?? [],
       seoReferences: parsed.seoReferences ?? [],
-      seoLearnedSnapshots: parsed.seoLearnedSnapshots ?? []
+      seoLearnedSnapshots: parsed.seoLearnedSnapshots ?? [],
+      adminJobs: parsed.adminJobs ?? []
     };
   } catch {
     return EMPTY_DB;
@@ -100,6 +103,98 @@ async function mutateDb<T>(work: (db: AppDatabase) => T | Promise<T>): Promise<T
 
 function nowIso(): string {
   return new Date().toISOString();
+}
+
+function appendAdminJob(
+  db: AppDatabase,
+  input: {
+    jobType: string;
+    status: AdminJobRecord["status"];
+    summary: string;
+    affectedCount: number;
+  }
+): AdminJobRecord {
+  const record: AdminJobRecord = {
+    id: randomUUID(),
+    jobType: input.jobType,
+    status: input.status,
+    summary: input.summary,
+    affectedCount: input.affectedCount,
+    createdAt: nowIso()
+  };
+
+  db.adminJobs.push(record);
+  return record;
+}
+
+function compactQuery(parts: string[]): string {
+  const seen = new Set<string>();
+
+  return parts
+    .map((part) => part.trim())
+    .filter((part) => {
+      if (!part) {
+        return false;
+      }
+
+      const key = normalizeToken(part);
+
+      if (seen.has(key)) {
+        return false;
+      }
+
+      seen.add(key);
+      return true;
+    })
+    .join(" ");
+}
+
+function inferBusinessTypeFromText(text: string): string {
+  const normalized = normalizeToken(text);
+  const mappings = [
+    { label: "칼국수집", tokens: ["칼국수", "수제비"] },
+    { label: "국밥집", tokens: ["국밥", "해장국", "순대국"] },
+    { label: "고깃집", tokens: ["삼겹살", "고기", "갈비", "정육"] },
+    { label: "횟집", tokens: ["회", "해산물", "방어", "광어"] },
+    { label: "치킨집", tokens: ["치킨", "닭강정"] },
+    { label: "분식집", tokens: ["떡볶이", "김밥", "순대", "분식"] },
+    { label: "중식당", tokens: ["짜장", "짬뽕", "중식", "탕수육"] },
+    { label: "한식당", tokens: ["백반", "한식", "집밥", "찌개"] },
+    { label: "카페", tokens: ["카페", "커피", "디저트", "브런치"] },
+    { label: "빵집", tokens: ["베이커리", "빵", "식빵", "크루아상"] },
+    { label: "초밥집", tokens: ["초밥", "스시"] },
+    { label: "파스타집", tokens: ["파스타", "리조또", "스테이크"] }
+  ];
+
+  for (const mapping of mappings) {
+    if (mapping.tokens.some((token) => normalized.includes(token))) {
+      return mapping.label;
+    }
+  }
+
+  return "";
+}
+
+function inferBusinessType(profile: BusinessProfile | null | undefined): string {
+  if (!profile) {
+    return "";
+  }
+
+  return inferBusinessTypeFromText(
+    [profile.businessName, profile.storeDescription, ...profile.representativeMenus].join(" ")
+  );
+}
+
+function buildNaverBlogSearchUrl(query: string): string {
+  return `https://search.naver.com/search.naver?where=blog&sm=tab_hty.top&query=${encodeURIComponent(query)}`;
+}
+
+function buildSeoReferenceSignature(input: {
+  keyword: string;
+  region: string;
+  businessType: string;
+}): string {
+  return [input.keyword, input.region, input.businessType].map((value) => normalizeToken(value)).join("|");
 }
 
 export async function getOrCreateUser(userId: string): Promise<UserRecord> {
@@ -430,6 +525,14 @@ export async function createSeoReference(input: CreateSeoReferenceInput): Promis
   });
 }
 
+export async function listAdminJobs(limit = 20): Promise<AdminJobRecord[]> {
+  const db = await readDb();
+  return db.adminJobs
+    .slice()
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, limit);
+}
+
 export async function listSeoReferences(): Promise<SeoReferenceRecord[]> {
   const db = await readDb();
   return db.seoReferences
@@ -455,11 +558,145 @@ export async function updateSeoReferenceStatus(referenceId: string, status: SeoR
   });
 }
 
+export async function generateSeoReferenceCandidates(limit = 12): Promise<SeoReferenceRecord[]> {
+  return mutateDb((db) => {
+    const profilesById = new Map(db.businessProfiles.map((profile) => [profile.id, profile]));
+    const profilesByUserId = new Map(db.businessProfiles.map((profile) => [profile.userId, profile]));
+    const postsById = new Map(db.posts.map((post) => [post.id, post]));
+    const existingKeys = new Set(
+      db.seoReferences.map((reference) =>
+        buildSeoReferenceSignature({
+          keyword: reference.keyword,
+          region: reference.region,
+          businessType: reference.businessType
+        })
+      )
+    );
+    const created: SeoReferenceRecord[] = [];
+    const candidatePool: Array<{
+      keyword: string;
+      region: string;
+      businessType: string;
+      title: string;
+      summary: string;
+    }> = [];
+
+    for (const profile of db.businessProfiles
+      .slice()
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+      .slice(0, 12)) {
+      const businessType = inferBusinessType(profile);
+      const primaryMenu = profile.representativeMenus[0] ?? "";
+      const keyword = compactQuery([profile.region, primaryMenu || businessType || profile.businessName, "맛집"]);
+
+      candidatePool.push({
+        keyword,
+        region: profile.region,
+        businessType: businessType || primaryMenu,
+        title: keyword,
+        summary: `${profile.businessName} 가게 정보와 대표 메뉴를 기반으로 만든 내부 후보입니다.`
+      });
+    }
+
+    for (const post of db.posts
+      .slice()
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+      .slice(0, 18)) {
+      const profile = post.businessProfileId ? profilesById.get(post.businessProfileId) : profilesByUserId.get(post.userId);
+      const businessType = inferBusinessType(profile) || inferBusinessTypeFromText([post.title, post.keyword, post.body].join(" "));
+      const keyword = compactQuery([profile?.region ?? "", post.keyword]);
+
+      candidatePool.push({
+        keyword,
+        region: profile?.region ?? "",
+        businessType,
+        title: `${keyword} 상위 노출 참고 후보`,
+        summary: `최근 생성 글 "${post.title}"와 연결된 키워드 흐름을 기준으로 만든 후보입니다.`
+      });
+    }
+
+    for (const recommendation of db.recommendations
+      .slice()
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 18)) {
+      const sourcePost = postsById.get(recommendation.sourcePostId);
+      const profile = sourcePost?.businessProfileId
+        ? profilesById.get(sourcePost.businessProfileId)
+        : profilesByUserId.get(recommendation.userId);
+      const businessType =
+        inferBusinessType(profile) || inferBusinessTypeFromText([recommendation.keyword, sourcePost?.title ?? ""].join(" "));
+      const keyword = compactQuery([profile?.region ?? "", recommendation.keyword]);
+
+      candidatePool.push({
+        keyword,
+        region: profile?.region ?? "",
+        businessType,
+        title: `${keyword} 검토 후보`,
+        summary: `추천 키워드 "${recommendation.keyword}"에서 파생된 내부 검토 후보입니다.`
+      });
+    }
+
+    for (const candidate of candidatePool) {
+      if (created.length >= limit) {
+        break;
+      }
+
+      if (!candidate.keyword.trim()) {
+        continue;
+      }
+
+      const signature = buildSeoReferenceSignature(candidate);
+
+      if (existingKeys.has(signature)) {
+        continue;
+      }
+
+      const now = nowIso();
+      const record: SeoReferenceRecord = {
+        id: randomUUID(),
+        keyword: candidate.keyword,
+        region: candidate.region,
+        businessType: candidate.businessType,
+        url: buildNaverBlogSearchUrl(candidate.keyword),
+        title: candidate.title,
+        summary: candidate.summary,
+        sourceType: "search_api",
+        status: "candidate",
+        lastAnalyzedAt: null,
+        createdAt: now,
+        updatedAt: now
+      };
+
+      db.seoReferences.push(record);
+      existingKeys.add(signature);
+      created.push(record);
+    }
+
+    appendAdminJob(db, {
+      jobType: "seo_candidate_generation",
+      status: "success",
+      summary:
+        created.length === 0
+          ? "내부 데이터 기준으로 새 후보를 추가하지 않았습니다. 기존 후보와 중복되었거나 입력 데이터가 부족했습니다."
+          : `내부 데이터 기반 SEO 후보 ${created.length}개를 생성했습니다.`,
+      affectedCount: created.length
+    });
+
+    return created;
+  });
+}
+
 export async function analyzeSeoReference(referenceId: string): Promise<SeoLearnedSnapshot | null> {
   return mutateDb((db) => {
     const record = db.seoReferences.find((item) => item.id === referenceId);
 
     if (!record) {
+      appendAdminJob(db, {
+        jobType: "seo_reference_analysis",
+        status: "failed",
+        summary: "분석 대상을 찾지 못했습니다.",
+        affectedCount: 0
+      });
       return null;
     }
 
@@ -510,6 +747,12 @@ export async function analyzeSeoReference(referenceId: string): Promise<SeoLearn
       record.status = "approved";
     }
     db.seoLearnedSnapshots.push(snapshot);
+    appendAdminJob(db, {
+      jobType: "seo_reference_analysis",
+      status: "success",
+      summary: `${record.keyword} 참고 URL 분석을 완료했습니다.`,
+      affectedCount: 1
+    });
     return snapshot;
   });
 }

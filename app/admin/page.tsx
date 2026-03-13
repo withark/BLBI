@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { getAdminStats, listSeoReferences, listSeoSnapshots } from "@/lib/store/db";
+import { getAdminStats, listAdminJobs, listSeoReferences, listSeoSnapshots } from "@/lib/store/db";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,12 @@ function formatDate(value: string): string {
 }
 
 export default async function AdminPage(): Promise<React.ReactNode> {
-  const [stats, seoReferences, seoSnapshots] = await Promise.all([getAdminStats(), listSeoReferences(), listSeoSnapshots()]);
+  const [stats, seoReferences, seoSnapshots, adminJobs] = await Promise.all([
+    getAdminStats(),
+    listSeoReferences(),
+    listSeoSnapshots(),
+    listAdminJobs(8)
+  ]);
   const approvedSeoCount = seoReferences.filter((item) => item.status === "approved").length;
 
   return (
@@ -81,6 +86,21 @@ export default async function AdminPage(): Promise<React.ReactNode> {
           <strong>상위노출 학습 관리</strong>
           <p className="help">참고 URL 등록, 승인, 분석, 스냅샷 누적을 관리합니다.</p>
         </Link>
+        <Link href="/admin/seo-references/candidates" className="card section-stack admin-link-card">
+          <span className="eyebrow">Candidate Queue</span>
+          <strong>후보 검토 큐</strong>
+          <p className="help">자동 생성되거나 수동 등록된 후보 중 아직 승인되지 않은 항목만 빠르게 검토합니다.</p>
+        </Link>
+        <Link href="/admin/seo-learning" className="card section-stack admin-link-card">
+          <span className="eyebrow">SEO Learning</span>
+          <strong>학습 패턴 보기</strong>
+          <p className="help">누적된 키워드, 소제목, CTA, 톤 패턴이 실제로 어떻게 쌓이는지 확인합니다.</p>
+        </Link>
+        <Link href="/admin/jobs" className="card section-stack admin-link-card">
+          <span className="eyebrow">Jobs</span>
+          <strong>자동 작업 로그</strong>
+          <p className="help">후보 생성과 분석 작업이 몇 건 반영됐는지 운영 로그로 확인합니다.</p>
+        </Link>
       </section>
 
       <section className="two-column">
@@ -135,6 +155,30 @@ export default async function AdminPage(): Promise<React.ReactNode> {
             </div>
           )}
         </section>
+      </section>
+
+      <section className="card section-stack tone-surface">
+        <div className="section-stack">
+          <span className="eyebrow">Recent Jobs</span>
+          <h2 className="section-title">최근 자동 작업</h2>
+        </div>
+
+        {adminJobs.length === 0 ? (
+          <div className="surface-muted">
+            <p className="small-note">아직 기록된 자동 작업이 없습니다.</p>
+          </div>
+        ) : (
+          <div className="history-list">
+            {adminJobs.map((job) => (
+              <article key={job.id} className="compact-card history-card">
+                <strong>{job.summary}</strong>
+                <div className="meta-line">
+                  {job.jobType} · {job.status === "success" ? "성공" : "실패"} · 반영 {job.affectedCount}건 · {formatDate(job.createdAt)}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

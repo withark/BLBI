@@ -1,5 +1,12 @@
-import { analyzeSeoReferenceAction, createSeoReferenceAction, updateSeoReferenceStatusAction } from "@/app/admin/actions";
-import { listSeoReferences, listSeoSnapshots } from "@/lib/store/db";
+import Link from "next/link";
+
+import {
+  analyzeSeoReferenceAction,
+  createSeoReferenceAction,
+  generateSeoCandidatesAction,
+  updateSeoReferenceStatusAction
+} from "@/app/admin/actions";
+import { listAdminJobs, listSeoReferences, listSeoSnapshots } from "@/lib/store/db";
 
 export const dynamic = "force-dynamic";
 
@@ -38,8 +45,9 @@ function formatDate(value: string | null): string {
 }
 
 export default async function AdminSeoReferencesPage(): Promise<React.ReactNode> {
-  const [references, snapshots] = await Promise.all([listSeoReferences(), listSeoSnapshots()]);
+  const [references, snapshots, jobs] = await Promise.all([listSeoReferences(), listSeoSnapshots(), listAdminJobs(12)]);
   const latestSnapshots = snapshots.slice(0, 8);
+  const latestCandidateJobs = jobs.filter((job) => job.jobType === "seo_candidate_generation").slice(0, 4);
   const statusCounts = {
     candidate: references.filter((reference) => reference.status === "candidate").length,
     approved: references.filter((reference) => reference.status === "approved").length,
@@ -96,11 +104,35 @@ export default async function AdminSeoReferencesPage(): Promise<React.ReactNode>
         </article>
       </section>
 
+      <section className="admin-overview-grid">
+        <Link href="/admin/seo-references/candidates" className="card section-stack admin-link-card">
+          <span className="eyebrow">Candidate Queue</span>
+          <strong>후보만 따로 보기</strong>
+          <p className="help">검토해야 할 후보만 분리해서 승인과 제외를 빠르게 처리합니다.</p>
+        </Link>
+        <Link href="/admin/seo-learning" className="card section-stack admin-link-card">
+          <span className="eyebrow">Learning View</span>
+          <strong>학습 규칙 보기</strong>
+          <p className="help">누적된 키워드와 소제목 패턴이 생성 엔진에 어떤 방향을 주는지 확인합니다.</p>
+        </Link>
+      </section>
+
       <section className="two-column">
         <section className="card section-stack tone-surface">
           <span className="eyebrow">Manual Input</span>
           <h2 className="section-title">상위노출 참고 URL 등록</h2>
-          <p className="help">자동 수집 이전 단계에서도 운영자가 직접 좋은 참고 URL을 등록하고 분석 흐름에 넣을 수 있어야 합니다.</p>
+          <p className="help">운영자는 직접 참고 URL을 등록할 수 있고, 외부 API 연동 전 단계에서는 내부 데이터로 후보를 먼저 자동 생성해 검토 큐를 늘릴 수 있습니다.</p>
+
+          <div className="compact-card">
+            <strong>내부 데이터 기반 후보 생성</strong>
+            <p className="small-note">최근 생성 글, 추천 키워드, 가게 정보를 합쳐 네이버 블로그 검색 후보를 자동으로 만들고 `candidate` 상태로 큐에 추가합니다.</p>
+            <form action={generateSeoCandidatesAction} className="inline-actions">
+              <input type="hidden" name="limit" value="12" />
+              <button type="submit" className="btn btn-secondary">
+                내부 데이터로 후보 생성
+              </button>
+            </form>
+          </div>
 
           <form action={createSeoReferenceAction} className="section-stack">
             <div className="row">
@@ -156,25 +188,46 @@ export default async function AdminSeoReferencesPage(): Promise<React.ReactNode>
         </section>
 
         <section className="card section-stack tone-surface">
-          <span className="eyebrow">Learning Summary</span>
-          <h2 className="section-title">최근 학습 스냅샷</h2>
-          {latestSnapshots.length === 0 ? (
+          <span className="eyebrow">Automation Status</span>
+          <h2 className="section-title">최근 자동 후보 작업</h2>
+          {latestCandidateJobs.length === 0 ? (
             <div className="surface-muted">
-              <p className="small-note">아직 학습 스냅샷이 없습니다. 참고 URL을 등록하고 분석을 실행하면 요약 패턴이 여기에 쌓입니다.</p>
+              <p className="small-note">아직 실행된 자동 후보 생성 작업이 없습니다.</p>
             </div>
           ) : (
             <div className="history-list">
-              {latestSnapshots.map((snapshot) => (
-                <article key={snapshot.id} className="compact-card history-card">
-                  <strong>{snapshot.keywordPatterns[0] || "SEO 학습"}</strong>
+              {latestCandidateJobs.map((job) => (
+                <article key={job.id} className="compact-card history-card">
+                  <strong>{job.summary}</strong>
                   <div className="meta-line">
-                    소제목 {snapshot.headingCount}개 · 사진 가이드 {snapshot.photoGuideCount}개 · 품질 {snapshot.qualityScore}
+                    {job.status === "success" ? "성공" : "실패"} · 반영 {job.affectedCount}건 · {formatDate(job.createdAt)}
                   </div>
-                  <div className="small-note">{snapshot.notes}</div>
                 </article>
               ))}
             </div>
           )}
+
+          <div className="section-stack">
+            <span className="eyebrow">Learning Summary</span>
+            <h3 className="section-title">최근 학습 스냅샷</h3>
+            {latestSnapshots.length === 0 ? (
+              <div className="surface-muted">
+                <p className="small-note">아직 학습 스냅샷이 없습니다. 참고 URL을 등록하고 분석을 실행하면 요약 패턴이 여기에 쌓입니다.</p>
+              </div>
+            ) : (
+              <div className="history-list">
+                {latestSnapshots.map((snapshot) => (
+                  <article key={snapshot.id} className="compact-card history-card">
+                    <strong>{snapshot.keywordPatterns[0] || "SEO 학습"}</strong>
+                    <div className="meta-line">
+                      소제목 {snapshot.headingCount}개 · 사진 가이드 {snapshot.photoGuideCount}개 · 품질 {snapshot.qualityScore}
+                    </div>
+                    <div className="small-note">{snapshot.notes}</div>
+                  </article>
+                ))}
+              </div>
+            )}
+          </div>
         </section>
       </section>
 
