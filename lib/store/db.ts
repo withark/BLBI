@@ -342,6 +342,20 @@ export async function updatePost(userId: string, postId: string, input: UpdatePo
   });
 }
 
+export async function deletePost(userId: string, postId: string): Promise<boolean> {
+  return mutateDb((db) => {
+    const index = db.posts.findIndex((entry) => entry.id === postId && entry.userId === userId);
+
+    if (index === -1) {
+      return false;
+    }
+
+    db.posts.splice(index, 1);
+    db.recommendations = db.recommendations.filter((entry) => !(entry.userId === userId && entry.sourcePostId === postId));
+    return true;
+  });
+}
+
 export async function saveRecommendations(
   userId: string,
   sourcePostId: string,

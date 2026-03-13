@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { toExportText } from "@/lib/domain/export";
 
@@ -53,6 +53,7 @@ function formatCreatedAt(value: string): string {
 }
 
 function ResultContent(): React.ReactNode {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const postId = searchParams.get("postId");
 
@@ -180,6 +181,33 @@ function ResultContent(): React.ReactNode {
     }
   }
 
+  async function handleDelete(): Promise<void> {
+    if (!post) {
+      return;
+    }
+
+    const confirmed = window.confirm("이 글을 삭제할까요?");
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/posts/${post.id}`, {
+        method: "DELETE"
+      });
+
+      if (!response.ok) {
+        setStatus({ type: "error", message: "삭제에 실패했습니다." });
+        return;
+      }
+
+      router.push("/history");
+    } catch {
+      setStatus({ type: "error", message: "삭제 중 오류가 발생했습니다." });
+    }
+  }
+
   return (
     <div className="result-grid">
       <section className="card hero-card accent-card">
@@ -272,6 +300,9 @@ function ResultContent(): React.ReactNode {
               <button className="btn btn-primary" onClick={() => void handleSave()} type="button">
                 수정 저장
               </button>
+              <Link className="btn btn-secondary" href={`/posts/${post.id}`}>
+                편집 전용 화면
+              </Link>
               <button className="btn btn-secondary" onClick={() => void handleRewrite("rewrite")} type="button">
                 본문 다듬기
               </button>
@@ -386,6 +417,11 @@ function ResultContent(): React.ReactNode {
         <Link href="/history" className="btn btn-secondary">
           저장된 글 보기
         </Link>
+        {post && (
+          <button type="button" className="btn btn-danger" onClick={() => void handleDelete()}>
+            삭제
+          </button>
+        )}
       </section>
     </div>
   );

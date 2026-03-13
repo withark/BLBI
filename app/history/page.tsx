@@ -114,6 +114,30 @@ export default function HistoryPage(): React.ReactNode {
     }
   }
 
+  async function handleDelete(postId: string): Promise<void> {
+    const confirmed = window.confirm("이 글을 히스토리에서 삭제할까요?");
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/posts/${postId}`, {
+        method: "DELETE"
+      });
+
+      if (!response.ok) {
+        setStatus({ type: "error", message: "삭제에 실패했습니다." });
+        return;
+      }
+
+      setPosts((prev) => prev.filter((post) => post.id !== postId));
+      setStatus({ type: "success", message: "히스토리에서 삭제했습니다." });
+    } catch {
+      setStatus({ type: "error", message: "삭제 중 오류가 발생했습니다." });
+    }
+  }
+
   return (
     <div className="page-stack">
       <section className="card hero-card accent-card">
@@ -228,12 +252,18 @@ export default function HistoryPage(): React.ReactNode {
                 <Link className="btn btn-secondary" href={`/result?postId=${post.id}`}>
                   결과 보기
                 </Link>
+                <Link className="btn btn-secondary" href={`/posts/${post.id}`}>
+                  편집
+                </Link>
                 <button type="button" className="btn btn-secondary" onClick={() => void copyText(post.exportText)}>
                   복사
                 </button>
                 <Link className="btn btn-secondary" href={`/dashboard?keyword=${encodeURIComponent(post.keyword)}`}>
                   키워드 재사용
                 </Link>
+                <button type="button" className="btn btn-danger" onClick={() => void handleDelete(post.id)}>
+                  삭제
+                </button>
               </div>
             </article>
           ))}

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { sanitizeExportText, toExportText } from "@/lib/domain/export";
 import { getUserIdFromRequest } from "@/lib/server-user";
-import { getUserPost, updatePost } from "@/lib/store/db";
+import { deletePost, getUserPost, updatePost } from "@/lib/store/db";
 
 export const dynamic = "force-dynamic";
 
@@ -67,4 +67,16 @@ export async function PATCH(request: NextRequest, context: Context): Promise<Nex
   }
 
   return NextResponse.json({ post: updated });
+}
+
+export async function DELETE(request: NextRequest, context: Context): Promise<NextResponse> {
+  const userId = getUserIdFromRequest(request);
+  const { id } = await context.params;
+  const deleted = await deletePost(userId, id);
+
+  if (!deleted) {
+    return NextResponse.json({ error: "NOT_FOUND" }, { status: 404 });
+  }
+
+  return NextResponse.json({ ok: true });
 }
