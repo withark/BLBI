@@ -94,6 +94,7 @@
 - 내부 데이터 기반 후보 생성 버튼 구현
 - `/admin/seo-references/candidates`에서 후보 전용 검토 가능
 - `/admin/seo-learning`에서 누적 패턴 요약 확인 가능
+- `/admin/ranking-watch`에서 반복되는 키워드군 관찰 가능
 - `/admin/jobs`에서 후보 생성/분석 작업 로그 확인 가능
 - 생성 엔진이 승인된 학습 스냅샷을 실제로 반영하도록 연결 완료
 

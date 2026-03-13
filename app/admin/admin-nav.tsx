@@ -11,6 +11,7 @@ const ADMIN_ITEMS = [
   { href: "/admin/usage", label: "사용량" },
   { href: "/admin/seo-references", label: "SEO 참고" },
   { href: "/admin/seo-learning", label: "SEO 학습" },
+  { href: "/admin/ranking-watch", label: "랭킹 감시" },
   { href: "/admin/jobs", label: "작업 로그" }
 ];
 

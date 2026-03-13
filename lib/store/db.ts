@@ -491,6 +491,13 @@ export async function listRecommendations(userId: string, limit = 6): Promise<Re
     .slice(0, limit);
 }
 
+export async function listAllRecommendations(): Promise<RecommendationRecord[]> {
+  const db = await readDb();
+  return db.recommendations
+    .slice()
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
 interface CreateSeoReferenceInput {
   keyword: string;
   region: string;

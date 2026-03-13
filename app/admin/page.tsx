@@ -96,6 +96,11 @@ export default async function AdminPage(): Promise<React.ReactNode> {
           <strong>학습 패턴 보기</strong>
           <p className="help">누적된 키워드, 소제목, CTA, 톤 패턴이 실제로 어떻게 쌓이는지 확인합니다.</p>
         </Link>
+        <Link href="/admin/ranking-watch" className="card section-stack admin-link-card">
+          <span className="eyebrow">Ranking Watch</span>
+          <strong>키워드군 감시</strong>
+          <p className="help">생성 글, 추천, 참고 URL에서 반복되는 키워드군을 모아 관찰합니다.</p>
+        </Link>
         <Link href="/admin/jobs" className="card section-stack admin-link-card">
           <span className="eyebrow">Jobs</span>
           <strong>자동 작업 로그</strong>
