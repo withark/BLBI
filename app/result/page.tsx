@@ -109,6 +109,32 @@ function ResultContent(): React.ReactNode {
     });
   }, [body, cta, faq, post, title]);
   const photoGuides = useMemo(() => extractPhotoGuides(previewExportText), [previewExportText]);
+  const publishChecklist = useMemo(
+    () => [
+      {
+        label: "제목과 본문",
+        ready: Boolean(title.trim() && body.trim()),
+        note: "핵심 키워드와 본문 흐름이 비어 있지 않은지 확인"
+      },
+      {
+        label: "사진 가이드",
+        ready: photoGuides.length > 0,
+        note: photoGuides.length > 0 ? `${photoGuides.length}개 가이드 준비됨` : "사진 순서를 한 번 더 정리하면 좋습니다."
+      },
+      {
+        label: "FAQ",
+        ready: Boolean(faq.trim()),
+        note: faq.trim() ? "질문 블록이 포함됩니다." : "FAQ 없이도 발행 가능하지만 정보성이 줄어듭니다."
+      },
+      {
+        label: "마무리 안내",
+        ready: Boolean(cta.trim()),
+        note: cta.trim() ? "마지막 방문 안내가 포함됩니다." : "마지막 행동 유도 문장을 넣으면 더 자연스럽습니다."
+      }
+    ],
+    [body, cta, faq, photoGuides.length, title]
+  );
+  const publishReadyCount = publishChecklist.filter((item) => item.ready).length;
 
   async function handleSave(): Promise<void> {
     if (!post) {
@@ -360,6 +386,37 @@ function ResultContent(): React.ReactNode {
               <strong>마무리 안내</strong>
               <div className="pre">{cta.trim() || "현재 마무리 안내가 없습니다."}</div>
             </div>
+          </div>
+        </section>
+      )}
+
+      {post && (
+        <section className="card section-stack tone-surface">
+          <div className="section-stack">
+            <h2 className="section-title">발행 전 10초 체크</h2>
+            <p className="help">지금 복사해도 되는지 마지막으로 보는 확인판입니다. 네 항목 중 많이 채워질수록 바로 발행하기 편합니다.</p>
+          </div>
+
+          <div className="quality-meter">
+            <div className="quality-meter-head">
+              <strong>{publishReadyCount === publishChecklist.length ? "바로 발행 가능" : "조금만 확인하면 발행 가능"}</strong>
+              <span className="small-note">
+                {publishReadyCount} / {publishChecklist.length} 항목 준비
+              </span>
+            </div>
+            <div className="quality-track" aria-hidden="true">
+              <div className="quality-fill" style={{ width: `${Math.max((publishReadyCount / publishChecklist.length) * 100, 8)}%` }} />
+            </div>
+          </div>
+
+          <div className="step-grid">
+            {publishChecklist.map((item, index) => (
+              <article key={item.label} className="step-card" style={item.ready ? undefined : { opacity: 0.7 }}>
+                <div className="step-kicker">{index + 1}</div>
+                <div className="step-title">{item.label}</div>
+                <div className="step-body">{item.note}</div>
+              </article>
+            ))}
           </div>
         </section>
       )}

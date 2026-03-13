@@ -38,6 +38,28 @@ type PostSummary = {
   createdAt: string;
 };
 
+function compactKeyword(parts: string[]): string {
+  const seen = new Set<string>();
+
+  return parts
+    .map((part) => part.trim())
+    .filter((part) => {
+      if (!part) {
+        return false;
+      }
+
+      const key = part.toLowerCase();
+
+      if (seen.has(key)) {
+        return false;
+      }
+
+      seen.add(key);
+      return true;
+    })
+    .join(" ");
+}
+
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat("ko-KR", {
     month: "long",
@@ -256,6 +278,36 @@ export function DashboardClient(): React.ReactNode {
     ];
   }, [profile]);
   const profileReadyCount = profileChecklist.filter((item) => item.ready).length;
+  const quickKeywordOptions = useMemo(() => {
+    const options = new Set<string>();
+    const region = profile?.region ?? "";
+    const businessName = profile?.businessName ?? "";
+
+    for (const menu of profile?.representativeMenus.slice(0, 3) ?? []) {
+      options.add(compactKeyword([region, menu, "맛집"]));
+      options.add(compactKeyword([region, menu, "점심"]));
+    }
+
+    if (businessName) {
+      options.add(compactKeyword([region, businessName, "후기"]));
+    }
+
+    for (const item of recommendations) {
+      options.add(item.keyword.trim());
+    }
+
+    for (const post of recentPosts) {
+      options.add(post.keyword.trim());
+    }
+
+    return [...options].filter(Boolean).slice(0, 8);
+  }, [profile, recommendations, recentPosts]);
+  const activeSettingChips = [
+    length !== "medium" ? `길이 ${length === "short" ? "짧게" : "길게"}` : "길이 기본",
+    tone === "friendly" ? "문체 친근" : tone === "professional" ? "문체 전문" : "문체 따뜻",
+    includeFaq ? "FAQ 포함" : "FAQ 제외",
+    details.trim() ? "추가 요청 반영" : "추가 요청 없음"
+  ];
 
   return (
     <div className="page-stack">
@@ -443,6 +495,41 @@ export function DashboardClient(): React.ReactNode {
             </div>
           </section>
         </section>
+      </section>
+
+      <section className="card section-stack tone-surface">
+        <div className="section-stack">
+          <h2 className="section-title">바로 쓰는 키워드 조합</h2>
+          <p className="help">가게 정보와 최근 운영 흐름으로 바로 눌러 쓸 수 있는 키워드를 먼저 준비했습니다.</p>
+        </div>
+
+        <div className="chips">
+          {quickKeywordOptions.length === 0 && <span className="help">가게 정보나 최근 데이터가 쌓이면 여기서 바로 키워드를 눌러 쓸 수 있습니다.</span>}
+          {quickKeywordOptions.map((item) => (
+            <button
+              key={item}
+              type="button"
+              className={`chip ${keyword === item ? "chip-active" : ""}`.trim()}
+              onClick={() => {
+                setKeyword(item);
+                setStatus({ type: "success", message: `키워드 '${item}'를 채웠습니다. 그대로 생성하거나 세부 설정만 조정하면 됩니다.` });
+              }}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+
+        <div className="surface-muted section-stack">
+          <strong>현재 생성 세팅</strong>
+          <div className="chips">
+            {activeSettingChips.map((item) => (
+              <span key={item} className="pill">
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
       </section>
 
       <section className="card section-stack tone-surface">
