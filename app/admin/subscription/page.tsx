@@ -77,6 +77,9 @@ export default async function AdminSubscriptionPage(): Promise<React.ReactNode> 
             <Link href="/admin/usage" className="btn btn-secondary">
               사용량 보기
             </Link>
+            <Link href="/admin/users" className="btn btn-secondary">
+              사용자 보기
+            </Link>
             <Link href="/pricing" className="btn btn-secondary">
               사용자 요금제 화면
             </Link>

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { toggleUserLimitBypassAction } from "@/app/admin/actions";
 import { listAllBusinessProfiles, listAllPosts, listAllUsers } from "@/lib/store/db";
 
@@ -47,6 +49,22 @@ export default async function AdminUsersPage(): Promise<React.ReactNode> {
               <strong>한도 우회</strong>
               <div>{bypassCount}명</div>
             </div>
+          </div>
+        </article>
+
+        <article className="card section-stack tone-surface">
+          <span className="eyebrow">Related Pages</span>
+          <h2 className="section-title">함께 볼 화면</h2>
+          <div className="inline-actions">
+            <Link href="/admin/subscription" className="btn btn-secondary">
+              구독 화면
+            </Link>
+            <Link href="/admin/usage" className="btn btn-secondary">
+              사용량 화면
+            </Link>
+            <Link href="/admin/posts" className="btn btn-secondary">
+              생성 글 화면
+            </Link>
           </div>
         </article>
       </section>

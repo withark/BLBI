@@ -522,6 +522,9 @@ export function DashboardClient(): React.ReactNode {
               <Link className="btn btn-secondary" href="/pricing">
                 요금제 보기
               </Link>
+              <Link className="btn btn-secondary" href="/settings">
+                플랜/설정 보기
+              </Link>
             </div>
           </section>
 
@@ -584,6 +587,15 @@ export function DashboardClient(): React.ReactNode {
               </span>
             ))}
           </div>
+        </div>
+
+        <div className="inline-actions">
+          <Link className="btn btn-secondary" href="/guide">
+            입력 가이드 보기
+          </Link>
+          <Link className="btn btn-secondary" href="/history">
+            저장 글 운영 보기
+          </Link>
         </div>
       </section>
 
