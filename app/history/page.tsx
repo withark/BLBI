@@ -105,6 +105,7 @@ export default function HistoryPage(): React.ReactNode {
     planFilter !== "ALL" ? `플랜 ${planFilter}` : "",
     periodFilter === "TODAY" ? "오늘 생성" : periodFilter === "MONTH" ? "이번 달" : ""
   ].filter(Boolean);
+  const topReusablePost = filtered[0] ?? null;
 
   async function copyText(text: string): Promise<void> {
     try {
@@ -246,6 +247,27 @@ export default function HistoryPage(): React.ReactNode {
           )}
         </div>
       </section>
+
+      {topReusablePost ? (
+        <section className="card section-stack tone-surface">
+          <h2 className="section-title">지금 다시 쓰기 가장 쉬운 글</h2>
+          <div className="compact-card">
+            <strong>{topReusablePost.title}</strong>
+            <div className="meta-line">
+              {topReusablePost.keyword} · {topReusablePost.plan} · {formatDate(topReusablePost.createdAt)}
+            </div>
+            <div className="small-note">최근 필터 기준으로 가장 먼저 보이는 글입니다. 복사하거나 같은 키워드로 새 글을 이어서 만들기 좋습니다.</div>
+          </div>
+          <div className="inline-actions">
+            <Link className="btn btn-primary" href={`/dashboard?keyword=${encodeURIComponent(topReusablePost.keyword)}`}>
+              이 키워드로 새 글 만들기
+            </Link>
+            <Link className="btn btn-secondary" href={`/result?postId=${topReusablePost.id}`}>
+              결과 다시 보기
+            </Link>
+          </div>
+        </section>
+      ) : null}
 
       {filtered.length === 0 ? (
         <section className="card section-stack">

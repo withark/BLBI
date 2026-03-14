@@ -29,6 +29,12 @@ function formatPlanWindow(usage: UsageState | null): string {
 export default function PricingPage(): React.ReactNode {
   const [plan, setPlan] = useState<Plan>("FREE");
   const [usage, setUsage] = useState<UsageState | null>(null);
+  const suggestedPlan =
+    usage && usage.limit !== null && usage.remaining !== null && usage.remaining <= 1
+      ? plan === "FREE"
+        ? "BASIC"
+        : "PREMIUM"
+      : plan;
 
   useEffect(() => {
     async function loadPricingContext(): Promise<void> {
@@ -117,6 +123,9 @@ export default function PricingPage(): React.ReactNode {
 
       <section className="card section-stack">
         <h2 className="section-title">어떤 플랜을 고르면 되나요?</h2>
+        <p className="help">
+          현재 사용 흐름 기준 추천: <strong>{PLAN_DISPLAY[suggestedPlan].name}</strong>
+        </p>
         <div className="step-grid">
           <div className="step-card">
             <div className="step-kicker">Free</div>
@@ -133,6 +142,33 @@ export default function PricingPage(): React.ReactNode {
             <div className="step-title">여러 주제를 묶어 운영할 때</div>
             <div className="step-body">시리즈 주제와 무제한 생성이 필요할 때 선택하면 됩니다.</div>
           </div>
+        </div>
+      </section>
+
+      <section className="card section-stack tone-surface">
+        <h2 className="section-title">지금 바로 판단하는 기준</h2>
+        <div className="history-list">
+          <article className="compact-card history-card">
+            <strong>Free 유지</strong>
+            <div className="small-note">아직 첫 글 몇 개를 만들며 복붙 결과와 운영 리듬을 익히는 단계일 때</div>
+          </article>
+          <article className="compact-card history-card">
+            <strong>Basic 고려</strong>
+            <div className="small-note">한 달에 10개 안팎으로 꾸준히 올리고, 저장 글을 재활용하기 시작했을 때</div>
+          </article>
+          <article className="compact-card history-card">
+            <strong>Premium 고려</strong>
+            <div className="small-note">시리즈 주제, 반복 생성, 관리자 SEO 학습 흐름까지 같이 써야 할 때</div>
+          </article>
+        </div>
+
+        <div className="inline-actions">
+          <Link href="/settings" className="btn btn-primary">
+            지금 플랜 적용 보기
+          </Link>
+          <Link href="/history" className="btn btn-secondary">
+            저장 글 기준으로 판단
+          </Link>
         </div>
       </section>
     </div>

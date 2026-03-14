@@ -37,6 +37,12 @@ export default function SettingsPage(): React.ReactNode {
   const [saving, setSaving] = useState(false);
   const selectedCard = PRICING_CARDS.find((card) => card.plan === plan) ?? PRICING_CARDS[0];
   const selectedLimits = PLAN_LIMITS[plan];
+  const recommendedNextAction =
+    plan === "FREE"
+      ? "먼저 홈과 대시보드 흐름을 익히고, 2~3개의 글을 만든 뒤 업그레이드를 판단하는 편이 맞습니다."
+      : plan === "BASIC"
+        ? "지역/메뉴 키워드를 묶어서 주 3~4회 운영하는 리듬을 만들기 좋은 상태입니다."
+        : "시리즈 주제와 반복 생성이 필요한 운영형 상태입니다. 관리자 SEO 참고 흐름까지 함께 보는 편이 맞습니다.";
 
   useEffect(() => {
     async function loadSettings(): Promise<void> {
@@ -190,6 +196,7 @@ export default function SettingsPage(): React.ReactNode {
 
         <section className="card section-stack">
           <h2 className="section-title">바로 이어서 할 일</h2>
+          <p className="help">{recommendedNextAction}</p>
           <div className="step-grid">
             <div className="step-card">
               <div className="step-kicker">1</div>
@@ -224,6 +231,9 @@ export default function SettingsPage(): React.ReactNode {
           </Link>
           <Link href="/billing" className="btn btn-secondary">
             결제 준비 상태
+          </Link>
+          <Link href="/history" className="btn btn-secondary">
+            저장 글 운영 보기
           </Link>
         </div>
       </section>
