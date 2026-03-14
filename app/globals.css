@@ -807,6 +807,55 @@ p {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.priority-grid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.priority-card {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1rem;
+  border-radius: 20px;
+  border: 1px solid rgba(133, 96, 66, 0.14);
+  background: rgba(255, 251, 246, 0.76);
+}
+
+.priority-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.priority-card-head strong {
+  font-size: 1.4rem;
+  letter-spacing: -0.04em;
+  font-family: var(--headline-font);
+}
+
+.priority-card.is-danger {
+  border-color: rgba(180, 74, 58, 0.22);
+  background:
+    radial-gradient(circle at top right, rgba(180, 74, 58, 0.12), transparent 34%),
+    linear-gradient(180deg, rgba(255, 244, 241, 0.98) 0%, rgba(255, 249, 245, 0.95) 100%);
+}
+
+.priority-card.is-warning {
+  border-color: rgba(213, 154, 48, 0.24);
+  background:
+    radial-gradient(circle at top right, rgba(213, 154, 48, 0.16), transparent 34%),
+    linear-gradient(180deg, rgba(255, 248, 236, 0.98) 0%, rgba(255, 252, 247, 0.95) 100%);
+}
+
+.priority-card.is-stable {
+  border-color: rgba(30, 90, 74, 0.2);
+  background:
+    radial-gradient(circle at top right, rgba(30, 90, 74, 0.12), transparent 34%),
+    linear-gradient(180deg, rgba(242, 250, 246, 0.98) 0%, rgba(251, 253, 250, 0.95) 100%);
+}
+
 .tone-card {
   position: relative;
   overflow: hidden;
@@ -917,6 +966,7 @@ p {
   .info-grid,
   .overview-grid,
   .metric-card-grid,
+  .priority-grid,
   .admin-overview-grid {
     grid-template-columns: 1fr;
   }
