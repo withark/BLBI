@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { analyzeApprovedSeoReferencesAction, generateSeoCandidatesAction } from "@/app/admin/actions";
+
 import { getAdminStats, listAdminJobs, listSeoReferences, listSeoSnapshots } from "@/lib/store/db";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +23,9 @@ export default async function AdminPage(): Promise<React.ReactNode> {
     listAdminJobs(8)
   ]);
   const approvedSeoCount = seoReferences.filter((item) => item.status === "approved").length;
+  const candidateSeoCount = seoReferences.filter((item) => item.status === "candidate").length;
+  const averageSeoQuality =
+    seoSnapshots.length === 0 ? 0 : Math.round(seoSnapshots.reduce((sum, snapshot) => sum + snapshot.qualityScore, 0) / seoSnapshots.length);
 
   return (
     <div className="page-stack">
@@ -54,10 +59,54 @@ export default async function AdminPage(): Promise<React.ReactNode> {
             <div className="compact-card">
               <strong>학습 스냅샷</strong>
               <div>{stats.seoSnapshotCount}개</div>
-              <div className="meta-line">최근 분석 결과가 누적되는 저장층입니다.</div>
+              <div className="meta-line">평균 품질 {averageSeoQuality}점</div>
             </div>
           </div>
         </article>
+      </section>
+
+      <section className="two-column">
+        <section className="card section-stack tone-surface">
+          <span className="eyebrow">Operator Actions</span>
+          <h2 className="section-title">바로 실행할 SEO 운영 작업</h2>
+          <p className="help">관리자 홈에서 바로 후보를 늘리고 승인된 참고 URL을 재분석할 수 있게 해 두면, 학습 주기를 따로 찾지 않아도 됩니다.</p>
+          <div className="inline-actions">
+            <form action={generateSeoCandidatesAction}>
+              <input type="hidden" name="limit" value="12" />
+              <button type="submit" className="btn btn-primary">
+                후보 12개 생성
+              </button>
+            </form>
+            <form action={analyzeApprovedSeoReferencesAction}>
+              <input type="hidden" name="limit" value="6" />
+              <button type="submit" className="btn btn-secondary">
+                승인 참고 6개 재분석
+              </button>
+            </form>
+            <Link href="/admin/seo-references/candidates" className="btn btn-secondary">
+              후보 검토 바로가기
+            </Link>
+          </div>
+        </section>
+
+        <section className="card section-stack tone-surface">
+          <span className="eyebrow">Attention</span>
+          <h2 className="section-title">지금 먼저 볼 항목</h2>
+          <div className="history-list">
+            <article className="compact-card history-card">
+              <strong>검토 대기 후보</strong>
+              <div className="meta-line">{candidateSeoCount}개</div>
+            </article>
+            <article className="compact-card history-card">
+              <strong>승인 참고 URL</strong>
+              <div className="meta-line">{approvedSeoCount}개</div>
+            </article>
+            <article className="compact-card history-card">
+              <strong>최근 자동 작업</strong>
+              <div className="meta-line">{adminJobs.length}건 표시 중</div>
+            </article>
+          </div>
+        </section>
       </section>
 
       <section className="admin-overview-grid">
