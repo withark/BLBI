@@ -85,6 +85,11 @@ a {
   gap: 1rem;
 }
 
+.topbar-brand-block {
+  display: grid;
+  gap: 0.65rem;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
@@ -123,6 +128,21 @@ a {
 .brand-copy span {
   color: var(--muted);
   font-size: 0.8rem;
+}
+
+.topbar-signal {
+  display: inline-grid;
+  gap: 0.15rem;
+  width: fit-content;
+  padding: 0.55rem 0.8rem;
+  border-radius: 16px;
+  border: 1px solid rgba(133, 96, 66, 0.12);
+  background: rgba(255, 250, 244, 0.72);
+}
+
+.topbar-signal strong {
+  font-size: 0.88rem;
+  letter-spacing: -0.02em;
 }
 
 .nav {
@@ -1183,6 +1203,10 @@ p {
   }
 
   .brand {
+    width: 100%;
+  }
+
+  .topbar-signal {
     width: 100%;
   }
 

@@ -16,13 +16,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
         <div className="app-shell">
           <header className="topbar">
             <div className="container topbar-inner">
-              <Link href="/" className="brand">
-                <span className="brand-mark">BLBI</span>
-                <span className="brand-copy">
-                  <strong>블비</strong>
-                  <span>지역 사장님용 블로그 운영 스튜디오</span>
-                </span>
-              </Link>
+              <div className="topbar-brand-block">
+                <Link href="/" className="brand">
+                  <span className="brand-mark">BLBI</span>
+                  <span className="brand-copy">
+                    <strong>블비</strong>
+                    <span>지역 사장님용 블로그 운영 스튜디오</span>
+                  </span>
+                </Link>
+                <div className="topbar-signal">
+                  <span className="eyebrow">Studio Flow</span>
+                  <strong>키워드 1줄 → 결과 복사 → 반복 운영</strong>
+                </div>
+              </div>
               <MainNav />
             </div>
           </header>
