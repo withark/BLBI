@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
 
 type UsageState = {
   plan: "FREE" | "BASIC" | "PREMIUM";
@@ -15,7 +12,7 @@ type ProfileState = {
   region: string;
   representativeMenus: string[];
   storeDescription: string;
-};
+} | null;
 
 type PostSummary = {
   id: string;
@@ -24,11 +21,7 @@ type PostSummary = {
   createdAt: string;
 };
 
-function formatUsage(usage: UsageState | null): string {
-  if (!usage) {
-    return "사용량을 확인하는 중입니다.";
-  }
-
+function formatUsage(usage: UsageState): string {
   if (usage.limit === null) {
     return `이번 기간 ${usage.used}회 생성 · 무제한 사용`;
   }
@@ -36,98 +29,61 @@ function formatUsage(usage: UsageState | null): string {
   return `이번 기간 ${usage.used} / ${usage.limit}회 생성 · 남음 ${usage.remaining}회`;
 }
 
-export function HomeOperationsOverview(): React.ReactNode {
-  const [usage, setUsage] = useState<UsageState | null>(null);
-  const [profile, setProfile] = useState<ProfileState | null>(null);
-  const [posts, setPosts] = useState<PostSummary[]>([]);
-
-  useEffect(() => {
-    async function loadOverview(): Promise<void> {
-      const [usageRes, profileRes, postsRes] = await Promise.all([
-        fetch("/api/usage", { cache: "no-store" }),
-        fetch("/api/business-profile", { cache: "no-store" }),
-        fetch("/api/posts", { cache: "no-store" })
-      ]);
-
-      if (usageRes.ok) {
-        const usageJson = (await usageRes.json()) as { usage: UsageState };
-        setUsage(usageJson.usage);
-      }
-
-      if (profileRes.ok) {
-        const profileJson = (await profileRes.json()) as { profile: ProfileState | null };
-        setProfile(profileJson.profile);
-      }
-
-      if (postsRes.ok) {
-        const postsJson = (await postsRes.json()) as { posts: PostSummary[] };
-        setPosts(postsJson.posts.slice(0, 4));
-      }
-    }
-
-    loadOverview().catch(() => undefined);
-  }, []);
-
-  const nextAction = useMemo(() => {
-    if (!profile) {
-      return {
+export function HomeOperationsOverview(input: {
+  usage: UsageState;
+  profile: ProfileState;
+  posts: PostSummary[];
+}): React.ReactNode {
+  const { usage, profile, posts } = input;
+  const nextAction = !profile
+    ? {
         title: "가게 정보부터 1회 등록",
         body: "상호명과 지역만 먼저 넣어도 생성 결과가 훨씬 구체적으로 바뀝니다.",
         href: "/onboarding",
         label: "가게 정보 입력"
-      };
-    }
-
-    if (posts.length === 0) {
-      return {
-        title: "첫 글 생성 시작",
-        body: "가게 정보가 준비됐으니 이제 키워드 하나로 첫 초안을 만들어 보면 됩니다.",
-        href: "/dashboard",
-        label: "대시보드 열기"
-      };
-    }
-
-    return {
-      title: "최근 글 이어서 운영",
-      body: "최근에 만든 키워드를 다시 써서 다음 글을 빠르게 이어갈 수 있습니다.",
-      href: `/dashboard?keyword=${encodeURIComponent(posts[0].keyword)}`,
-      label: "최근 키워드로 시작"
-    };
-  }, [posts, profile]);
-
-  const frequentKeywords = useMemo(() => {
-    const counts = new Map<string, number>();
-
-    for (const post of posts) {
-      counts.set(post.keyword, (counts.get(post.keyword) ?? 0) + 1);
-    }
-
-    return [...counts.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .map(([keyword]) => keyword)
-      .slice(0, 4);
-  }, [posts]);
-
-  const readinessItems = useMemo(
-    () => [
-      {
-        label: "가게 정보 등록",
-        done: Boolean(profile),
-        note: profile ? "기본 소개와 대표 메뉴가 연결됩니다." : "상호명과 지역만 먼저 넣어도 충분합니다."
-      },
-      {
-        label: "첫 글 생성",
-        done: posts.length > 0,
-        note: posts.length > 0 ? `${posts.length}개의 저장 글이 있습니다.` : "키워드 1개로 첫 초안을 만들어 보면 됩니다."
-      },
-      {
-        label: "반복 운영 준비",
-        done: posts.length > 1,
-        note: posts.length > 1 ? "최근 키워드를 다시 써서 시리즈 운영이 가능합니다." : "글이 2개 이상 쌓이면 운영 리듬이 더 쉬워집니다."
       }
-    ],
-    [posts.length, profile]
-  );
+    : posts.length === 0
+      ? {
+          title: "첫 글 생성 시작",
+          body: "가게 정보가 준비됐으니 이제 키워드 하나로 첫 초안을 만들어 보면 됩니다.",
+          href: "/dashboard",
+          label: "대시보드 열기"
+        }
+      : {
+          title: "최근 글 이어서 운영",
+          body: "최근에 만든 키워드를 다시 써서 다음 글을 빠르게 이어갈 수 있습니다.",
+          href: `/dashboard?keyword=${encodeURIComponent(posts[0].keyword)}`,
+          label: "최근 키워드로 시작"
+        };
+
+  const counts = new Map<string, number>();
+
+  for (const post of posts) {
+    counts.set(post.keyword, (counts.get(post.keyword) ?? 0) + 1);
+  }
+
+  const frequentKeywords = [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([keyword]) => keyword)
+    .slice(0, 4);
+
+  const readinessItems = [
+    {
+      label: "가게 정보 등록",
+      done: Boolean(profile),
+      note: profile ? "기본 소개와 대표 메뉴가 연결됩니다." : "상호명과 지역만 먼저 넣어도 충분합니다."
+    },
+    {
+      label: "첫 글 생성",
+      done: posts.length > 0,
+      note: posts.length > 0 ? `${posts.length}개의 저장 글이 있습니다.` : "키워드 1개로 첫 초안을 만들어 보면 됩니다."
+    },
+    {
+      label: "반복 운영 준비",
+      done: posts.length > 1,
+      note: posts.length > 1 ? "최근 키워드를 다시 써서 시리즈 운영이 가능합니다." : "글이 2개 이상 쌓이면 운영 리듬이 더 쉬워집니다."
+    }
+  ];
 
   return (
     <section className="overview-grid">

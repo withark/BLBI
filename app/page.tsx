@@ -79,7 +79,30 @@ export default async function HomePage(): Promise<React.ReactNode> {
   return (
     <div className="page-stack">
       <KeywordQuickStart />
-      <HomeOperationsOverview />
+      <HomeOperationsOverview
+        usage={{
+          plan: usage.plan,
+          used: usage.used,
+          limit: usage.limit,
+          remaining: usage.remaining
+        }}
+        profile={
+          profile
+            ? {
+                businessName: profile.businessName,
+                region: profile.region,
+                representativeMenus: profile.representativeMenus,
+                storeDescription: profile.storeDescription
+              }
+            : null
+        }
+        posts={posts.slice(0, 4).map((post) => ({
+          id: post.id,
+          keyword: post.keyword,
+          title: post.title,
+          createdAt: post.createdAt
+        }))}
+      />
 
       <section className="card section-stack tone-surface">
         <div className="section-stack">
