@@ -66,6 +66,31 @@ export default function AuthPage(): React.ReactNode {
           <Link className="btn btn-secondary" href="/onboarding">
             가게 정보 먼저 입력
           </Link>
+          <Link className="btn btn-secondary" href="/history">
+            저장 글 다시 보기
+          </Link>
+        </div>
+      </section>
+
+      <section className="card section-stack tone-surface">
+        <span className="eyebrow">Fast Path</span>
+        <h2 className="section-title">지금 가장 빠른 흐름</h2>
+        <div className="step-grid">
+          <div className="step-card">
+            <div className="step-kicker">1</div>
+            <div className="step-title">온보딩 확인</div>
+            <div className="step-body">가게 정보가 비어 있으면 먼저 상호명과 지역만 채웁니다.</div>
+          </div>
+          <div className="step-card">
+            <div className="step-kicker">2</div>
+            <div className="step-title">대시보드 생성</div>
+            <div className="step-body">키워드 한 줄로 초안을 만든 뒤 결과 화면으로 바로 이동합니다.</div>
+          </div>
+          <div className="step-card">
+            <div className="step-kicker">3</div>
+            <div className="step-title">히스토리 운영</div>
+            <div className="step-body">저장된 글을 다시 열고 복사하고 키워드를 재사용합니다.</div>
+          </div>
         </div>
       </section>
     </div>

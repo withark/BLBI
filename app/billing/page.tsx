@@ -70,6 +70,22 @@ export default function BillingPage(): React.ReactNode {
           </ul>
         </section>
       </section>
+
+      <section className="card section-stack tone-surface">
+        <span className="eyebrow">Fast Path</span>
+        <h2 className="section-title">지금 결제 대신 바로 확인할 화면</h2>
+        <div className="inline-actions">
+          <Link href="/settings" className="btn btn-primary">
+            플랜 바로 바꾸기
+          </Link>
+          <Link href="/dashboard" className="btn btn-secondary">
+            현재 플랜으로 생성 보기
+          </Link>
+          <Link href="/admin/subscription" className="btn btn-secondary">
+            관리자 구독 화면
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }
