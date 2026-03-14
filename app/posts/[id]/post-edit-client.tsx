@@ -384,6 +384,34 @@ export function PostEditClient({ postId }: PostEditClientProps): React.ReactNode
               </div>
             </div>
           </section>
+
+          <section className="card section-stack tone-surface">
+            <div className="section-stack">
+              <h2 className="section-title">다음 글 이어쓰기</h2>
+              <p className="help">이번 편집 흐름과 바로 이어질 키워드를 눌러 다음 초안으로 넘어갈 수 있습니다.</p>
+            </div>
+
+            <div className="chips">
+              {post?.nextSuggestions.length ? (
+                post.nextSuggestions.map((suggestion) => (
+                  <Link key={suggestion} href={`/dashboard?keyword=${encodeURIComponent(suggestion)}`} className="chip">
+                    {suggestion}
+                  </Link>
+                ))
+              ) : (
+                <span className="help">아직 추천 키워드가 없습니다.</span>
+              )}
+            </div>
+
+            <div className="inline-actions">
+              <Link href={`/dashboard?keyword=${encodeURIComponent(post?.keyword || "")}`} className="btn btn-secondary">
+                같은 키워드로 다시 생성
+              </Link>
+              <Link href={`/history?keyword=${encodeURIComponent(post?.keyword || "")}`} className="btn btn-secondary">
+                같은 키워드 히스토리
+              </Link>
+            </div>
+          </section>
         </aside>
       </section>
 

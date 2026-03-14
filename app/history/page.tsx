@@ -349,6 +349,12 @@ export default function HistoryPage(): React.ReactNode {
             <Link className="btn btn-secondary" href={`/result?postId=${topReusablePost.id}`}>
               결과 다시 보기
             </Link>
+            <Link className="btn btn-secondary" href={`/posts/${topReusablePost.id}`}>
+              편집 이어서 하기
+            </Link>
+            <button type="button" className="btn btn-secondary" onClick={() => void copyText(topReusablePost.exportText)}>
+              바로 복사
+            </button>
           </div>
         </section>
       ) : null}
