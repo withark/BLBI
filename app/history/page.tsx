@@ -67,6 +67,29 @@ function isWithinPeriod(value: string, period: PeriodFilter): boolean {
   return createdAt >= monthStart.getTime();
 }
 
+function buildHistoryQuery(input: {
+  keyword: string;
+  plan: PlanFilter;
+  period: PeriodFilter;
+}): string {
+  const params = new URLSearchParams();
+
+  if (input.keyword.trim()) {
+    params.set("keyword", input.keyword.trim());
+  }
+
+  if (input.plan !== "ALL") {
+    params.set("plan", input.plan);
+  }
+
+  if (input.period !== "ALL") {
+    params.set("period", input.period);
+  }
+
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}
+
 export default function HistoryPage(): React.ReactNode {
   const [posts, setPosts] = useState<PostItem[]>([]);
   const [keywordFilter, setKeywordFilter] = useState("");
@@ -120,6 +143,24 @@ export default function HistoryPage(): React.ReactNode {
 
     loadPosts().catch(() => undefined);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const nextQuery = buildHistoryQuery({
+      keyword: keywordFilter,
+      plan: planFilter,
+      period: periodFilter
+    });
+    const nextUrl = `${window.location.pathname}${nextQuery}`;
+    const currentUrl = `${window.location.pathname}${window.location.search}`;
+
+    if (nextUrl !== currentUrl) {
+      window.history.replaceState({}, "", nextUrl);
+    }
+  }, [keywordFilter, periodFilter, planFilter]);
 
   const filtered = useMemo(() => {
     const q = keywordFilter.trim().toLowerCase();
@@ -321,12 +362,39 @@ export default function HistoryPage(): React.ReactNode {
               : "다른 키워드나 제목으로 다시 검색해 보세요."}
           </p>
           <div className="inline-actions">
-            <Link className="btn btn-primary" href="/dashboard">
-              새 글 만들기
-            </Link>
-            <Link className="btn btn-secondary" href="/dashboard">
-              대시보드로 이동
-            </Link>
+            {posts.length === 0 ? (
+              <>
+                <Link className="btn btn-primary" href="/dashboard">
+                  첫 글 만들기
+                </Link>
+                <Link className="btn btn-secondary" href="/onboarding">
+                  가게 정보 먼저 입력
+                </Link>
+              </>
+            ) : (
+              <>
+                {keywordFilter.trim() ? (
+                  <Link className="btn btn-primary" href={`/dashboard?keyword=${encodeURIComponent(keywordFilter.trim())}`}>
+                    현재 검색어로 새 글 만들기
+                  </Link>
+                ) : (
+                  <Link className="btn btn-primary" href="/dashboard">
+                    새 글 만들기
+                  </Link>
+                )}
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setKeywordFilter("");
+                    setPlanFilter("ALL");
+                    setPeriodFilter("ALL");
+                  }}
+                >
+                  필터 초기화
+                </button>
+              </>
+            )}
           </div>
         </section>
       ) : (

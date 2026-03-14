@@ -512,6 +512,9 @@ function ResultContent(): React.ReactNode {
             <Link href={post.nextSuggestions[0] ? `/dashboard?keyword=${encodeURIComponent(post.nextSuggestions[0])}` : "/dashboard"} className="btn btn-secondary">
               다음 추천으로 이어쓰기
             </Link>
+            <Link href={`/history?keyword=${encodeURIComponent(post.keyword)}`} className="btn btn-secondary">
+              같은 키워드 히스토리 보기
+            </Link>
           </div>
         </section>
       )}
@@ -566,7 +569,7 @@ function ResultContent(): React.ReactNode {
         <Link href="/dashboard" className="btn btn-secondary">
           다시 생성하기
         </Link>
-        <Link href="/history" className="btn btn-secondary">
+        <Link href={post ? `/history?keyword=${encodeURIComponent(post.keyword)}` : "/history"} className="btn btn-secondary">
           저장된 글 보기
         </Link>
         {post && (
