@@ -26,6 +26,8 @@ const EMPTY_FORM: Profile = {
   toneGuide: ""
 };
 
+const ONBOARDING_DRAFT_KEY = "blbi:onboarding-draft:v1";
+
 function buildKeywordPreview(region: string, menu: string, businessName: string): string {
   return [region, menu || businessName, "맛집"].map((value) => value.trim()).filter(Boolean).join(" ");
 }
@@ -36,23 +38,41 @@ export default function OnboardingPage(): React.ReactNode {
   const [menuText, setMenuText] = useState("");
   const [status, setStatus] = useState<{ type: "info" | "error" | "success"; message: string } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [didHydrateDraft, setDidHydrateDraft] = useState(false);
 
   useEffect(() => {
     async function loadProfile(): Promise<void> {
       const response = await fetch("/api/business-profile", { cache: "no-store" });
 
       if (!response.ok) {
+        setDidHydrateDraft(true);
         return;
       }
 
       const json = (await response.json()) as { profile: Profile | null };
 
       if (!json.profile) {
+        if (typeof window !== "undefined") {
+          try {
+            const rawDraft = window.localStorage.getItem(ONBOARDING_DRAFT_KEY);
+
+            if (rawDraft) {
+              const draft = JSON.parse(rawDraft) as Profile;
+              setForm(draft);
+              setMenuText((draft.representativeMenus ?? []).join(", "));
+            }
+          } catch {
+            window.localStorage.removeItem(ONBOARDING_DRAFT_KEY);
+          }
+        }
+
+        setDidHydrateDraft(true);
         return;
       }
 
       setForm(json.profile);
       setMenuText(json.profile.representativeMenus.join(", "));
+      setDidHydrateDraft(true);
     }
 
     loadProfile().catch(() => undefined);
@@ -104,6 +124,20 @@ export default function OnboardingPage(): React.ReactNode {
     form.facilities ? `${form.facilities.split(",")[0]?.trim() || "매장 편의 정보"}를 보여 주는 컷` : "좌석이나 내부 분위기를 보여 주는 컷"
   ];
 
+  useEffect(() => {
+    if (!didHydrateDraft || typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(
+      ONBOARDING_DRAFT_KEY,
+      JSON.stringify({
+        ...form,
+        representativeMenus
+      })
+    );
+  }, [didHydrateDraft, form, representativeMenus]);
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     setSaving(true);
@@ -127,6 +161,9 @@ export default function OnboardingPage(): React.ReactNode {
       }
 
       setStatus({ type: "success", message: "가게 정보를 저장했습니다. 바로 생성 화면으로 이동합니다." });
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem(ONBOARDING_DRAFT_KEY);
+      }
       router.push("/dashboard?welcome=profile-saved");
     } catch {
       setStatus({ type: "error", message: "저장 중 오류가 발생했습니다." });
@@ -365,6 +402,11 @@ export default function OnboardingPage(): React.ReactNode {
                     </li>
                   ))}
                 </ul>
+              </div>
+
+              <div className="surface-muted section-stack">
+                <strong>임시 저장 안내</strong>
+                <p className="small-note">입력 중인 가게 정보는 이 브라우저에 임시 저장됩니다. 중간에 나가도 다시 켜면 이어서 정리할 수 있습니다.</p>
               </div>
             </section>
           </aside>

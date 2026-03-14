@@ -64,6 +64,7 @@ function ResultContent(): React.ReactNode {
   const [cta, setCta] = useState("");
   const [status, setStatus] = useState<{ type: "info" | "error" | "success"; message: string } | null>(null);
   const [loading, setLoading] = useState(false);
+  const draftStorageKey = post ? `blbi:result-draft:${post.id}` : null;
 
   useEffect(() => {
     async function loadPost(id: string): Promise<void> {
@@ -78,11 +79,38 @@ function ResultContent(): React.ReactNode {
         }
 
         const json = (await response.json()) as { post: PostItem };
+        let nextTitle = json.post.title;
+        let nextBody = json.post.body;
+        let nextFaq = json.post.faq;
+        let nextCta = json.post.cta;
+
+        if (typeof window !== "undefined") {
+          try {
+            const rawDraft = window.localStorage.getItem(`blbi:result-draft:${json.post.id}`);
+
+            if (rawDraft) {
+              const draft = JSON.parse(rawDraft) as {
+                title?: string;
+                body?: string;
+                faq?: string;
+                cta?: string;
+              };
+
+              nextTitle = draft.title ?? nextTitle;
+              nextBody = draft.body ?? nextBody;
+              nextFaq = draft.faq ?? nextFaq;
+              nextCta = draft.cta ?? nextCta;
+            }
+          } catch {
+            window.localStorage.removeItem(`blbi:result-draft:${json.post.id}`);
+          }
+        }
+
         setPost(json.post);
-        setTitle(json.post.title);
-        setBody(json.post.body);
-        setFaq(json.post.faq);
-        setCta(json.post.cta);
+        setTitle(nextTitle);
+        setBody(nextBody);
+        setFaq(nextFaq);
+        setCta(nextCta);
       } catch {
         setStatus({ type: "error", message: "결과를 불러오는 중 오류가 발생했습니다." });
       } finally {
@@ -136,6 +164,22 @@ function ResultContent(): React.ReactNode {
   );
   const publishReadyCount = publishChecklist.filter((item) => item.ready).length;
 
+  useEffect(() => {
+    if (!draftStorageKey || typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(
+      draftStorageKey,
+      JSON.stringify({
+        title,
+        body,
+        faq,
+        cta
+      })
+    );
+  }, [body, cta, draftStorageKey, faq, title]);
+
   async function handleSave(): Promise<void> {
     if (!post) {
       return;
@@ -159,6 +203,9 @@ function ResultContent(): React.ReactNode {
       setPost(json.post);
       setFaq(json.post.faq);
       setCta(json.post.cta);
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem(`blbi:result-draft:${json.post.id}`);
+      }
       setStatus({ type: "success", message: "수정 내용을 저장했습니다." });
     } catch {
       setStatus({ type: "error", message: "저장 중 오류가 발생했습니다." });
@@ -188,6 +235,8 @@ function ResultContent(): React.ReactNode {
       setPost(json.post);
       setTitle(json.post.title);
       setBody(json.post.body);
+      setFaq(json.post.faq);
+      setCta(json.post.cta);
       setStatus({ type: "success", message: "본문 다듬기가 적용되었습니다." });
     } catch {
       setStatus({ type: "error", message: "다듬기 중 오류가 발생했습니다." });
@@ -226,6 +275,10 @@ function ResultContent(): React.ReactNode {
       if (!response.ok) {
         setStatus({ type: "error", message: "삭제에 실패했습니다." });
         return;
+      }
+
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem(`blbi:result-draft:${post.id}`);
       }
 
       router.push("/history");
@@ -280,6 +333,7 @@ function ResultContent(): React.ReactNode {
             <div className="section-stack">
               <h2 className="section-title">본문 확인 및 수정</h2>
               <p className="help">제목과 본문을 가볍게 다듬은 뒤 저장할 수 있습니다.</p>
+              <p className="small-note">저장 전 수정 내용은 이 브라우저에 임시 저장됩니다.</p>
             </div>
 
             <div className="field-stack">

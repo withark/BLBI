@@ -38,6 +38,8 @@ type PostSummary = {
   createdAt: string;
 };
 
+const DASHBOARD_DRAFT_KEY = "blbi:dashboard-draft:v1";
+
 function compactKeyword(parts: string[]): string {
   const seen = new Set<string>();
 
@@ -89,6 +91,37 @@ export function DashboardClient(): React.ReactNode {
   const [loading, setLoading] = useState(false);
   const [seriesLoading, setSeriesLoading] = useState(false);
   const [status, setStatus] = useState<{ type: "info" | "error" | "success"; message: string } | null>(null);
+  const [didHydrateDraft, setDidHydrateDraft] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    try {
+      const rawDraft = window.localStorage.getItem(DASHBOARD_DRAFT_KEY);
+
+      if (rawDraft) {
+        const draft = JSON.parse(rawDraft) as {
+          keyword?: string;
+          details?: string;
+          length?: "short" | "medium" | "long";
+          tone?: "friendly" | "professional" | "warm";
+          includeFaq?: boolean;
+        };
+
+        setKeyword(draft.keyword ?? "");
+        setDetails(draft.details ?? "");
+        setLength(draft.length ?? "medium");
+        setTone(draft.tone ?? "friendly");
+        setIncludeFaq(draft.includeFaq ?? true);
+      }
+    } catch {
+      window.localStorage.removeItem(DASHBOARD_DRAFT_KEY);
+    }
+
+    setDidHydrateDraft(true);
+  }, []);
 
   useEffect(() => {
     const initialKeyword = searchParams.get("keyword");
@@ -139,6 +172,23 @@ export function DashboardClient(): React.ReactNode {
 
     loadContext().catch(() => undefined);
   }, []);
+
+  useEffect(() => {
+    if (!didHydrateDraft || typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(
+      DASHBOARD_DRAFT_KEY,
+      JSON.stringify({
+        keyword,
+        details,
+        length,
+        tone,
+        includeFaq
+      })
+    );
+  }, [details, didHydrateDraft, includeFaq, keyword, length, tone]);
 
   async function refreshUsage(): Promise<void> {
     const usageRes = await fetch("/api/usage", { cache: "no-store" });
@@ -205,6 +255,10 @@ export function DashboardClient(): React.ReactNode {
 
       if (json.usage) {
         setUsage(json.usage);
+      }
+
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem(DASHBOARD_DRAFT_KEY);
       }
 
       setStatus({ type: "success", message: "생성이 완료되어 결과 페이지로 이동합니다." });
@@ -353,6 +407,7 @@ export function DashboardClient(): React.ReactNode {
             <div className="surface-muted section-stack">
               <strong>가장 쉬운 사용법</strong>
               <p className="small-note">키워드만 적고 바로 생성해도 됩니다. 길이, 문체, 요청사항은 필요할 때만 열어 쓰면 됩니다.</p>
+              <p className="small-note">작성 중인 키워드와 세부 설정은 이 브라우저에 임시 저장됩니다.</p>
             </div>
 
             <div className="inline-actions">
