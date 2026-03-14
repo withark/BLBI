@@ -264,6 +264,15 @@ export function PostEditClient({ postId }: PostEditClientProps): React.ReactNode
             </div>
           </div>
         )}
+
+        <div className="inline-actions">
+          <Link href={`/dashboard?keyword=${encodeURIComponent(post?.keyword || "")}`} className="btn btn-secondary">
+            같은 키워드로 새 글 만들기
+          </Link>
+          <Link href="/history" className="btn btn-secondary">
+            히스토리로 돌아가기
+          </Link>
+        </div>
       </section>
 
       <section className="result-grid-primary">
@@ -349,6 +358,30 @@ export function PostEditClient({ postId }: PostEditClientProps): React.ReactNode
                   </div>
                 </div>
               ))}
+            </div>
+          </section>
+
+          <section className="card section-stack tone-surface">
+            <div className="section-stack">
+              <h2 className="section-title">저장 후 다음 행동</h2>
+              <p className="help">전용 편집 화면에서 다듬은 뒤에는 아래 흐름으로 바로 이어가면 됩니다.</p>
+            </div>
+            <div className="step-grid">
+              <div className="step-card">
+                <div className="step-kicker">1</div>
+                <div className="step-title">저장</div>
+                <div className="step-body">편집한 제목과 본문, FAQ, 마무리 안내를 먼저 저장합니다.</div>
+              </div>
+              <div className="step-card">
+                <div className="step-kicker">2</div>
+                <div className="step-title">복사</div>
+                <div className="step-body">현재 편집 상태 기준 복붙 결과를 복사해 바로 발행에 씁니다.</div>
+              </div>
+              <div className="step-card">
+                <div className="step-kicker">3</div>
+                <div className="step-title">다음 글 연결</div>
+                <div className="step-body">같은 키워드나 히스토리 글을 기준으로 다음 초안을 이어서 만듭니다.</div>
+              </div>
             </div>
           </section>
         </aside>

@@ -347,6 +347,9 @@ export default function OnboardingPage(): React.ReactNode {
               <Link href="/dashboard" className="btn btn-secondary">
                 나중에 하고 대시보드 보기
               </Link>
+              <Link href="/guide" className="btn btn-secondary">
+                입력 예시 다시 보기
+              </Link>
             </div>
           </div>
 
@@ -407,6 +410,15 @@ export default function OnboardingPage(): React.ReactNode {
               <div className="surface-muted section-stack">
                 <strong>임시 저장 안내</strong>
                 <p className="small-note">입력 중인 가게 정보는 이 브라우저에 임시 저장됩니다. 중간에 나가도 다시 켜면 이어서 정리할 수 있습니다.</p>
+              </div>
+
+              <div className="inline-actions">
+                <Link href="/history" className="btn btn-secondary">
+                  저장 글 먼저 보기
+                </Link>
+                <Link href="/pricing" className="btn btn-secondary">
+                  플랜 차이 확인
+                </Link>
               </div>
             </section>
           </aside>
