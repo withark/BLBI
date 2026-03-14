@@ -15,6 +15,22 @@ interface PostItem {
 type PlanFilter = "ALL" | PostItem["plan"];
 type PeriodFilter = "ALL" | "TODAY" | "MONTH";
 
+function parsePlanFilter(value: string | null): PlanFilter {
+  if (value === "FREE" || value === "BASIC" || value === "PREMIUM") {
+    return value;
+  }
+
+  return "ALL";
+}
+
+function parsePeriodFilter(value: string | null): PeriodFilter {
+  if (value === "TODAY" || value === "MONTH") {
+    return value;
+  }
+
+  return "ALL";
+}
+
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat("ko-KR", {
     month: "long",
@@ -57,6 +73,33 @@ export default function HistoryPage(): React.ReactNode {
   const [planFilter, setPlanFilter] = useState<PlanFilter>("ALL");
   const [periodFilter, setPeriodFilter] = useState<PeriodFilter>("ALL");
   const [status, setStatus] = useState<{ type: "info" | "error" | "success"; message: string } | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const keyword = params.get("keyword")?.trim() ?? "";
+    const plan = parsePlanFilter(params.get("plan"));
+    const period = parsePeriodFilter(params.get("period"));
+
+    if (keyword) {
+      setKeywordFilter(keyword);
+    }
+
+    if (plan !== "ALL") {
+      setPlanFilter(plan);
+    }
+
+    if (period !== "ALL") {
+      setPeriodFilter(period);
+    }
+
+    if (keyword || plan !== "ALL" || period !== "ALL") {
+      setStatus({ type: "info", message: "링크로 전달된 조건에 맞춰 히스토리를 먼저 보여주고 있습니다." });
+    }
+  }, []);
 
   useEffect(() => {
     async function loadPosts(): Promise<void> {
