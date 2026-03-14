@@ -163,6 +163,19 @@ function ResultContent(): React.ReactNode {
     [body, cta, faq, photoGuides.length, title]
   );
   const publishReadyCount = publishChecklist.filter((item) => item.ready).length;
+  const publishNextSteps = [
+    "네이버 블로그 새 글 화면에 복사 결과를 그대로 붙여넣기",
+    photoGuides.length > 0 ? `사진 ${Math.min(photoGuides.length, 3)}장 이상을 가이드 순서대로 배치` : "가게 외관, 대표 메뉴, 분위기 사진을 최소 3장 준비",
+    "제목에 핵심 키워드가 자연스럽게 들어갔는지 마지막 확인",
+    "발행 후 다음 추천 키워드 하나를 바로 이어서 생성"
+  ];
+  const usageFitLabel = body.includes("점심") || title.includes("점심")
+    ? "점심 손님 유입용"
+    : body.includes("저녁") || title.includes("저녁")
+      ? "저녁 방문 유도용"
+      : body.includes("주말") || title.includes("주말")
+        ? "주말 방문 유도용"
+        : "상시 노출용";
 
   useEffect(() => {
     if (!draftStorageKey || typeof window === "undefined") {
@@ -478,6 +491,25 @@ function ResultContent(): React.ReactNode {
       {post && (
         <section className="card section-stack tone-surface">
           <div className="section-stack">
+            <h2 className="section-title">복사 후 바로 할 일</h2>
+            <p className="help">이 화면에서 저장과 복사를 마쳤다면, 아래 순서대로 바로 발행까지 이어가면 됩니다.</p>
+          </div>
+
+          <div className="step-grid">
+            {publishNextSteps.map((step, index) => (
+              <article key={step} className="step-card">
+                <div className="step-kicker">{index + 1}</div>
+                <div className="step-title">다음 행동</div>
+                <div className="step-body">{step}</div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {post && (
+        <section className="card section-stack tone-surface">
+          <div className="section-stack">
             <h2 className="section-title">사진 촬영 가이드</h2>
             <p className="help">복사 결과에 포함되는 사진 가이드만 따로 빠르게 훑어볼 수 있습니다.</p>
           </div>
@@ -505,7 +537,7 @@ function ResultContent(): React.ReactNode {
         <section className="card section-stack tone-surface">
           <div className="section-stack">
             <h2 className="section-title">다음 글 이어쓰기</h2>
-            <p className="help">이번 글과 자연스럽게 이어지는 다음 키워드를 바로 눌러 새 글로 넘어갈 수 있습니다.</p>
+            <p className="help">이번 글은 현재 <strong>{usageFitLabel}</strong> 톤으로 읽히기 좋습니다. 자연스럽게 이어지는 다음 키워드를 바로 눌러 새 글로 넘어갈 수 있습니다.</p>
           </div>
 
           <div className="chips">

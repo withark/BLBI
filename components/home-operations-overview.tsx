@@ -108,6 +108,27 @@ export function HomeOperationsOverview(): React.ReactNode {
       .slice(0, 4);
   }, [posts]);
 
+  const readinessItems = useMemo(
+    () => [
+      {
+        label: "가게 정보 등록",
+        done: Boolean(profile),
+        note: profile ? "기본 소개와 대표 메뉴가 연결됩니다." : "상호명과 지역만 먼저 넣어도 충분합니다."
+      },
+      {
+        label: "첫 글 생성",
+        done: posts.length > 0,
+        note: posts.length > 0 ? `${posts.length}개의 저장 글이 있습니다.` : "키워드 1개로 첫 초안을 만들어 보면 됩니다."
+      },
+      {
+        label: "반복 운영 준비",
+        done: posts.length > 1,
+        note: posts.length > 1 ? "최근 키워드를 다시 써서 시리즈 운영이 가능합니다." : "글이 2개 이상 쌓이면 운영 리듬이 더 쉬워집니다."
+      }
+    ],
+    [posts.length, profile]
+  );
+
   return (
     <section className="overview-grid">
       <article className="card section-stack accent-card accent-card-hero">
@@ -145,6 +166,15 @@ export function HomeOperationsOverview(): React.ReactNode {
             <div>{formatUsage(usage)}</div>
             <div className="meta-line">현재 플랜에 맞는 생성 제한과 기능 범위를 바로 확인할 수 있습니다.</div>
           </div>
+        </div>
+
+        <div className="history-list">
+          {readinessItems.map((item) => (
+            <article key={item.label} className="compact-card history-card">
+              <strong>{item.done ? "완료" : "진행 전"} · {item.label}</strong>
+              <div className="small-note">{item.note}</div>
+            </article>
+          ))}
         </div>
       </article>
 
