@@ -24,6 +24,7 @@ The app listens on port `3000` and is configured for forwarded preview access.
 - `Remote Coder` can apply code changes from a PR comment or manual dispatch, then push the result back to the working branch after checks pass.
 - Deployment secret setup is documented in [docs/DEPLOYMENT_SETUP.md](docs/DEPLOYMENT_SETUP.md).
 - Remote coding workflow usage is documented in [docs/REMOTE_CODER.md](docs/REMOTE_CODER.md).
+- Remote coding is configured to continue in scheduled background mode on `codex/ux-flow-pass` every hour once the workflow file is present on `main`. Repository variables can override or disable that behavior.
 
 This means both validation and scoped remote coding can continue on GitHub even after the local machine is off.
 

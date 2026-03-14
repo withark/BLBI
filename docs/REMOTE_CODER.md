@@ -6,6 +6,7 @@ This workflow lets GitHub trigger code changes remotely, without keeping the loc
 
 - Pull request comment starting with `/codex`
 - Manual GitHub Actions run with `task`, `work_branch`, and `base_branch`
+- Scheduled background run every hour at minute `17` UTC when enabled with repository variables
 
 ## Recommended usage
 
@@ -43,15 +44,54 @@ Without `REMOTE_CODER_GIT_TOKEN`, the workflow falls back to `GITHUB_TOKEN`, whi
 - `OPENAI_REMOTE_CODER_MODEL`
 - `OPENAI_REMOTE_CODER_REASONING`
 - `REMOTE_CODER_CHECK_COMMAND`
+- `REMOTE_CODER_SCHEDULED_ENABLED`
+- `REMOTE_CODER_SCHEDULED_TASK`
+- `REMOTE_CODER_SCHEDULED_BRANCH`
+- `REMOTE_CODER_SCHEDULED_BASE`
 
 Recommended defaults:
 
 - model: `gpt-5-codex`
 - reasoning: `high`
 - check command: `npm run check`
+- scheduled enabled: `true`
+- scheduled branch: `codex/ux-flow-pass`
+- scheduled base: `main`
+- scheduled task: continue the BLBI MVP polish automatically on the shared work branch
+
+## Scheduled background mode
+
+By default, the workflow is configured to continue work in the background on `codex/ux-flow-pass` once the workflow file exists on `main`.
+
+Set repository variables only if you want to override the default background behavior:
+
+- `REMOTE_CODER_SCHEDULED_ENABLED=true`
+- `REMOTE_CODER_SCHEDULED_TASK=현재 브랜치에서 이어서 진행할 구체적인 작업`
+- `REMOTE_CODER_SCHEDULED_BRANCH=codex/ux-flow-pass` (optional)
+- `REMOTE_CODER_SCHEDULED_BASE=main` (optional)
+
+To stop scheduled background work completely, set:
+
+- `REMOTE_CODER_SCHEDULED_ENABLED=false`
+
+Behavior:
+
+- the workflow wakes up every hour at minute `17` UTC
+- it checks out the configured base branch, then switches to the configured work branch
+- it runs the remote coder with the scheduled task
+- it runs `npm run check`
+- it commits and pushes only when checks pass
+
+Constraints:
+
+- scheduled mode never writes directly to `main` or `master`
+- the workflow file must exist on the repository default branch for GitHub schedules to run
+- use a persistent `codex/...` work branch so changes keep accumulating in one place
+- the default scheduled prompt is intentionally scoped to product polish, admin SEO flow, dead-flow cleanup, and build-safe improvements
 
 ## Safety rules in the workflow
 
 - PR comments are accepted only from `OWNER`, `MEMBER`, or `COLLABORATOR`
 - direct writes to `main` or `master` are blocked for manual runs
+- direct writes to `main` or `master` are blocked for scheduled runs
 - changes are pushed only when automated checks pass
