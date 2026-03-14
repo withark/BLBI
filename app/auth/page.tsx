@@ -37,6 +37,28 @@ export default function AuthPage(): React.ReactNode {
       </section>
 
       <section className="card section-stack">
+        <span className="eyebrow">Why Demo First</span>
+        <h2 className="section-title">지금은 왜 로그인 없이 먼저 검증하나요?</h2>
+        <div className="step-grid">
+          <div className="step-card">
+            <div className="step-kicker">1</div>
+            <div className="step-title">핵심 생성 흐름 먼저</div>
+            <div className="step-body">키워드 입력, 결과 생성, 복사, 히스토리까지 실제 사용 가치가 먼저 확인돼야 합니다.</div>
+          </div>
+          <div className="step-card">
+            <div className="step-kicker">2</div>
+            <div className="step-title">가게 정보 반영 검증</div>
+            <div className="step-body">로그인보다 먼저 결과 품질과 운영 흐름이 맞는지 보는 단계입니다.</div>
+          </div>
+          <div className="step-card">
+            <div className="step-kicker">3</div>
+            <div className="step-title">이후 계정 연결</div>
+            <div className="step-body">소셜 로그인과 결제는 이 핵심 흐름이 안정화된 뒤 붙이는 것이 더 안전합니다.</div>
+          </div>
+        </div>
+      </section>
+
+      <section className="card section-stack">
         <div className="inline-actions">
           <Link className="btn btn-primary" href="/dashboard">
             데모로 계속 진행

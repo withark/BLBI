@@ -81,10 +81,6 @@ export default function HistoryPage(): React.ReactNode {
   const filtered = useMemo(() => {
     const q = keywordFilter.trim().toLowerCase();
 
-    if (!q) {
-      return posts;
-    }
-
     return posts.filter((post) => {
       const matchesQuery = !q || post.keyword.toLowerCase().includes(q) || post.title.toLowerCase().includes(q);
       const matchesPlan = planFilter === "ALL" || post.plan === planFilter;
@@ -104,6 +100,11 @@ export default function HistoryPage(): React.ReactNode {
       .slice(0, 6)
       .map(([keyword]) => keyword);
   }, [posts]);
+  const activeFilters = [
+    keywordFilter.trim() ? `검색어 ${keywordFilter.trim()}` : "",
+    planFilter !== "ALL" ? `플랜 ${planFilter}` : "",
+    periodFilter === "TODAY" ? "오늘 생성" : periodFilter === "MONTH" ? "이번 달" : ""
+  ].filter(Boolean);
 
   async function copyText(text: string): Promise<void> {
     try {
@@ -217,6 +218,33 @@ export default function HistoryPage(): React.ReactNode {
             </div>
           </div>
         )}
+
+        <div className="inline-actions">
+          {activeFilters.length > 0 ? (
+            <>
+              <div className="chips">
+                {activeFilters.map((item) => (
+                  <span key={item} className="pill">
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => {
+                  setKeywordFilter("");
+                  setPlanFilter("ALL");
+                  setPeriodFilter("ALL");
+                }}
+              >
+                필터 초기화
+              </button>
+            </>
+          ) : (
+            <span className="small-note">검색어, 플랜, 기간 필터를 함께 써도 결과가 정확히 좁혀집니다.</span>
+          )}
+        </div>
       </section>
 
       {filtered.length === 0 ? (

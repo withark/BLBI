@@ -56,6 +56,41 @@ export default function GuidePage(): React.ReactNode {
         </section>
       </section>
 
+      <section className="two-column">
+        <section className="card section-stack tone-surface">
+          <span className="eyebrow">Photo Guide</span>
+          <h2 className="section-title">사진은 이렇게 준비하면 됩니다</h2>
+          <ul className="list-clean">
+            <li>대표 메뉴가 가장 맛있어 보이는 컷 1장</li>
+            <li>가게 외관이나 간판이 보이는 컷 1장</li>
+            <li>좌석, 분위기, 편의 정보가 보이는 컷 1장</li>
+          </ul>
+          <p className="small-note">결과 페이지에서 사진 가이드만 따로 빠르게 확인할 수 있습니다.</p>
+        </section>
+
+        <section className="card section-stack tone-surface">
+          <span className="eyebrow">Operating Rhythm</span>
+          <h2 className="section-title">운영 리듬 예시</h2>
+          <div className="step-grid">
+            <div className="step-card">
+              <div className="step-kicker">월</div>
+              <div className="step-title">대표 메뉴 키워드</div>
+              <div className="step-body">가게를 가장 잘 보여 주는 기본 키워드부터 쌓습니다.</div>
+            </div>
+            <div className="step-card">
+              <div className="step-kicker">수</div>
+              <div className="step-title">상황 키워드</div>
+              <div className="step-body">점심, 회식, 데이트 같은 상황 키워드로 넓힙니다.</div>
+            </div>
+            <div className="step-card">
+              <div className="step-kicker">금</div>
+              <div className="step-title">다음 글 추천 활용</div>
+              <div className="step-body">이전 글 추천 키워드를 눌러 흐름을 이어가면 운영이 쉬워집니다.</div>
+            </div>
+          </div>
+        </section>
+      </section>
+
       <section className="card section-stack">
         <span className="eyebrow">Start</span>
         <div className="inline-actions">

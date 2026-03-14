@@ -40,7 +40,9 @@ export default function SupportPage(): React.ReactNode {
           <h2 className="section-title">문의 안내</h2>
           <div className="surface-muted section-stack">
             <strong>이메일</strong>
-            <div>{SUPPORT_EMAIL}</div>
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="btn btn-secondary" style={{ width: "fit-content" }}>
+              {SUPPORT_EMAIL}
+            </a>
             <p className="small-note">버그, 사용 문의, 기능 요청은 이 메일로 받는 기준으로 정리해 두었습니다.</p>
           </div>
           <div className="inline-actions">
@@ -52,6 +54,28 @@ export default function SupportPage(): React.ReactNode {
             </Link>
           </div>
         </section>
+      </section>
+
+      <section className="card section-stack">
+        <span className="eyebrow">Troubleshooting</span>
+        <h2 className="section-title">자주 막히는 흐름</h2>
+        <div className="step-grid">
+          <div className="step-card">
+            <div className="step-kicker">1</div>
+            <div className="step-title">결과가 너무 일반적일 때</div>
+            <div className="step-body">온보딩에서 상호명, 지역, 대표 메뉴를 먼저 보강하면 본문과 사진 가이드가 더 구체적으로 나옵니다.</div>
+          </div>
+          <div className="step-card">
+            <div className="step-kicker">2</div>
+            <div className="step-title">원하는 흐름이 안 잡힐 때</div>
+            <div className="step-body">대시보드 세부 설정에서 길이, 문체, 추가 반영 내용을 짧게 적으면 결과가 바로 달라집니다.</div>
+          </div>
+          <div className="step-card">
+            <div className="step-kicker">3</div>
+            <div className="step-title">다시 편집하고 싶을 때</div>
+            <div className="step-body">히스토리와 결과 화면은 임시 저장을 지원하므로, 다시 열어 이어서 수정할 수 있습니다.</div>
+          </div>
+        </div>
       </section>
     </div>
   );

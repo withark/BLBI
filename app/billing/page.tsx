@@ -36,6 +36,40 @@ export default function BillingPage(): React.ReactNode {
           </Link>
         </div>
       </section>
+
+      <section className="two-column">
+        <section className="card section-stack tone-surface">
+          <span className="eyebrow">Current Flow</span>
+          <h2 className="section-title">지금 결제 대신 확인하는 것</h2>
+          <div className="step-grid">
+            <div className="step-card">
+              <div className="step-kicker">1</div>
+              <div className="step-title">설정에서 플랜 전환</div>
+              <div className="step-body">Free, Basic, Premium을 직접 바꿔 보며 한도와 화면이 어떻게 달라지는지 확인합니다.</div>
+            </div>
+            <div className="step-card">
+              <div className="step-kicker">2</div>
+              <div className="step-title">대시보드에서 생성</div>
+              <div className="step-body">실제 사용량과 Premium 전용 시리즈 잠금 여부가 바로 반영됩니다.</div>
+            </div>
+            <div className="step-card">
+              <div className="step-kicker">3</div>
+              <div className="step-title">관리자에서 정책 확인</div>
+              <div className="step-body">운영 화면에서 플랜 변경과 사용량 계산이 실제로 맞는지 검증할 수 있습니다.</div>
+            </div>
+          </div>
+        </section>
+
+        <section className="card section-stack tone-surface">
+          <span className="eyebrow">Later</span>
+          <h2 className="section-title">추후 연결될 결제 기능</h2>
+          <ul className="list-clean">
+            <li>실제 구독 시작과 업그레이드</li>
+            <li>결제 상태 및 갱신일 확인</li>
+            <li>요금제 변경 이력과 영수증 관리</li>
+          </ul>
+        </section>
+      </section>
     </div>
   );
 }
