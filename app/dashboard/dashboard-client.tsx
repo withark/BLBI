@@ -362,6 +362,7 @@ export function DashboardClient(): React.ReactNode {
     includeFaq ? "FAQ 포함" : "FAQ 제외",
     details.trim() ? "추가 요청 반영" : "추가 요청 없음"
   ];
+  const historyKeywordHref = keyword.trim() ? `/history?keyword=${encodeURIComponent(keyword.trim())}` : "/history";
 
   return (
     <div className="page-stack">
@@ -593,7 +594,7 @@ export function DashboardClient(): React.ReactNode {
           <Link className="btn btn-secondary" href="/guide">
             입력 가이드 보기
           </Link>
-          <Link className="btn btn-secondary" href="/history">
+          <Link className="btn btn-secondary" href={historyKeywordHref}>
             저장 글 운영 보기
           </Link>
         </div>
@@ -613,7 +614,7 @@ export function DashboardClient(): React.ReactNode {
           ))}
         </div>
         <div className="inline-actions">
-          <Link className="btn btn-secondary" href="/history">
+          <Link className="btn btn-secondary" href={historyKeywordHref}>
             추천 키워드와 비슷한 글 보기
           </Link>
         </div>
@@ -696,7 +697,7 @@ export function DashboardClient(): React.ReactNode {
           </div>
           {seriesTopics.length > 0 && (
             <div className="inline-actions">
-              <Link className="btn btn-secondary" href="/history">
+              <Link className="btn btn-secondary" href={historyKeywordHref}>
                 기존 시리즈 글 확인
               </Link>
             </div>

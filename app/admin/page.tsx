@@ -165,7 +165,17 @@ export default async function AdminPage(): Promise<React.ReactNode> {
           </div>
 
           {stats.recentPosts.length === 0 ? (
-            <div className="status">아직 생성된 글이 없습니다.</div>
+            <div className="surface-muted section-stack">
+              <p className="small-note">아직 생성된 글이 없습니다.</p>
+              <div className="inline-actions">
+                <Link className="btn btn-primary" href="/dashboard">
+                  첫 글 생성 화면 보기
+                </Link>
+                <Link className="btn btn-secondary" href="/onboarding">
+                  가게 정보 확인
+                </Link>
+              </div>
+            </div>
           ) : (
             <div className="history-list">
               {stats.recentPosts.slice(0, 6).map((post) => (
@@ -194,6 +204,11 @@ export default async function AdminPage(): Promise<React.ReactNode> {
           {seoSnapshots.length === 0 ? (
             <div className="surface-muted">
               <p className="small-note">아직 분석된 SEO 스냅샷이 없습니다. 참고 URL을 추가하고 분석을 실행하면 이곳에 누적됩니다.</p>
+              <div className="inline-actions">
+                <Link className="btn btn-secondary" href="/admin/seo-references">
+                  참고 URL 추가하러 가기
+                </Link>
+              </div>
             </div>
           ) : (
             <div className="history-list">
@@ -220,6 +235,11 @@ export default async function AdminPage(): Promise<React.ReactNode> {
         {adminJobs.length === 0 ? (
           <div className="surface-muted">
             <p className="small-note">아직 기록된 자동 작업이 없습니다.</p>
+            <div className="inline-actions">
+              <Link className="btn btn-secondary" href="/admin/seo-references">
+                자동 후보 작업 시작하기
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="history-list">
