@@ -302,7 +302,7 @@ function ResultContent(): React.ReactNode {
 
   return (
     <div className="result-grid">
-      <section className="card hero-card accent-card">
+      <section className="card hero-card accent-card result-hero-card">
         <div className="chips" aria-label="결과 요약">
           <span className="pill">순수 텍스트 복사</span>
           <span className="pill">사진 가이드 포함</span>
@@ -320,23 +320,39 @@ function ResultContent(): React.ReactNode {
         {loading && <div className="status">결과를 불러오는 중...</div>}
 
         {post && (
-          <div className="step-grid">
-            <div className="step-card">
-              <div className="step-kicker">키워드</div>
-              <div className="step-title">{post.keyword}</div>
-              <div className="step-body">이번 글의 핵심 검색 키워드입니다.</div>
+          <>
+            <div className="result-signal-strip">
+              <article className="result-signal-card">
+                <span className="eyebrow">키워드</span>
+                <strong>{post.keyword}</strong>
+                <div className="meta-line">이번 글의 핵심 검색 흐름입니다.</div>
+              </article>
+              <article className="result-signal-card">
+                <span className="eyebrow">작성 시각</span>
+                <strong>{formatCreatedAt(post.createdAt)}</strong>
+                <div className="meta-line">저장 후 히스토리에서도 바로 다시 꺼내 쓸 수 있습니다.</div>
+              </article>
+              <article className="result-signal-card">
+                <span className="eyebrow">복사 준비도</span>
+                <strong>
+                  {publishReadyCount} / {publishChecklist.length}
+                </strong>
+                <div className="meta-line">{publishReadyCount === publishChecklist.length ? "바로 발행 가능한 상태입니다." : "조금만 더 다듬으면 바로 발행할 수 있습니다."}</div>
+              </article>
             </div>
-            <div className="step-card">
-              <div className="step-kicker">작성 시각</div>
-              <div className="step-title">{formatCreatedAt(post.createdAt)}</div>
-              <div className="step-body">저장 후 히스토리에서도 다시 확인할 수 있습니다.</div>
+
+            <div className="inline-actions result-hero-actions">
+              <button className="btn btn-primary" onClick={() => void handleCopy()} type="button">
+                결과 복사
+              </button>
+              <Link href={`/dashboard?keyword=${encodeURIComponent(post.keyword)}`} className="btn btn-secondary">
+                같은 키워드 새 글
+              </Link>
+              <Link href={`/history?keyword=${encodeURIComponent(post.keyword)}`} className="btn btn-secondary">
+                같은 키워드 히스토리
+              </Link>
             </div>
-            <div className="step-card">
-              <div className="step-kicker">복사 포맷</div>
-              <div className="step-title">HTML 없는 순수 텍스트</div>
-              <div className="step-body">네이버 블로그에 붙여넣기 쉬운 형식으로 유지됩니다.</div>
-            </div>
-          </div>
+          </>
         )}
       </section>
 

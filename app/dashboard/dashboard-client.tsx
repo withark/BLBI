@@ -367,7 +367,7 @@ export function DashboardClient(): React.ReactNode {
   return (
     <div className="page-stack">
       <section className="two-column">
-        <section className="card hero-card dashboard-compose">
+        <section className="card hero-card dashboard-compose dashboard-compose-hero">
           <div className="section-stack">
             <div className="chips" aria-label="생성 핵심">
               <span className="pill">키워드 1개 입력</span>
@@ -378,6 +378,26 @@ export function DashboardClient(): React.ReactNode {
               오늘 올릴 글 하나를 지금 바로 만드세요
             </h1>
             <p className="help">메인 화면은 입력창과 생성 버튼 중심으로 유지하고, 운영 정보는 옆에서 보조합니다.</p>
+          </div>
+
+          <div className="compose-signal-strip">
+            <article className="compose-signal-card">
+              <span className="eyebrow">현재 키워드</span>
+              <strong>{keyword.trim() || "아직 입력 전"}</strong>
+              <div className="meta-line">{keyword.trim() ? "이 키워드가 바로 결과 제목과 본문 흐름의 기준이 됩니다." : "메뉴, 지역, 상황 키워드 한 줄이면 충분합니다."}</div>
+            </article>
+            <article className="compose-signal-card">
+              <span className="eyebrow">플랜 상태</span>
+              <strong>{usage?.plan ?? "FREE"}</strong>
+              <div className="meta-line">{usageGuide}</div>
+            </article>
+            <article className="compose-signal-card">
+              <span className="eyebrow">가게 연결</span>
+              <strong>{profile?.businessName ?? "미등록"}</strong>
+              <div className="meta-line">
+                {profile?.region ? `${profile.region} 기준으로 글이 더 구체적으로 생성됩니다.` : "상호명과 지역을 넣으면 결과 품질이 크게 올라갑니다."}
+              </div>
+            </article>
           </div>
 
           {!profile && (
@@ -405,7 +425,7 @@ export function DashboardClient(): React.ReactNode {
               <p className="field-help">메뉴, 지역, 상황 키워드 한 줄이면 충분합니다.</p>
             </div>
 
-            <div className="surface-muted section-stack">
+            <div className="surface-muted section-stack compose-guidance-panel">
               <strong>가장 쉬운 사용법</strong>
               <p className="small-note">키워드만 적고 바로 생성해도 됩니다. 길이, 문체, 요청사항은 필요할 때만 열어 쓰면 됩니다.</p>
               <p className="small-note">작성 중인 키워드와 세부 설정은 이 브라우저에 임시 저장됩니다.</p>
@@ -477,7 +497,7 @@ export function DashboardClient(): React.ReactNode {
         </section>
 
         <section className="section-stack dashboard-side-column">
-          <section className="card section-stack tone-surface">
+          <section className="card section-stack tone-surface dashboard-side-card">
             <div className="section-stack">
               <h2 className="section-title">오늘 상태</h2>
               <p className="help">{usageText}</p>
@@ -529,7 +549,7 @@ export function DashboardClient(): React.ReactNode {
             </div>
           </section>
 
-          <section className="card section-stack tone-surface">
+          <section className="card section-stack tone-surface dashboard-side-card">
             <div className="section-stack">
               <h2 className="section-title">오늘 할 일</h2>
               <p className="help">복잡하게 찾지 말고 아래 순서대로 움직이면 됩니다.</p>

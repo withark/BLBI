@@ -22,7 +22,7 @@ export function KeywordQuickStart(): React.ReactNode {
   }
 
   return (
-    <form onSubmit={handleStart} className="card hero-card hero-shell">
+    <form onSubmit={handleStart} className="card hero-card hero-shell hero-launchpad">
       <div className="section-stack">
         <div className="chips" aria-label="빠른 안내">
           <span className="pill">키워드 1개 입력</span>
@@ -34,60 +34,63 @@ export function KeywordQuickStart(): React.ReactNode {
           <span className="eyebrow">Keyword First Workflow</span>
           <h1 className="hero-title">사장님이 키워드 하나만 넣으면 바로 블로그 초안을 만듭니다</h1>
           <p className="help">복잡한 채팅 없이 입력창 하나와 생성 버튼 하나로 시작합니다. 추천과 설정은 뒤로 숨기고, 핵심 행동만 앞으로 뒀습니다.</p>
+          <p className="small-note launchpad-note">입력은 짧게, 결과는 길고 구체적으로. 이 도구는 메뉴 하나를 오늘 올릴 블로그 글로 바꾸는 데 집중합니다.</p>
         </div>
 
-        <div className="field-stack">
-          <label className="field-label" htmlFor="home-keyword">
-            오늘 만들고 싶은 키워드
-          </label>
-          <textarea
-            id="home-keyword"
-            className="textarea hero-input"
-            placeholder="예: 성수 파스타 맛집"
-            value={keyword}
-            onChange={(event) => setKeyword(event.target.value)}
-          />
-          <p className="small-note">길게 설명할 필요 없습니다. 검색될 표현 한 줄이면 충분합니다.</p>
-        </div>
+        <div className="command-deck">
+          <div className="field-stack">
+            <label className="field-label" htmlFor="home-keyword">
+              오늘 만들고 싶은 키워드
+            </label>
+            <textarea
+              id="home-keyword"
+              className="textarea hero-input"
+              placeholder="예: 성수 파스타 맛집"
+              value={keyword}
+              onChange={(event) => setKeyword(event.target.value)}
+            />
+            <p className="small-note">길게 설명할 필요 없습니다. 검색될 표현 한 줄이면 충분합니다.</p>
+          </div>
 
-        <div className="chips" aria-label="예시 키워드">
-          {EXAMPLE_KEYWORDS.map((example) => (
-            <button key={example} type="button" className="chip" onClick={() => setKeyword(example)}>
-              {example}
+          <div className="chips" aria-label="예시 키워드">
+            {EXAMPLE_KEYWORDS.map((example) => (
+              <button key={example} type="button" className="chip" onClick={() => setKeyword(example)}>
+                {example}
+              </button>
+            ))}
+          </div>
+
+          <div className="inline-actions">
+            <button type="submit" className="btn btn-primary">
+              바로 생성 시작
             </button>
-          ))}
+            <Link className="btn btn-secondary" href="/onboarding">
+              가게 정보 먼저 입력
+            </Link>
+          </div>
         </div>
 
-        <div className="inline-actions">
-          <button type="submit" className="btn btn-primary">
-            바로 생성 시작
-          </button>
-          <Link className="btn btn-secondary" href="/onboarding">
-            가게 정보 먼저 입력
-          </Link>
-        </div>
-
-        <div className="step-grid">
-          <div className="step-card">
-            <div className="step-kicker">Step 1</div>
-            <div className="step-title">키워드 입력</div>
-            <div className="step-body">오늘 밀고 싶은 메뉴, 지역, 상황 키워드 한 줄이면 시작됩니다.</div>
-          </div>
-          <div className="step-card">
-            <div className="step-kicker">Step 2</div>
-            <div className="step-title">가게 정보 반영</div>
-            <div className="step-body">한 번 등록한 상호, 지역, 메뉴 정보를 글에 자연스럽게 반영합니다.</div>
-          </div>
-          <div className="step-card">
-            <div className="step-kicker">Step 3</div>
-            <div className="step-title">복붙해서 업로드</div>
-            <div className="step-body">사진 가이드까지 포함된 순수 텍스트 결과를 바로 복사할 수 있습니다.</div>
-          </div>
+        <div className="launchpad-strip">
+          <article className="launchpad-stat">
+            <span className="eyebrow">Input</span>
+            <strong>키워드 한 줄</strong>
+            <div className="meta-line">메뉴, 지역, 상황 조합 하나면 시작됩니다.</div>
+          </article>
+          <article className="launchpad-stat">
+            <span className="eyebrow">Context</span>
+            <strong>가게 정보 자동 반영</strong>
+            <div className="meta-line">한 번 넣은 상호, 지역, 메뉴 흐름을 계속 씁니다.</div>
+          </article>
+          <article className="launchpad-stat">
+            <span className="eyebrow">Output</span>
+            <strong>바로 복붙 가능한 결과</strong>
+            <div className="meta-line">사진 가이드까지 포함한 순수 텍스트로 정리됩니다.</div>
+          </article>
         </div>
       </div>
 
-      <aside className="hero-side">
-        <section className="showcase-card">
+      <aside className="hero-side launchpad-side">
+        <section className="showcase-card showcase-card-large">
           <div className="section-stack">
             <span className="eyebrow">Output Preview</span>
             <h2 className="section-title">완성물은 이렇게 보입니다</h2>
@@ -99,6 +102,19 @@ export function KeywordQuickStart(): React.ReactNode {
             {"\n\n"}1. 성수 파스타 맛집으로 찾는 손님에게 먼저 보여줄 정보
             {"\n"}블비 키친은 점심 손님이 많은 시간대에도 메뉴 선택이 쉬운 구성이 강점입니다.
             {"\n\n"}사진 가이드 : 대표 파스타 단면과 재료가 보이게 가까이 촬영해 주세요.
+          </div>
+
+          <div className="launchpad-proof-grid">
+            <article className="launchpad-proof-card">
+              <span className="eyebrow">Speed</span>
+              <strong>입력 부담 최소화</strong>
+              <div className="meta-line">설명 대신 검색어 한 줄로 바로 초안으로 넘어갑니다.</div>
+            </article>
+            <article className="launchpad-proof-card">
+              <span className="eyebrow">Use</span>
+              <strong>사진 순서까지 정리</strong>
+              <div className="meta-line">무엇을 찍어야 할지 바로 보이도록 결과 안에 같이 넣습니다.</div>
+            </article>
           </div>
         </section>
 
