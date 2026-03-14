@@ -107,6 +107,7 @@ export default async function AdminRankingWatchPage(): Promise<React.ReactNode> 
   const approvedKeywordCount = watchRows.filter((row) => row.approvedCount > 0).length;
   const candidateHeavyCount = watchRows.filter((row) => row.candidateCount > row.approvedCount).length;
   const recommendationHeavyCount = watchRows.filter((row) => row.recommendationCount > 0).length;
+  const actionPriorityCount = watchRows.filter((row) => row.candidateCount > 0 && row.approvedCount === 0).length;
 
   return (
     <div className="page-stack">
@@ -135,6 +136,10 @@ export default async function AdminRankingWatchPage(): Promise<React.ReactNode> 
             <div className="compact-card">
               <strong>추천 신호 있음</strong>
               <div>{recommendationHeavyCount}개</div>
+            </div>
+            <div className="compact-card">
+              <strong>즉시 승인 검토 필요</strong>
+              <div>{actionPriorityCount}개</div>
             </div>
           </div>
         </article>
@@ -165,6 +170,13 @@ export default async function AdminRankingWatchPage(): Promise<React.ReactNode> 
                 <div className="section-stack">
                   <strong>{row.keyword}</strong>
                   <div className="meta-line">{row.region || "지역 미지정"} · 최근 반영 {formatDate(row.lastTouchedAt)}</div>
+                  <div className="small-note">
+                    {row.approvedCount === 0 && row.candidateCount > 0
+                      ? "승인된 참고 URL이 없어 먼저 후보 검토가 필요합니다."
+                      : row.postCount === 0
+                        ? "학습 신호는 있으나 실제 생성 글이 아직 없습니다."
+                        : "승인 참고, 생성 글, 추천 신호가 함께 쌓이고 있습니다."}
+                  </div>
                   <div className="chips">
                     <span className="chip">승인 URL {row.approvedCount}</span>
                     <span className="chip">후보 URL {row.candidateCount}</span>
@@ -175,8 +187,16 @@ export default async function AdminRankingWatchPage(): Promise<React.ReactNode> 
                     <Link href={`/dashboard?keyword=${encodeURIComponent(row.keyword)}`} className="btn btn-secondary">
                       이 키워드로 생성 보기
                     </Link>
-                    <Link href="/admin/seo-references/candidates" className="btn btn-secondary">
-                      후보 검토 이동
+                    <Link href={`/admin/seo-references/candidates?keyword=${encodeURIComponent(row.keyword)}`} className="btn btn-secondary">
+                      이 키워드 후보 검토
+                    </Link>
+                    <Link href="/admin/seo-learning" className="btn btn-secondary">
+                      학습 패턴 점검
+                    </Link>
+                  </div>
+                  <div className="inline-actions">
+                    <Link href={`/history?keyword=${encodeURIComponent(row.keyword)}`} className="btn btn-secondary">
+                      관련 글 히스토리
                     </Link>
                   </div>
                 </div>
