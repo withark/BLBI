@@ -238,7 +238,7 @@ export default async function AdminPage(): Promise<React.ReactNode> {
         </section>
       </section>
 
-      <section className="admin-overview-grid">
+      <section className="admin-link-grid">
         <Link href="/admin/users" className="card section-stack admin-link-card">
           <span className="eyebrow">Users</span>
           <strong>사용자 운영 보기</strong>

@@ -1029,8 +1029,40 @@ p {
     linear-gradient(180deg, rgba(246, 251, 246, 0.96) 0%, rgba(247, 243, 233, 0.98) 100%);
 }
 
+.admin-hero-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1.3fr) minmax(300px, 0.9fr);
+  align-items: stretch;
+}
+
+.admin-studio-rail {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.admin-studio-card {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.95rem;
+  border-radius: 20px;
+  border: 1px solid rgba(30, 90, 74, 0.16);
+  background:
+    linear-gradient(180deg, rgba(253, 255, 252, 0.9) 0%, rgba(242, 250, 246, 0.82) 100%);
+}
+
+.admin-studio-card strong {
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+}
+
 .admin-panel {
   padding: 1rem 1.1rem;
+}
+
+.admin-control-card {
+  background:
+    linear-gradient(180deg, rgba(255, 252, 247, 0.96) 0%, rgba(250, 240, 225, 0.88) 100%);
 }
 
 .admin-nav {
@@ -1072,9 +1104,17 @@ p {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.admin-link-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .admin-link-card {
   min-height: 160px;
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  background:
+    linear-gradient(180deg, rgba(255, 251, 246, 0.98) 0%, rgba(244, 248, 245, 0.92) 100%);
 }
 
 .admin-link-card:hover {
@@ -1105,6 +1145,7 @@ p {
   .hero-shell,
   .launchpad-strip,
   .launchpad-proof-grid,
+  .admin-hero-grid,
   .compose-signal-strip,
   .result-signal-strip,
   .result-grid-primary,
@@ -1113,6 +1154,7 @@ p {
   .overview-grid,
   .metric-card-grid,
   .priority-grid,
+  .admin-link-grid,
   .admin-overview-grid {
     grid-template-columns: 1fr;
   }

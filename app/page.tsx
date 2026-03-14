@@ -150,60 +150,62 @@ export default async function HomePage(): Promise<React.ReactNode> {
         </div>
       </section>
 
-      <section className="card section-stack">
-        <div className="section-stack">
-          <h2 className="section-title">이 결과를 바로 받습니다</h2>
-          <p className="help">겉은 단순하지만, 실제 운영에 필요한 출력 규칙은 안쪽에서 맞춰 둡니다.</p>
-        </div>
+      <section className="two-column">
+        <section className="card section-stack">
+          <div className="section-stack">
+            <h2 className="section-title">이 결과를 바로 받습니다</h2>
+            <p className="help">겉은 단순하지만, 실제 운영에 필요한 출력 규칙은 안쪽에서 맞춰 둡니다.</p>
+          </div>
 
-        <ul className="list-clean">
-          <li>가게 정보가 반영된 제목과 본문</li>
-          <li>사진 촬영 가이드가 들어간 순수 텍스트 결과</li>
-          <li>다음 글 추천 키워드와 시리즈 주제 흐름</li>
-          <li>히스토리와 플랜 사용량을 함께 보는 운영 화면</li>
-        </ul>
+          <ul className="list-clean">
+            <li>가게 정보가 반영된 제목과 본문</li>
+            <li>사진 촬영 가이드가 들어간 순수 텍스트 결과</li>
+            <li>다음 글 추천 키워드와 시리즈 주제 흐름</li>
+            <li>히스토리와 플랜 사용량을 함께 보는 운영 화면</li>
+          </ul>
 
-        <div className="inline-actions">
-          <Link className="btn btn-secondary" href="/history">
-            저장된 글 보기
-          </Link>
-          <Link className="btn btn-secondary" href="/pricing">
-            요금제 보기
-          </Link>
-        </div>
-      </section>
+          <div className="inline-actions">
+            <Link className="btn btn-secondary" href="/history">
+              저장된 글 보기
+            </Link>
+            <Link className="btn btn-secondary" href="/pricing">
+              요금제 보기
+            </Link>
+          </div>
+        </section>
 
-      <section className="card section-stack tone-surface">
-        <div className="section-stack">
-          <h2 className="section-title">지금 가장 빠른 시작 경로</h2>
-          <p className="help">처음 접속, 첫 생성, 반복 운영 중 어디에 있는지에 따라 바로 눌러야 할 화면을 나눴습니다.</p>
-        </div>
+        <section className="card section-stack tone-surface">
+          <div className="section-stack">
+            <h2 className="section-title">지금 가장 빠른 시작 경로</h2>
+            <p className="help">처음 접속, 첫 생성, 반복 운영 중 어디에 있는지에 따라 바로 눌러야 할 화면을 나눴습니다.</p>
+          </div>
 
-        <div className="history-list">
-          {routeCards.map((item) => (
-            <article key={item.title} className="compact-card history-card">
-              <strong>{item.title}</strong>
-              <div className="small-note">{item.body}</div>
-              <div className="inline-actions">
-                <Link className="btn btn-secondary" href={item.href}>
-                  {item.label}
-                </Link>
-              </div>
-            </article>
-          ))}
-        </div>
+          <div className="history-list">
+            {routeCards.map((item) => (
+              <article key={item.title} className="compact-card history-card">
+                <strong>{item.title}</strong>
+                <div className="small-note">{item.body}</div>
+                <div className="inline-actions">
+                  <Link className="btn btn-secondary" href={item.href}>
+                    {item.label}
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
 
-        <div className="inline-actions">
-          <Link className="btn btn-primary" href={quickStartHref}>
-            {quickStartLabel}
-          </Link>
-          <Link className="btn btn-secondary" href="/onboarding">
-            가게 정보 입력
-          </Link>
-          <Link className="btn btn-secondary" href={recentPost ? `/history?keyword=${encodeURIComponent(recentPost.keyword)}` : "/history"}>
-            저장 글 운영 보기
-          </Link>
-        </div>
+          <div className="inline-actions">
+            <Link className="btn btn-primary" href={quickStartHref}>
+              {quickStartLabel}
+            </Link>
+            <Link className="btn btn-secondary" href="/onboarding">
+              가게 정보 입력
+            </Link>
+            <Link className="btn btn-secondary" href={recentPost ? `/history?keyword=${encodeURIComponent(recentPost.keyword)}` : "/history"}>
+              저장 글 운영 보기
+            </Link>
+          </div>
+        </section>
       </section>
     </div>
   );
