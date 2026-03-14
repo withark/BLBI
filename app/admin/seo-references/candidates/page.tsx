@@ -97,8 +97,16 @@ export default async function AdminSeoReferenceCandidatesPage({
 
       <section className="card section-stack">
         {candidates.length === 0 ? (
-          <div className="surface-muted">
+          <div className="surface-muted section-stack">
             <p className="small-note">검토할 후보가 없습니다.</p>
+            <div className="inline-actions">
+              <Link href="/admin/seo-references" className="btn btn-secondary">
+                참고 URL 관리로 이동
+              </Link>
+              <Link href="/admin/ranking-watch" className="btn btn-secondary">
+                랭킹 감시 보기
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="history-list">

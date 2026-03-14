@@ -200,8 +200,16 @@ export default async function AdminSeoLearningPage(): Promise<React.ReactNode> {
         <span className="eyebrow">Best Snapshots</span>
         <h2 className="section-title">품질이 높은 최근 스냅샷</h2>
         {strongestSnapshots.length === 0 ? (
-          <div className="surface-muted">
+          <div className="surface-muted section-stack">
             <p className="small-note">아직 분석된 스냅샷이 없습니다.</p>
+            <div className="inline-actions">
+              <Link href="/admin/seo-references" className="btn btn-secondary">
+                참고 URL 등록하러 가기
+              </Link>
+              <Link href="/admin/seo-references/candidates" className="btn btn-secondary">
+                후보 검토부터 시작
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="history-list">

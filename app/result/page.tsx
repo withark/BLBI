@@ -504,6 +504,15 @@ function ResultContent(): React.ReactNode {
               </article>
             ))}
           </div>
+
+          <div className="inline-actions">
+            <Link href={`/dashboard?keyword=${encodeURIComponent(post.keyword)}`} className="btn btn-secondary">
+              같은 키워드로 다시 생성
+            </Link>
+            <Link href={post.nextSuggestions[0] ? `/dashboard?keyword=${encodeURIComponent(post.nextSuggestions[0])}` : "/dashboard"} className="btn btn-secondary">
+              다음 추천으로 이어쓰기
+            </Link>
+          </div>
         </section>
       )}
 
