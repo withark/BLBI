@@ -59,32 +59,62 @@ export default function PricingPage(): React.ReactNode {
 
   return (
     <div className="page-stack">
-      <section className="card hero-card accent-card">
-        <div className="chips" aria-label="요금제 안내">
-          <span className="pill">체험부터 시작</span>
-          <span className="pill">필요할 때 업그레이드</span>
-          <span className="pill">Premium 시리즈 제공</span>
-        </div>
-
-        <div className="section-stack">
-          <h1 className="hero-title" style={{ fontSize: "1.95rem" }}>
-            사장님 운영 방식에 맞는 플랜을 고르면 됩니다
-          </h1>
-          <p className="help">처음에는 Free로 시작하고, 운영 빈도가 늘어나면 Basic 또는 Premium으로 올리면 됩니다.</p>
-        </div>
-
-        <div className="info-grid">
-          <div className="compact-card">
-            <strong>현재 플랜</strong>
-            <div>{PLAN_DISPLAY[plan].name}</div>
-            <div className="meta-line">{PLAN_DISPLAY[plan].summary}</div>
+      <section className="two-column">
+        <section className="card hero-card accent-card">
+          <div className="chips" aria-label="요금제 안내">
+            <span className="pill">체험부터 시작</span>
+            <span className="pill">필요할 때 업그레이드</span>
+            <span className="pill">Premium 시리즈 제공</span>
           </div>
-          <div className="compact-card">
-            <strong>현재 상태</strong>
-            <div>{formatPlanWindow(usage)}</div>
-            <div className="meta-line">결제는 아직 준비 중이며, 지금은 설정 페이지에서 데모 플랜 전환으로 기능을 확인할 수 있습니다.</div>
+
+          <div className="section-stack">
+            <span className="eyebrow">Pricing</span>
+            <h1 className="hero-title" style={{ fontSize: "2rem" }}>
+              사장님 운영 방식에 맞는 플랜을 고르면 됩니다
+            </h1>
+            <p className="help">처음에는 Free로 시작하고, 운영 빈도가 늘어나면 Basic 또는 Premium으로 올리면 됩니다. 지금은 결제 대신 데모 플랜 전환으로 기능 차이를 바로 확인할 수 있습니다.</p>
           </div>
-        </div>
+
+          <div className="info-grid">
+            <div className="compact-card">
+              <strong>현재 플랜</strong>
+              <div>{PLAN_DISPLAY[plan].name}</div>
+              <div className="meta-line">{PLAN_DISPLAY[plan].summary}</div>
+            </div>
+            <div className="compact-card">
+              <strong>현재 상태</strong>
+              <div>{formatPlanWindow(usage)}</div>
+              <div className="meta-line">현재 사용 흐름 기준 추천: {PLAN_DISPLAY[suggestedPlan].name}</div>
+            </div>
+          </div>
+        </section>
+
+        <section className="card section-stack tone-surface">
+          <span className="eyebrow">Decision</span>
+          <h2 className="section-title">지금 바로 판단하는 기준</h2>
+          <div className="history-list">
+            <article className="compact-card history-card">
+              <strong>Free 유지</strong>
+              <div className="small-note">첫 글 몇 개를 만들며 복붙 결과와 운영 리듬을 익히는 단계</div>
+            </article>
+            <article className="compact-card history-card">
+              <strong>Basic 고려</strong>
+              <div className="small-note">한 달에 10개 안팎으로 꾸준히 올리고 저장 글 재활용이 시작됐을 때</div>
+            </article>
+            <article className="compact-card history-card">
+              <strong>Premium 고려</strong>
+              <div className="small-note">시리즈 주제, 반복 생성, 관리자 SEO 학습 흐름까지 같이 써야 할 때</div>
+            </article>
+          </div>
+          <div className="inline-actions">
+            <Link href="/settings" className="btn btn-primary">
+              지금 플랜 적용 보기
+            </Link>
+            <Link href="/history" className="btn btn-secondary">
+              저장 글 기준으로 판단
+            </Link>
+          </div>
+        </section>
       </section>
 
       <section className="row">
@@ -121,11 +151,9 @@ export default function PricingPage(): React.ReactNode {
         })}
       </section>
 
-      <section className="card section-stack">
+      <section className="card section-stack tone-surface">
+        <span className="eyebrow">Selection Guide</span>
         <h2 className="section-title">어떤 플랜을 고르면 되나요?</h2>
-        <p className="help">
-          현재 사용 흐름 기준 추천: <strong>{PLAN_DISPLAY[suggestedPlan].name}</strong>
-        </p>
         <div className="step-grid">
           <div className="step-card">
             <div className="step-kicker">Free</div>
@@ -142,33 +170,6 @@ export default function PricingPage(): React.ReactNode {
             <div className="step-title">여러 주제를 묶어 운영할 때</div>
             <div className="step-body">시리즈 주제와 무제한 생성이 필요할 때 선택하면 됩니다.</div>
           </div>
-        </div>
-      </section>
-
-      <section className="card section-stack tone-surface">
-        <h2 className="section-title">지금 바로 판단하는 기준</h2>
-        <div className="history-list">
-          <article className="compact-card history-card">
-            <strong>Free 유지</strong>
-            <div className="small-note">아직 첫 글 몇 개를 만들며 복붙 결과와 운영 리듬을 익히는 단계일 때</div>
-          </article>
-          <article className="compact-card history-card">
-            <strong>Basic 고려</strong>
-            <div className="small-note">한 달에 10개 안팎으로 꾸준히 올리고, 저장 글을 재활용하기 시작했을 때</div>
-          </article>
-          <article className="compact-card history-card">
-            <strong>Premium 고려</strong>
-            <div className="small-note">시리즈 주제, 반복 생성, 관리자 SEO 학습 흐름까지 같이 써야 할 때</div>
-          </article>
-        </div>
-
-        <div className="inline-actions">
-          <Link href="/settings" className="btn btn-primary">
-            지금 플랜 적용 보기
-          </Link>
-          <Link href="/history" className="btn btn-secondary">
-            저장 글 기준으로 판단
-          </Link>
         </div>
       </section>
     </div>

@@ -3,43 +3,70 @@ import Link from "next/link";
 export default function GuidePage(): React.ReactNode {
   return (
     <div className="page-stack">
-      <section className="card hero-card accent-card">
-        <div className="section-stack">
-          <span className="eyebrow">Quick Guide</span>
-          <h1 className="hero-title" style={{ fontSize: "2rem" }}>
-            블비는 복잡하게 배우지 않아도 됩니다. 순서대로만 움직이면 됩니다.
-          </h1>
-          <p className="help">처음에는 가게 정보, 이후에는 키워드 중심 운영, 마지막에는 복사와 사진 가이드 확인이 핵심입니다.</p>
-        </div>
-      </section>
+      <section className="two-column">
+        <section className="card hero-card accent-card">
+          <div className="chips" aria-label="가이드 핵심">
+            <span className="pill">온보딩 1회</span>
+            <span className="pill">키워드 1줄</span>
+            <span className="pill">복사 후 사진 배치</span>
+          </div>
 
-      <section className="card section-stack tone-surface">
-        <span className="eyebrow">Step By Step</span>
-        <div className="inline-actions">
-          <Link className="btn btn-primary" href="/dashboard">
-            지금 바로 생성 시작
-          </Link>
-          <Link className="btn btn-secondary" href="/onboarding">
-            가게 정보 먼저 입력
-          </Link>
-        </div>
-        <div className="step-grid">
-          <div className="step-card">
-            <div className="step-kicker">1</div>
-            <div className="step-title">가게 정보를 한 번 입력</div>
-            <div className="step-body">상호명과 지역만 먼저 넣어도 됩니다. 대표 메뉴와 설명이 있으면 글이 더 구체적으로 변합니다.</div>
+          <div className="section-stack">
+            <span className="eyebrow">Quick Guide</span>
+            <h1 className="hero-title" style={{ fontSize: "2rem" }}>
+              복잡하게 배우지 않아도 됩니다. 순서대로만 움직이면 바로 운영됩니다.
+            </h1>
+            <p className="help">처음에는 가게 정보, 그다음에는 키워드 중심 생성, 마지막에는 결과 복사와 사진 가이드 확인이 핵심입니다.</p>
           </div>
-          <div className="step-card">
-            <div className="step-kicker">2</div>
-            <div className="step-title">키워드 하나로 생성</div>
-            <div className="step-body">메뉴, 지역, 상황이 섞인 한 줄 키워드면 충분합니다.</div>
+
+          <div className="step-grid">
+            <div className="step-card">
+              <div className="step-kicker">1</div>
+              <div className="step-title">가게 정보를 한 번 입력</div>
+              <div className="step-body">상호명과 지역만 먼저 넣어도 됩니다. 대표 메뉴가 있으면 결과가 더 좋아집니다.</div>
+            </div>
+            <div className="step-card">
+              <div className="step-kicker">2</div>
+              <div className="step-title">키워드 하나로 생성</div>
+              <div className="step-body">메뉴, 지역, 상황이 섞인 한 줄 키워드면 충분합니다.</div>
+            </div>
+            <div className="step-card">
+              <div className="step-kicker">3</div>
+              <div className="step-title">결과 확인 후 복사</div>
+              <div className="step-body">제목, 본문, FAQ, 사진 가이드만 짧게 보고 복사하면 됩니다.</div>
+            </div>
           </div>
-          <div className="step-card">
-            <div className="step-kicker">3</div>
-            <div className="step-title">결과 확인 후 복사</div>
-            <div className="step-body">제목, 본문, FAQ, 마무리 안내, 사진 가이드를 보고 복사하면 됩니다.</div>
+        </section>
+
+        <section className="card section-stack tone-surface">
+          <span className="eyebrow">Fast Start</span>
+          <h2 className="section-title">지금 바로 시작하려면</h2>
+          <div className="history-list">
+            <article className="compact-card history-card">
+              <strong>가게 정보가 아직 없음</strong>
+              <div className="small-note">온보딩에서 상호명과 지역부터 넣는 편이 결과 품질에 가장 직접적입니다.</div>
+            </article>
+            <article className="compact-card history-card">
+              <strong>이미 준비됨</strong>
+              <div className="small-note">대시보드에서 키워드 한 줄만 넣고 바로 생성해도 됩니다.</div>
+            </article>
+            <article className="compact-card history-card">
+              <strong>글이 이미 있음</strong>
+              <div className="small-note">히스토리에서 같은 키워드 흐름을 재사용하면 훨씬 빠릅니다.</div>
+            </article>
           </div>
-        </div>
+          <div className="inline-actions">
+            <Link className="btn btn-primary" href="/dashboard">
+              지금 바로 생성 시작
+            </Link>
+            <Link className="btn btn-secondary" href="/onboarding">
+              가게 정보 먼저 입력
+            </Link>
+            <Link className="btn btn-secondary" href="/history">
+              저장 글 보기
+            </Link>
+          </div>
+        </section>
       </section>
 
       <section className="two-column">
@@ -73,7 +100,7 @@ export default function GuidePage(): React.ReactNode {
             <li>가게 외관이나 간판이 보이는 컷 1장</li>
             <li>좌석, 분위기, 편의 정보가 보이는 컷 1장</li>
           </ul>
-          <p className="small-note">결과 페이지에서 사진 가이드만 따로 빠르게 확인할 수 있습니다.</p>
+          <p className="small-note">결과 페이지에서 사진 가이드를 따로 다시 확인할 수 있습니다.</p>
         </section>
 
         <section className="card section-stack tone-surface">
@@ -83,7 +110,7 @@ export default function GuidePage(): React.ReactNode {
             <div className="step-card">
               <div className="step-kicker">월</div>
               <div className="step-title">대표 메뉴 키워드</div>
-              <div className="step-body">가게를 가장 잘 보여 주는 기본 키워드부터 쌓습니다.</div>
+              <div className="step-body">가게를 가장 잘 보여 주는 기본 키워드를 먼저 쌓습니다.</div>
             </div>
             <div className="step-card">
               <div className="step-kicker">수</div>
@@ -92,27 +119,11 @@ export default function GuidePage(): React.ReactNode {
             </div>
             <div className="step-card">
               <div className="step-kicker">금</div>
-              <div className="step-title">다음 글 추천 활용</div>
+              <div className="step-title">추천 이어쓰기</div>
               <div className="step-body">이전 글 추천 키워드를 눌러 흐름을 이어가면 운영이 쉬워집니다.</div>
             </div>
           </div>
         </section>
-      </section>
-
-      <section className="card section-stack">
-        <span className="eyebrow">Start</span>
-        <p className="help">처음이면 온보딩, 이미 준비가 끝났으면 대시보드, 작성한 글이 있으면 히스토리로 바로 가는 흐름이 가장 빠릅니다.</p>
-        <div className="inline-actions">
-          <Link className="btn btn-primary" href="/onboarding">
-            가게 정보 입력
-          </Link>
-          <Link className="btn btn-secondary" href="/dashboard">
-            바로 생성하러 가기
-          </Link>
-          <Link className="btn btn-secondary" href="/history">
-            저장 글 다시 보기
-          </Link>
-        </div>
       </section>
     </div>
   );

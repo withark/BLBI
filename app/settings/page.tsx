@@ -104,98 +104,39 @@ export default function SettingsPage(): React.ReactNode {
 
   return (
     <div className="page-stack">
-      <section className="card hero-card accent-card">
-        <div className="chips" aria-label="설정 안내">
-          <span className="pill">데모 플랜 전환</span>
-          <span className="pill">즉시 반영</span>
-          <span className="pill">운영 화면 연결</span>
-        </div>
-
-        <div className="section-stack">
-          <h1 className="hero-title" style={{ fontSize: "1.9rem" }}>
-            지금은 여기서 플랜 상태를 바꾸고 기능 범위를 바로 확인할 수 있습니다
-          </h1>
-          <p className="help">결제 연동 전까지는 데모 환경에서 플랜을 직접 바꿔 보며 실제 제한과 기능 차이를 확인합니다.</p>
-        </div>
-
-        <div className="info-grid">
-          <div className="compact-card">
-            <strong>현재 플랜</strong>
-            <div>{PLAN_DISPLAY[plan].name}</div>
-            <div className="meta-line">{PLAN_DISPLAY[plan].summary}</div>
-          </div>
-          <div className="compact-card">
-            <strong>현재 사용량</strong>
-            <div>{usage ? `${usage.used} / ${usage.limit === null ? "무제한" : usage.limit}` : "불러오는 중"}</div>
-            <div className="meta-line">{usage ? `남은 횟수: ${usage.remaining ?? "-"}` : "사용량 정보를 확인하는 중입니다."}</div>
-          </div>
-        </div>
-      </section>
-
-      <section className="card section-stack">
-        <div className="section-stack">
-          <h2 className="section-title">데모 플랜 전환</h2>
-          <p className="help">선택 후 저장하면 대시보드의 한도와 기능 안내가 바로 바뀝니다.</p>
-        </div>
-
-        <div className="history-list">
-          {PRICING_CARDS.map((card) => {
-            const selected = plan === card.plan;
-
-            return (
-              <button
-                key={card.plan}
-                type="button"
-                className="compact-card"
-                onClick={() => setPlan(card.plan)}
-                style={{
-                  textAlign: "left",
-                  cursor: "pointer",
-                  borderColor: selected ? "rgba(29, 78, 216, 0.36)" : undefined,
-                  background: selected ? "rgba(239, 246, 255, 0.72)" : undefined
-                }}
-              >
-                <strong>{PLAN_DISPLAY[card.plan].name}</strong>
-                <div>{card.price}</div>
-                <div className="meta-line">{PLAN_DISPLAY[card.plan].summary}</div>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="inline-actions">
-          <button className="btn btn-primary" onClick={() => void savePlan()} disabled={saving} type="button">
-            {saving ? "저장 중..." : "플랜 저장"}
-          </button>
-          <Link href="/pricing" className="btn btn-secondary">
-            요금제 다시 보기
-          </Link>
-        </div>
-      </section>
-
-      {status && <div className={`status ${status.type === "error" ? "error" : status.type === "success" ? "success" : ""}`}>{status.message}</div>}
-
       <section className="two-column">
-        <section className="card section-stack tone-surface">
-          <h2 className="section-title">저장 후 바로 바뀌는 것</h2>
-          <div className="compact-card">
-            <strong>{PLAN_DISPLAY[plan].name}</strong>
-            <div>{selectedCard.price}</div>
-            <div className="meta-line">
-              집계 창 {formatWindowLabel(selectedLimits.window)} · 생성 제한 {selectedLimits.limit === null ? "무제한" : `${selectedLimits.limit}회`}
-            </div>
+        <section className="card hero-card accent-card">
+          <div className="chips" aria-label="설정 안내">
+            <span className="pill">데모 플랜 전환</span>
+            <span className="pill">즉시 반영</span>
+            <span className="pill">운영 화면 연결</span>
           </div>
-          <div className="history-list">
-            {selectedCard.features.map((feature) => (
-              <article key={feature} className="compact-card history-card">
-                <strong>{feature}</strong>
-              </article>
-            ))}
+
+          <div className="section-stack">
+            <span className="eyebrow">Plan Settings</span>
+            <h1 className="hero-title" style={{ fontSize: "1.95rem" }}>
+              여기서 플랜 상태를 바꾸고, 지금 열리는 기능 범위를 바로 확인할 수 있습니다
+            </h1>
+            <p className="help">결제 연동 전까지는 데모 환경에서 플랜을 직접 바꿔 보며 실제 제한과 기능 차이를 확인합니다.</p>
+          </div>
+
+          <div className="info-grid">
+            <div className="compact-card">
+              <strong>현재 플랜</strong>
+              <div>{PLAN_DISPLAY[plan].name}</div>
+              <div className="meta-line">{PLAN_DISPLAY[plan].summary}</div>
+            </div>
+            <div className="compact-card">
+              <strong>현재 사용량</strong>
+              <div>{usage ? `${usage.used} / ${usage.limit === null ? "무제한" : usage.limit}` : "불러오는 중"}</div>
+              <div className="meta-line">{usage ? `남은 횟수: ${usage.remaining ?? "-"}` : "사용량 정보를 확인하는 중입니다."}</div>
+            </div>
           </div>
         </section>
 
-        <section className="card section-stack">
-          <h2 className="section-title">바로 이어서 할 일</h2>
+        <section className="card section-stack tone-surface">
+          <span className="eyebrow">Next Move</span>
+          <h2 className="section-title">저장 후 바로 이어서 할 일</h2>
           <p className="help">{recommendedNextAction}</p>
           <div className="step-grid">
             <div className="step-card">
@@ -217,25 +158,95 @@ export default function SettingsPage(): React.ReactNode {
         </section>
       </section>
 
-      <section className="card section-stack">
-        <h2 className="section-title">연결된 화면</h2>
+      <section className="card section-stack tone-surface">
+        <div className="section-stack">
+          <span className="eyebrow">Plan Switch</span>
+          <h2 className="section-title">데모 플랜 전환</h2>
+          <p className="help">선택 후 저장하면 대시보드의 한도와 기능 안내가 바로 바뀝니다.</p>
+        </div>
+
+        <div className="row">
+          {PRICING_CARDS.map((card) => {
+            const selected = plan === card.plan;
+
+            return (
+              <button
+                key={card.plan}
+                type="button"
+                className="card section-stack"
+                onClick={() => setPlan(card.plan)}
+                style={{
+                  textAlign: "left",
+                  cursor: "pointer",
+                  minWidth: "240px",
+                  borderColor: selected ? "rgba(29, 78, 216, 0.36)" : undefined,
+                  background: selected ? "linear-gradient(180deg, rgba(239, 246, 255, 0.88) 0%, rgba(255, 247, 237, 0.92) 100%)" : undefined
+                }}
+              >
+                <div className="chips">
+                  <span className="pill">{PLAN_DISPLAY[card.plan].name}</span>
+                  {selected && <span className="pill">선택됨</span>}
+                </div>
+                <strong>{card.price}</strong>
+                <div className="meta-line">{PLAN_DISPLAY[card.plan].summary}</div>
+              </button>
+            );
+          })}
+        </div>
+
         <div className="inline-actions">
-          <Link href="/onboarding" className="btn btn-secondary">
-            가게 정보 수정
-          </Link>
-          <Link href="/dashboard" className="btn btn-secondary">
-            대시보드
-          </Link>
+          <button className="btn btn-primary" onClick={() => void savePlan()} disabled={saving} type="button">
+            {saving ? "저장 중..." : "플랜 저장"}
+          </button>
           <Link href="/pricing" className="btn btn-secondary">
-            요금제 안내
-          </Link>
-          <Link href="/billing" className="btn btn-secondary">
-            결제 준비 상태
-          </Link>
-          <Link href="/history" className="btn btn-secondary">
-            저장 글 운영 보기
+            요금제 다시 보기
           </Link>
         </div>
+      </section>
+
+      {status && <div className={`status ${status.type === "error" ? "error" : status.type === "success" ? "success" : ""}`}>{status.message}</div>}
+
+      <section className="two-column">
+        <section className="card section-stack tone-surface">
+          <span className="eyebrow">What Changes</span>
+          <h2 className="section-title">저장 후 바로 바뀌는 것</h2>
+          <div className="compact-card">
+            <strong>{PLAN_DISPLAY[plan].name}</strong>
+            <div>{selectedCard.price}</div>
+            <div className="meta-line">
+              집계 창 {formatWindowLabel(selectedLimits.window)} · 생성 제한 {selectedLimits.limit === null ? "무제한" : `${selectedLimits.limit}회`}
+            </div>
+          </div>
+          <div className="history-list">
+            {selectedCard.features.map((feature) => (
+              <article key={feature} className="compact-card history-card">
+                <strong>{feature}</strong>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="card section-stack tone-surface">
+          <span className="eyebrow">Connected Screens</span>
+          <h2 className="section-title">바로 이어서 보는 화면</h2>
+          <div className="inline-actions">
+            <Link href="/onboarding" className="btn btn-secondary">
+              가게 정보 수정
+            </Link>
+            <Link href="/dashboard" className="btn btn-secondary">
+              대시보드
+            </Link>
+            <Link href="/pricing" className="btn btn-secondary">
+              요금제 안내
+            </Link>
+            <Link href="/billing" className="btn btn-secondary">
+              결제 준비 상태
+            </Link>
+            <Link href="/history" className="btn btn-secondary">
+              저장 글 운영 보기
+            </Link>
+          </div>
+        </section>
       </section>
     </div>
   );
