@@ -15,6 +15,14 @@ export default function GuidePage(): React.ReactNode {
 
       <section className="card section-stack tone-surface">
         <span className="eyebrow">Step By Step</span>
+        <div className="inline-actions">
+          <Link className="btn btn-primary" href="/dashboard">
+            지금 바로 생성 시작
+          </Link>
+          <Link className="btn btn-secondary" href="/onboarding">
+            가게 정보 먼저 입력
+          </Link>
+        </div>
         <div className="step-grid">
           <div className="step-card">
             <div className="step-kicker">1</div>
@@ -93,12 +101,16 @@ export default function GuidePage(): React.ReactNode {
 
       <section className="card section-stack">
         <span className="eyebrow">Start</span>
+        <p className="help">처음이면 온보딩, 이미 준비가 끝났으면 대시보드, 작성한 글이 있으면 히스토리로 바로 가는 흐름이 가장 빠릅니다.</p>
         <div className="inline-actions">
           <Link className="btn btn-primary" href="/onboarding">
             가게 정보 입력
           </Link>
           <Link className="btn btn-secondary" href="/dashboard">
             바로 생성하러 가기
+          </Link>
+          <Link className="btn btn-secondary" href="/history">
+            저장 글 다시 보기
           </Link>
         </div>
       </section>

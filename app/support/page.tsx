@@ -77,6 +77,22 @@ export default function SupportPage(): React.ReactNode {
           </div>
         </div>
       </section>
+
+      <section className="card section-stack tone-surface">
+        <span className="eyebrow">Fast Recovery</span>
+        <h2 className="section-title">막힐 때 바로 가는 화면</h2>
+        <div className="inline-actions">
+          <Link className="btn btn-primary" href="/dashboard">
+            다시 생성하러 가기
+          </Link>
+          <Link className="btn btn-secondary" href="/onboarding">
+            가게 정보 보강
+          </Link>
+          <Link className="btn btn-secondary" href="/history">
+            저장 글 다시 열기
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

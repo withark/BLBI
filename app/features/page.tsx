@@ -48,7 +48,25 @@ export default function FeaturesPage(): React.ReactNode {
       <section className="card section-stack">
         <span className="eyebrow">Next Action</span>
         <h2 className="section-title">바로 써보려면</h2>
+        <p className="help">기능을 읽고 끝내지 않고, 지금 단계에 맞는 화면으로 바로 이동할 수 있게 묶었습니다.</p>
+        <div className="history-list">
+          <article className="compact-card history-card">
+            <strong>처음 시작</strong>
+            <div className="small-note">가게 정보가 아직 없으면 온보딩부터 시작하는 편이 결과 품질이 안정적입니다.</div>
+          </article>
+          <article className="compact-card history-card">
+            <strong>바로 생성</strong>
+            <div className="small-note">이미 가게 정보가 있으면 대시보드에서 키워드 한 줄로 바로 초안을 만들면 됩니다.</div>
+          </article>
+          <article className="compact-card history-card">
+            <strong>운영 점검</strong>
+            <div className="small-note">글이 이미 쌓였다면 히스토리와 관리자 화면에서 반복 패턴과 학습 흐름을 확인하면 됩니다.</div>
+          </article>
+        </div>
         <div className="inline-actions">
+          <Link className="btn btn-secondary" href="/onboarding">
+            온보딩 시작
+          </Link>
           <Link className="btn btn-primary" href="/dashboard">
             대시보드로 이동
           </Link>
