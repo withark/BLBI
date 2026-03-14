@@ -117,6 +117,11 @@ export default async function AdminSeoReferencesPage(): Promise<React.ReactNode>
           <strong>학습 규칙 보기</strong>
           <p className="help">누적된 키워드와 소제목 패턴이 생성 엔진에 어떤 방향을 주는지 확인합니다.</p>
         </Link>
+        <Link href="/admin/ranking-watch" className="card section-stack admin-link-card">
+          <span className="eyebrow">Ranking Watch</span>
+          <strong>키워드군 감시</strong>
+          <p className="help">후보, 승인 참고, 생성 글이 함께 쌓이는 키워드군을 우선순위로 확인합니다.</p>
+        </Link>
       </section>
 
       <section className="two-column">
@@ -233,6 +238,14 @@ export default async function AdminSeoReferencesPage(): Promise<React.ReactNode>
                       소제목 {snapshot.headingCount}개 · 사진 가이드 {snapshot.photoGuideCount}개 · 품질 {snapshot.qualityScore}
                     </div>
                     <div className="small-note">{snapshot.notes}</div>
+                    <div className="inline-actions">
+                      <Link
+                        href={`/dashboard?keyword=${encodeURIComponent(snapshot.keywordPatterns[0] || "")}`}
+                        className="btn btn-secondary"
+                      >
+                        이 패턴으로 생성 보기
+                      </Link>
+                    </div>
                   </article>
                 ))}
               </div>

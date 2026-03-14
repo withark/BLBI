@@ -612,6 +612,11 @@ export function DashboardClient(): React.ReactNode {
             </button>
           ))}
         </div>
+        <div className="inline-actions">
+          <Link className="btn btn-secondary" href="/history">
+            추천 키워드와 비슷한 글 보기
+          </Link>
+        </div>
       </section>
 
       <section className="two-column">
@@ -689,6 +694,13 @@ export function DashboardClient(): React.ReactNode {
               </button>
             ))}
           </div>
+          {seriesTopics.length > 0 && (
+            <div className="inline-actions">
+              <Link className="btn btn-secondary" href="/history">
+                기존 시리즈 글 확인
+              </Link>
+            </div>
+          )}
         </section>
       </section>
 
