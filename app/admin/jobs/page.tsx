@@ -33,10 +33,49 @@ export default async function AdminJobsPage(): Promise<React.ReactNode> {
 
   return (
     <div className="page-stack">
-      <section className="admin-overview-grid">
-        <article className="card section-stack tone-surface">
+      <section className="two-column">
+        <section className="card section-stack admin-section-hero">
           <span className="eyebrow">Job Overview</span>
           <h2 className="section-title">최근 운영 작업 상태</h2>
+          <p className="help">후보 생성과 참고 분석이 실제로 어느 정도 돌아가고 있는지, 실패 지점이 있는지 먼저 보는 화면입니다.</p>
+          <div className="admin-summary-band">
+            <article className="admin-summary-tile">
+              <span className="eyebrow">전체</span>
+              <strong>{jobs.length}건</strong>
+              <div className="meta-line">최근 기록된 운영 작업</div>
+            </article>
+            <article className="admin-summary-tile">
+              <span className="eyebrow">성공</span>
+              <strong>{successCount}건</strong>
+              <div className="meta-line">정상 종료된 작업</div>
+            </article>
+            <article className="admin-summary-tile">
+              <span className="eyebrow">실패</span>
+              <strong>{failedCount}건</strong>
+              <div className="meta-line">원인 확인이 필요한 작업</div>
+            </article>
+          </div>
+        </section>
+
+        <section className="card section-stack tone-surface admin-side-reference">
+          <span className="eyebrow">Related Pages</span>
+          <h2 className="section-title">함께 볼 화면</h2>
+          <div className="inline-actions">
+            <Link href="/admin/seo-references" className="btn btn-secondary">
+              SEO 참고 관리
+            </Link>
+            <Link href="/admin/seo-references/candidates" className="btn btn-secondary">
+              후보 검토 큐
+            </Link>
+            <Link href="/admin/seo-learning" className="btn btn-secondary">
+              학습 패턴 보기
+            </Link>
+          </div>
+        </section>
+      </section>
+
+      <section className="admin-overview-grid">
+        <article className="card section-stack tone-surface admin-data-card">
           <div className="info-grid">
             <div className="compact-card">
               <strong>전체 작업</strong>
@@ -53,7 +92,7 @@ export default async function AdminJobsPage(): Promise<React.ReactNode> {
           </div>
         </article>
 
-        <article className="card section-stack tone-surface">
+        <article className="card section-stack tone-surface admin-data-card">
           <span className="eyebrow">Automation Mix</span>
           <h2 className="section-title">작업 종류 분포</h2>
           <div className="info-grid">
@@ -65,17 +104,6 @@ export default async function AdminJobsPage(): Promise<React.ReactNode> {
               <strong>참고 분석</strong>
               <div>{analysisJobs.length}건</div>
             </div>
-          </div>
-          <div className="inline-actions">
-            <Link href="/admin/seo-references" className="btn btn-secondary">
-              SEO 참고 관리
-            </Link>
-            <Link href="/admin/seo-references/candidates" className="btn btn-secondary">
-              후보 검토 큐
-            </Link>
-            <Link href="/admin/seo-learning" className="btn btn-secondary">
-              학습 패턴 보기
-            </Link>
           </div>
         </article>
       </section>

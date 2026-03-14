@@ -30,14 +30,49 @@ export default async function AdminUsagePage(): Promise<React.ReactNode> {
 
   return (
     <div className="page-stack">
-      <section className="card section-stack tone-surface">
-        <span className="eyebrow">Usage</span>
-        <h2 className="section-title">사용량 점검</h2>
-        <p className="help">플랜 정책 계산과 실제 생성 이력이 같은 데이터 소스에서 나오도록 확인하는 화면입니다.</p>
+      <section className="two-column">
+        <section className="card section-stack admin-section-hero">
+          <span className="eyebrow">Usage</span>
+          <h2 className="section-title">사용량 점검</h2>
+          <p className="help">플랜 정책 계산과 실제 생성 이력이 같은 데이터 소스에서 나오도록 확인하는 화면입니다.</p>
+          <div className="admin-summary-band">
+            <article className="admin-summary-tile">
+              <span className="eyebrow">한도 도달</span>
+              <strong>{limitReachedCount}명</strong>
+              <div className="meta-line">추가 생성이 막힌 사용자</div>
+            </article>
+            <article className="admin-summary-tile">
+              <span className="eyebrow">무제한</span>
+              <strong>{unlimitedCount}명</strong>
+              <div className="meta-line">Premium 또는 우회 적용</div>
+            </article>
+            <article className="admin-summary-tile">
+              <span className="eyebrow">우회</span>
+              <strong>{bypassCount}명</strong>
+              <div className="meta-line">관리자 한도 우회 적용 사용자</div>
+            </article>
+          </div>
+        </section>
+
+        <section className="card section-stack tone-surface admin-side-reference">
+          <span className="eyebrow">Related Pages</span>
+          <h2 className="section-title">함께 볼 화면</h2>
+          <div className="inline-actions">
+            <Link href="/admin/users" className="btn btn-secondary">
+              사용자 보기
+            </Link>
+            <Link href="/admin/subscription" className="btn btn-secondary">
+              구독 보기
+            </Link>
+            <Link href="/settings" className="btn btn-secondary">
+              사용자 설정 화면
+            </Link>
+          </div>
+        </section>
       </section>
 
       <section className="admin-overview-grid">
-        <article className="card section-stack tone-surface">
+        <article className="card section-stack tone-surface admin-data-card">
           <span className="eyebrow">Snapshot</span>
           <div className="info-grid">
             <div className="compact-card">
@@ -58,44 +93,28 @@ export default async function AdminUsagePage(): Promise<React.ReactNode> {
             </div>
           </div>
         </article>
-
-        <article className="card section-stack tone-surface">
-          <span className="eyebrow">Related Pages</span>
-          <h2 className="section-title">함께 볼 화면</h2>
-          <div className="inline-actions">
-            <Link href="/admin/users" className="btn btn-secondary">
-              사용자 보기
-            </Link>
-            <Link href="/admin/subscription" className="btn btn-secondary">
-              구독 보기
-            </Link>
-            <Link href="/settings" className="btn btn-secondary">
-              사용자 설정 화면
-            </Link>
-          </div>
-        </article>
       </section>
 
       <section className="history-list">
         {usageRows.map(({ user, usage }) => (
           <article key={user.id} className="card section-stack tone-surface">
-              <div className="info-grid">
-                <div className="compact-card">
-                  <strong>사용자</strong>
-                  <div>{user.id}</div>
-                  <div className="meta-line">플랜 {user.plan}</div>
-                </div>
-                <div className="compact-card">
-                  <strong>현재 사용량</strong>
-                  <div>{buildUsageLabel(usage.limit, usage.used, usage.remaining)}</div>
-                  <div className="meta-line">집계 창 {usage.window}</div>
-                </div>
-                <div className="compact-card">
-                  <strong>우회 상태</strong>
-                  <div>{user.limitBypass ? "활성" : "비활성"}</div>
-                  <div className="meta-line">{user.limitBypass ? "관리자 한도 우회 적용 중" : "기본 한도 정책 사용 중"}</div>
-                </div>
+            <div className="info-grid">
+              <div className="compact-card">
+                <strong>사용자</strong>
+                <div>{user.id}</div>
+                <div className="meta-line">플랜 {user.plan}</div>
               </div>
+              <div className="compact-card">
+                <strong>현재 사용량</strong>
+                <div>{buildUsageLabel(usage.limit, usage.used, usage.remaining)}</div>
+                <div className="meta-line">집계 창 {usage.window}</div>
+              </div>
+              <div className="compact-card">
+                <strong>우회 상태</strong>
+                <div>{user.limitBypass ? "활성" : "비활성"}</div>
+                <div className="meta-line">{user.limitBypass ? "관리자 한도 우회 적용 중" : "기본 한도 정책 사용 중"}</div>
+              </div>
+            </div>
           </article>
         ))}
       </section>

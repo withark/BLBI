@@ -22,9 +22,49 @@ export default async function AdminSubscriptionPage(): Promise<React.ReactNode> 
   return (
     <div className="page-stack">
       <section className="two-column">
-        <section className="card section-stack tone-surface">
+        <section className="card section-stack admin-section-hero">
           <span className="eyebrow">Subscription Mix</span>
           <h2 className="section-title">플랜 분포</h2>
+          <p className="help">Free, Basic, Premium이 어느 단계에서 막히는지 보고 업그레이드 타이밍을 조정하는 화면입니다.</p>
+          <div className="admin-summary-band">
+            <article className="admin-summary-tile">
+              <span className="eyebrow">Free</span>
+              <strong>{counts.FREE}명</strong>
+              <div className="meta-line">처음 체험 단계</div>
+            </article>
+            <article className="admin-summary-tile">
+              <span className="eyebrow">Basic</span>
+              <strong>{counts.BASIC}명</strong>
+              <div className="meta-line">월 15회 운영 단계</div>
+            </article>
+            <article className="admin-summary-tile">
+              <span className="eyebrow">Premium</span>
+              <strong>{counts.PREMIUM}명</strong>
+              <div className="meta-line">무제한 + 시리즈 단계</div>
+            </article>
+          </div>
+        </section>
+
+        <section className="card section-stack tone-surface admin-side-reference">
+          <span className="eyebrow">Related Pages</span>
+          <h2 className="section-title">함께 볼 화면</h2>
+          <div className="inline-actions">
+            <Link href="/admin/usage" className="btn btn-secondary">
+              사용량 보기
+            </Link>
+            <Link href="/admin/users" className="btn btn-secondary">
+              사용자 보기
+            </Link>
+            <Link href="/pricing" className="btn btn-secondary">
+              사용자 요금제 화면
+            </Link>
+          </div>
+        </section>
+      </section>
+
+      <section className="two-column">
+        <section className="card section-stack tone-surface admin-data-card">
+          <span className="eyebrow">Distribution</span>
           <div className="info-grid">
             <div className="compact-card">
               <strong>Free</strong>
@@ -44,7 +84,7 @@ export default async function AdminSubscriptionPage(): Promise<React.ReactNode> 
           </div>
         </section>
 
-        <section className="card section-stack tone-surface">
+        <section className="card section-stack tone-surface admin-data-card">
           <span className="eyebrow">What To Watch</span>
           <h2 className="section-title">운영 포인트</h2>
           <ul className="list-clean">
@@ -56,7 +96,7 @@ export default async function AdminSubscriptionPage(): Promise<React.ReactNode> 
       </section>
 
       <section className="admin-overview-grid">
-        <article className="card section-stack tone-surface">
+        <article className="card section-stack tone-surface admin-data-card">
           <span className="eyebrow">Upgrade Watch</span>
           <div className="info-grid">
             <div className="compact-card">
@@ -67,22 +107,6 @@ export default async function AdminSubscriptionPage(): Promise<React.ReactNode> 
               <strong>Basic → Premium 후보</strong>
               <div>{upgradeTargets.basicToPremium}명</div>
             </div>
-          </div>
-        </article>
-
-        <article className="card section-stack tone-surface">
-          <span className="eyebrow">Related Pages</span>
-          <h2 className="section-title">함께 볼 화면</h2>
-          <div className="inline-actions">
-            <Link href="/admin/usage" className="btn btn-secondary">
-              사용량 보기
-            </Link>
-            <Link href="/admin/users" className="btn btn-secondary">
-              사용자 보기
-            </Link>
-            <Link href="/pricing" className="btn btn-secondary">
-              사용자 요금제 화면
-            </Link>
           </div>
         </article>
       </section>

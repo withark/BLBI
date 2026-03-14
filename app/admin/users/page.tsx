@@ -20,17 +20,53 @@ export default async function AdminUsersPage(): Promise<React.ReactNode> {
   const usersWithoutProfile = users.filter((user) => !profileMap.has(user.id)).length;
   const usersWithoutPosts = users.filter((user) => posts.every((post) => post.userId !== user.id)).length;
   const bypassCount = users.filter((user) => user.limitBypass).length;
+  const activeUsers = users.length - usersWithoutPosts;
 
   return (
     <div className="page-stack">
-      <section className="card section-stack tone-surface">
-        <span className="eyebrow">Users</span>
-        <h2 className="section-title">사용자 운영</h2>
-        <p className="help">플랜 상태, 생성 이력, 가게 정보 연결 여부, 한도 우회 여부를 함께 점검합니다.</p>
+      <section className="two-column">
+        <section className="card section-stack admin-section-hero">
+          <span className="eyebrow">Users</span>
+          <h2 className="section-title">사용자 운영</h2>
+          <p className="help">플랜 상태, 생성 이력, 가게 정보 연결 여부, 한도 우회 여부를 함께 점검합니다.</p>
+          <div className="admin-summary-band">
+            <article className="admin-summary-tile">
+              <span className="eyebrow">전체</span>
+              <strong>{users.length}명</strong>
+              <div className="meta-line">현재 저장된 사용자 수</div>
+            </article>
+            <article className="admin-summary-tile">
+              <span className="eyebrow">활성</span>
+              <strong>{activeUsers}명</strong>
+              <div className="meta-line">생성 이력이 있는 사용자</div>
+            </article>
+            <article className="admin-summary-tile">
+              <span className="eyebrow">Risk</span>
+              <strong>{usersWithoutProfile}명</strong>
+              <div className="meta-line">온보딩이 비어 있는 사용자</div>
+            </article>
+          </div>
+        </section>
+
+        <section className="card section-stack tone-surface admin-side-reference">
+          <span className="eyebrow">Related Pages</span>
+          <h2 className="section-title">함께 볼 화면</h2>
+          <div className="inline-actions">
+            <Link href="/admin/subscription" className="btn btn-secondary">
+              구독 화면
+            </Link>
+            <Link href="/admin/usage" className="btn btn-secondary">
+              사용량 화면
+            </Link>
+            <Link href="/admin/posts" className="btn btn-secondary">
+              생성 글 화면
+            </Link>
+          </div>
+        </section>
       </section>
 
       <section className="admin-overview-grid">
-        <article className="card section-stack tone-surface">
+        <article className="card section-stack tone-surface admin-data-card">
           <span className="eyebrow">Coverage</span>
           <div className="info-grid">
             <div className="compact-card">
@@ -49,22 +85,6 @@ export default async function AdminUsersPage(): Promise<React.ReactNode> {
               <strong>한도 우회</strong>
               <div>{bypassCount}명</div>
             </div>
-          </div>
-        </article>
-
-        <article className="card section-stack tone-surface">
-          <span className="eyebrow">Related Pages</span>
-          <h2 className="section-title">함께 볼 화면</h2>
-          <div className="inline-actions">
-            <Link href="/admin/subscription" className="btn btn-secondary">
-              구독 화면
-            </Link>
-            <Link href="/admin/usage" className="btn btn-secondary">
-              사용량 화면
-            </Link>
-            <Link href="/admin/posts" className="btn btn-secondary">
-              생성 글 화면
-            </Link>
           </div>
         </article>
       </section>

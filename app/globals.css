@@ -1065,6 +1065,43 @@ p {
     linear-gradient(180deg, rgba(255, 252, 247, 0.96) 0%, rgba(250, 240, 225, 0.88) 100%);
 }
 
+.admin-section-hero {
+  background:
+    radial-gradient(circle at top left, rgba(30, 90, 74, 0.14), transparent 28%),
+    radial-gradient(circle at 82% 14%, rgba(213, 154, 48, 0.16), transparent 24%),
+    linear-gradient(180deg, rgba(250, 253, 249, 0.96) 0%, rgba(244, 247, 241, 0.9) 100%);
+}
+
+.admin-summary-band {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.admin-summary-tile {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.9rem;
+  border-radius: 20px;
+  border: 1px solid rgba(30, 90, 74, 0.16);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.admin-summary-tile strong {
+  font-size: 1.02rem;
+  letter-spacing: -0.03em;
+}
+
+.admin-side-reference {
+  border-color: rgba(133, 96, 66, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 250, 245, 0.98) 0%, rgba(247, 240, 230, 0.92) 100%);
+}
+
+.admin-data-card {
+  border-color: rgba(133, 96, 66, 0.18);
+}
+
 .admin-nav {
   display: flex;
   flex-wrap: wrap;
@@ -1146,6 +1183,7 @@ p {
   .launchpad-strip,
   .launchpad-proof-grid,
   .admin-hero-grid,
+  .admin-summary-band,
   .compose-signal-strip,
   .result-signal-strip,
   .result-grid-primary,
