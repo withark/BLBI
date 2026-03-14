@@ -16,6 +16,10 @@ function formatDate(value: string): string {
 export default async function AdminPostsPage(): Promise<React.ReactNode> {
   const [posts, profiles] = await Promise.all([listAllPosts(), listAllBusinessProfiles()]);
   const profileMap = new Map(profiles.map((profile) => [profile.id, profile]));
+  const withProfileCount = posts.filter((post) => post.businessProfileId && profileMap.has(post.businessProfileId)).length;
+  const freeCount = posts.filter((post) => post.plan === "FREE").length;
+  const basicCount = posts.filter((post) => post.plan === "BASIC").length;
+  const premiumCount = posts.filter((post) => post.plan === "PREMIUM").length;
 
   return (
     <div className="page-stack">
@@ -23,6 +27,32 @@ export default async function AdminPostsPage(): Promise<React.ReactNode> {
         <span className="eyebrow">Posts</span>
         <h2 className="section-title">전체 생성 글</h2>
         <p className="help">키워드, 사용자, 연결된 가게 정보, 플랜을 함께 보며 실제 생성 흐름을 점검합니다.</p>
+      </section>
+
+      <section className="admin-overview-grid">
+        <article className="card section-stack tone-surface">
+          <span className="eyebrow">Post Snapshot</span>
+          <div className="info-grid">
+            <div className="compact-card">
+              <strong>전체 글</strong>
+              <div>{posts.length}개</div>
+            </div>
+            <div className="compact-card">
+              <strong>가게 연결됨</strong>
+              <div>{withProfileCount}개</div>
+            </div>
+            <div className="compact-card">
+              <strong>Free / Basic</strong>
+              <div>
+                {freeCount} / {basicCount}
+              </div>
+            </div>
+            <div className="compact-card">
+              <strong>Premium</strong>
+              <div>{premiumCount}개</div>
+            </div>
+          </div>
+        </article>
       </section>
 
       <section className="history-list">

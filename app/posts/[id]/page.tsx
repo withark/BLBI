@@ -1,10 +1,10 @@
-import { redirect } from "next/navigation";
+import { PostEditClient } from "./post-edit-client";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function PostEditPage({ params }: PageProps): Promise<never> {
+export default async function PostEditPage({ params }: PageProps): Promise<React.ReactNode> {
   const { id } = await params;
-  redirect(`/result?postId=${id}`);
+  return <PostEditClient postId={id} />;
 }
