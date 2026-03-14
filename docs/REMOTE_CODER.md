@@ -54,16 +54,15 @@ Recommended defaults:
 - model: `gpt-5.3-codex`
 - reasoning: `high`
 - check command: `npm run check`
-- scheduled enabled: `true`
+- scheduled enabled: `false`
 - scheduled branch: `codex/ux-flow-pass`
 - scheduled base: `main`
-- scheduled task: continue the BLBI MVP polish automatically on the shared work branch
 
 ## Scheduled background mode
 
-By default, the workflow is configured to continue work in the background on `codex/ux-flow-pass` once the workflow file exists on `main`.
+By default, scheduled background work is off. The remote coder still works for `/codex ...` pull request comments and manual workflow runs.
 
-Set repository variables only if you want to override the default background behavior:
+Set repository variables only if you want to turn scheduled background work on:
 
 - `REMOTE_CODER_SCHEDULED_ENABLED=true`
 - `REMOTE_CODER_SCHEDULED_TASK=현재 브랜치에서 이어서 진행할 구체적인 작업`
@@ -87,7 +86,6 @@ Constraints:
 - scheduled mode never writes directly to `main` or `master`
 - the workflow file must exist on the repository default branch for GitHub schedules to run
 - use a persistent `codex/...` work branch so changes keep accumulating in one place
-- the default scheduled prompt is intentionally scoped to product polish, admin SEO flow, dead-flow cleanup, and build-safe improvements
 
 ## Safety rules in the workflow
 

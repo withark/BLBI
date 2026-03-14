@@ -23,7 +23,7 @@ The app listens on port `3000` and is configured for forwarded preview access.
 - `Deploy Vercel` runs on pushes to `main` only when the repository secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` are configured.
 - Deployment secret setup is documented in [docs/DEPLOYMENT_SETUP.md](docs/DEPLOYMENT_SETUP.md).
 - Remote coding workflow usage is documented in [docs/REMOTE_CODER.md](docs/REMOTE_CODER.md).
-- Remote coding is configured to continue in scheduled background mode on `codex/ux-flow-pass` every hour once the workflow file is present on `main`. Repository variables can override or disable that behavior.
+- Remote coding is available through pull request `/codex ...` comments and manual workflow runs. Scheduled background mode stays off unless repository variables explicitly enable it.
 
 This means validation can continue on GitHub even after the local machine is off, but actual coding work is still separate from CI.
 

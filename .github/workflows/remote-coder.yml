@@ -40,10 +40,10 @@ jobs:
       OPENAI_REMOTE_CODER_MODEL: ${{ vars.OPENAI_REMOTE_CODER_MODEL || 'gpt-5.3-codex' }}
       OPENAI_REMOTE_CODER_REASONING: ${{ vars.OPENAI_REMOTE_CODER_REASONING || 'high' }}
       REMOTE_CODER_CHECK_COMMAND: ${{ vars.REMOTE_CODER_CHECK_COMMAND || 'npm run check' }}
-      SCHEDULED_REMOTE_CODER_TASK: ${{ vars.REMOTE_CODER_SCHEDULED_TASK || 'Continue improving the BLBI MVP against docs/project-master-spec.md. Prioritize unfinished user-facing UX polish, differentiated visual design, admin SEO operations, dead-flow cleanup, and build-safe implementation. Avoid deployment-only work unless required for passing checks.' }}
+      SCHEDULED_REMOTE_CODER_TASK: ${{ vars.REMOTE_CODER_SCHEDULED_TASK || '' }}
       SCHEDULED_REMOTE_CODER_WORK_BRANCH: ${{ vars.REMOTE_CODER_SCHEDULED_BRANCH || 'codex/ux-flow-pass' }}
       SCHEDULED_REMOTE_CODER_BASE_BRANCH: ${{ vars.REMOTE_CODER_SCHEDULED_BASE || 'main' }}
-      SCHEDULED_REMOTE_CODER_ENABLED: ${{ vars.REMOTE_CODER_SCHEDULED_ENABLED || 'true' }}
+      SCHEDULED_REMOTE_CODER_ENABLED: ${{ vars.REMOTE_CODER_SCHEDULED_ENABLED || 'false' }}
 
     steps:
       - name: Resolve request context
