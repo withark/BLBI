@@ -474,108 +474,110 @@ function ResultContent(): React.ReactNode {
       )}
 
       {post && (
-        <section className="card section-stack tone-surface">
-          <div className="section-stack">
-            <h2 className="section-title">발행 전 10초 체크</h2>
-            <p className="help">지금 복사해도 되는지 마지막으로 보는 확인판입니다. 네 항목 중 많이 채워질수록 바로 발행하기 편합니다.</p>
-          </div>
-
-          <div className="quality-meter">
-            <div className="quality-meter-head">
-              <strong>{publishReadyCount === publishChecklist.length ? "바로 발행 가능" : "조금만 확인하면 발행 가능"}</strong>
-              <span className="small-note">
-                {publishReadyCount} / {publishChecklist.length} 항목 준비
-              </span>
+        <section className="two-column">
+          <section className="card section-stack tone-surface">
+            <div className="section-stack">
+              <h2 className="section-title">발행 전 10초 체크</h2>
+              <p className="help">지금 복사해도 되는지 마지막으로 보는 확인판입니다. 네 항목 중 많이 채워질수록 바로 발행하기 편합니다.</p>
             </div>
-            <div className="quality-track" aria-hidden="true">
-              <div className="quality-fill" style={{ width: `${Math.max((publishReadyCount / publishChecklist.length) * 100, 8)}%` }} />
+
+            <div className="quality-meter">
+              <div className="quality-meter-head">
+                <strong>{publishReadyCount === publishChecklist.length ? "바로 발행 가능" : "조금만 확인하면 발행 가능"}</strong>
+                <span className="small-note">
+                  {publishReadyCount} / {publishChecklist.length} 항목 준비
+                </span>
+              </div>
+              <div className="quality-track" aria-hidden="true">
+                <div className="quality-fill" style={{ width: `${Math.max((publishReadyCount / publishChecklist.length) * 100, 8)}%` }} />
+              </div>
             </div>
-          </div>
 
-          <div className="step-grid">
-            {publishChecklist.map((item, index) => (
-              <article key={item.label} className="step-card" style={item.ready ? undefined : { opacity: 0.7 }}>
-                <div className="step-kicker">{index + 1}</div>
-                <div className="step-title">{item.label}</div>
-                <div className="step-body">{item.note}</div>
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {post && (
-        <section className="card section-stack tone-surface">
-          <div className="section-stack">
-            <h2 className="section-title">복사 후 바로 할 일</h2>
-            <p className="help">이 화면에서 저장과 복사를 마쳤다면, 아래 순서대로 바로 발행까지 이어가면 됩니다.</p>
-          </div>
-
-          <div className="step-grid">
-            {publishNextSteps.map((step, index) => (
-              <article key={step} className="step-card">
-                <div className="step-kicker">{index + 1}</div>
-                <div className="step-title">다음 행동</div>
-                <div className="step-body">{step}</div>
-              </article>
-            ))}
-          </div>
-
-          <div className="inline-actions">
-            <Link href={`/dashboard?keyword=${encodeURIComponent(post.keyword)}`} className="btn btn-secondary">
-              같은 키워드로 다시 생성
-            </Link>
-            <Link href={post.nextSuggestions[0] ? `/dashboard?keyword=${encodeURIComponent(post.nextSuggestions[0])}` : "/dashboard"} className="btn btn-secondary">
-              다음 추천으로 이어쓰기
-            </Link>
-            <Link href={`/history?keyword=${encodeURIComponent(post.keyword)}`} className="btn btn-secondary">
-              같은 키워드 히스토리 보기
-            </Link>
-          </div>
-        </section>
-      )}
-
-      {post && (
-        <section className="card section-stack tone-surface">
-          <div className="section-stack">
-            <h2 className="section-title">사진 촬영 가이드</h2>
-            <p className="help">복사 결과에 포함되는 사진 가이드만 따로 빠르게 훑어볼 수 있습니다.</p>
-          </div>
-
-          {photoGuides.length === 0 ? (
-            <div className="surface-muted">
-              <p className="small-note">이번 결과에는 별도 사진 가이드가 없습니다.</p>
-            </div>
-          ) : (
-            <ul className="list-clean">
-              {photoGuides.map((guide) => (
-                <li key={guide}>{guide}</li>
+            <div className="step-grid">
+              {publishChecklist.map((item, index) => (
+                <article key={item.label} className="step-card" style={item.ready ? undefined : { opacity: 0.7 }}>
+                  <div className="step-kicker">{index + 1}</div>
+                  <div className="step-title">{item.label}</div>
+                  <div className="step-body">{item.note}</div>
+                </article>
               ))}
-            </ul>
-          )}
+            </div>
+          </section>
 
-          <div className="surface-muted section-stack">
-            <strong>다음 행동</strong>
-            <p className="small-note">복사 후 네이버 블로그에 붙여넣고, 사진은 위 가이드 순서대로 준비하면 됩니다.</p>
-          </div>
+          <section className="card section-stack tone-surface">
+            <div className="section-stack">
+              <h2 className="section-title">복사 후 바로 할 일</h2>
+              <p className="help">이 화면에서 저장과 복사를 마쳤다면, 아래 순서대로 바로 발행까지 이어가면 됩니다.</p>
+            </div>
+
+            <div className="step-grid">
+              {publishNextSteps.map((step, index) => (
+                <article key={step} className="step-card">
+                  <div className="step-kicker">{index + 1}</div>
+                  <div className="step-title">다음 행동</div>
+                  <div className="step-body">{step}</div>
+                </article>
+              ))}
+            </div>
+
+            <div className="inline-actions">
+              <Link href={`/dashboard?keyword=${encodeURIComponent(post.keyword)}`} className="btn btn-secondary">
+                같은 키워드로 다시 생성
+              </Link>
+              <Link href={post.nextSuggestions[0] ? `/dashboard?keyword=${encodeURIComponent(post.nextSuggestions[0])}` : "/dashboard"} className="btn btn-secondary">
+                다음 추천으로 이어쓰기
+              </Link>
+              <Link href={`/history?keyword=${encodeURIComponent(post.keyword)}`} className="btn btn-secondary">
+                같은 키워드 히스토리 보기
+              </Link>
+            </div>
+          </section>
         </section>
       )}
 
       {post && (
-        <section className="card section-stack tone-surface">
-          <div className="section-stack">
-            <h2 className="section-title">다음 글 이어쓰기</h2>
-            <p className="help">이번 글은 현재 <strong>{usageFitLabel}</strong> 톤으로 읽히기 좋습니다. 자연스럽게 이어지는 다음 키워드를 바로 눌러 새 글로 넘어갈 수 있습니다.</p>
-          </div>
+        <section className="two-column">
+          <section className="card section-stack tone-surface">
+            <div className="section-stack">
+              <h2 className="section-title">사진 촬영 가이드</h2>
+              <p className="help">복사 결과에 포함되는 사진 가이드만 따로 빠르게 훑어볼 수 있습니다.</p>
+            </div>
 
-          <div className="chips">
-            {post.nextSuggestions.length === 0 && <span className="help">아직 추천 키워드가 없습니다.</span>}
-            {post.nextSuggestions.map((suggestion) => (
-              <Link key={suggestion} href={`/dashboard?keyword=${encodeURIComponent(suggestion)}`} className="chip">
-                {suggestion}
-              </Link>
-            ))}
-          </div>
+            {photoGuides.length === 0 ? (
+              <div className="surface-muted">
+                <p className="small-note">이번 결과에는 별도 사진 가이드가 없습니다.</p>
+              </div>
+            ) : (
+              <ul className="list-clean">
+                {photoGuides.map((guide) => (
+                  <li key={guide}>{guide}</li>
+                ))}
+              </ul>
+            )}
+
+            <div className="surface-muted section-stack">
+              <strong>다음 행동</strong>
+              <p className="small-note">복사 후 네이버 블로그에 붙여넣고, 사진은 위 가이드 순서대로 준비하면 됩니다.</p>
+            </div>
+          </section>
+
+          <section className="card section-stack tone-surface">
+            <div className="section-stack">
+              <h2 className="section-title">다음 글 이어쓰기</h2>
+              <p className="help">
+                이번 글은 현재 <strong>{usageFitLabel}</strong> 톤으로 읽히기 좋습니다. 자연스럽게 이어지는 다음 키워드를 바로 눌러 새 글로 넘어갈 수 있습니다.
+              </p>
+            </div>
+
+            <div className="chips">
+              {post.nextSuggestions.length === 0 && <span className="help">아직 추천 키워드가 없습니다.</span>}
+              {post.nextSuggestions.map((suggestion) => (
+                <Link key={suggestion} href={`/dashboard?keyword=${encodeURIComponent(suggestion)}`} className="chip">
+                  {suggestion}
+                </Link>
+              ))}
+            </div>
+          </section>
         </section>
       )}
 
