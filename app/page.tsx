@@ -65,6 +65,40 @@ export default function HomePage(): React.ReactNode {
           </Link>
         </div>
       </section>
+
+      <section className="card section-stack tone-surface">
+        <div className="section-stack">
+          <h2 className="section-title">지금 가장 빠른 시작 경로</h2>
+          <p className="help">처음 접속한 사람도 여기서 바로 다음 행동을 고를 수 있게 정리했습니다.</p>
+        </div>
+
+        <div className="history-list">
+          <article className="compact-card history-card">
+            <strong>가게 정보가 아직 없으면</strong>
+            <div className="small-note">온보딩에서 상호명과 지역만 먼저 입력한 뒤 대시보드로 넘어가는 편이 맞습니다.</div>
+          </article>
+          <article className="compact-card history-card">
+            <strong>이미 준비가 되어 있으면</strong>
+            <div className="small-note">대시보드에서 키워드 한 줄로 바로 생성하고 결과 화면에서 복사하면 됩니다.</div>
+          </article>
+          <article className="compact-card history-card">
+            <strong>이미 글이 쌓여 있으면</strong>
+            <div className="small-note">히스토리에서 다시 쓰기 쉬운 글을 먼저 열고 키워드를 재사용하는 편이 빠릅니다.</div>
+          </article>
+        </div>
+
+        <div className="inline-actions">
+          <Link className="btn btn-primary" href="/dashboard">
+            바로 생성 시작
+          </Link>
+          <Link className="btn btn-secondary" href="/onboarding">
+            가게 정보 입력
+          </Link>
+          <Link className="btn btn-secondary" href="/history">
+            저장 글 운영 보기
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }
