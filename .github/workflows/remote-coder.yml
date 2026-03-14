@@ -4,6 +4,8 @@ on:
   issue_comment:
     types:
       - created
+  schedule:
+    - cron: "17 * * * *"
   workflow_dispatch:
     inputs:
       task:
@@ -28,13 +30,20 @@ permissions:
 
 jobs:
   run:
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.issue.pull_request && startsWith(github.event.comment.body, '/codex')) }}
+    if: ${{ github.event_name != 'issue_comment' || (github.event.issue.pull_request && startsWith(github.event.comment.body, '/codex')) }}
+    concurrency:
+      group: remote-coder-${{ github.event_name }}-${{ github.event.issue.number || github.event.inputs.work_branch || 'scheduled' }}
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
       OPENAI_REMOTE_CODER_MODEL: ${{ vars.OPENAI_REMOTE_CODER_MODEL || 'gpt-5.3-codex' }}
       OPENAI_REMOTE_CODER_REASONING: ${{ vars.OPENAI_REMOTE_CODER_REASONING || 'high' }}
       REMOTE_CODER_CHECK_COMMAND: ${{ vars.REMOTE_CODER_CHECK_COMMAND || 'npm run check' }}
+      SCHEDULED_REMOTE_CODER_TASK: ${{ vars.REMOTE_CODER_SCHEDULED_TASK || 'Continue improving the BLBI MVP against docs/project-master-spec.md. Prioritize unfinished user-facing UX polish, differentiated visual design, admin SEO operations, dead-flow cleanup, and build-safe implementation. Avoid deployment-only work unless required for passing checks.' }}
+      SCHEDULED_REMOTE_CODER_WORK_BRANCH: ${{ vars.REMOTE_CODER_SCHEDULED_BRANCH || 'codex/ux-flow-pass' }}
+      SCHEDULED_REMOTE_CODER_BASE_BRANCH: ${{ vars.REMOTE_CODER_SCHEDULED_BASE || 'main' }}
+      SCHEDULED_REMOTE_CODER_ENABLED: ${{ vars.REMOTE_CODER_SCHEDULED_ENABLED || 'true' }}
 
     steps:
       - name: Resolve request context
@@ -87,6 +96,38 @@ jobs:
               core.setOutput("base_branch", pull.base.ref);
               core.setOutput("pr_number", String(prNumber));
               core.setOutput("comment_target", "pr");
+              return;
+            }
+
+            if (eventName === "schedule") {
+              const enabled = (process.env.SCHEDULED_REMOTE_CODER_ENABLED || "").trim().toLowerCase();
+              const task = (process.env.SCHEDULED_REMOTE_CODER_TASK || "").trim();
+              const workBranch = (process.env.SCHEDULED_REMOTE_CODER_WORK_BRANCH || "codex/ux-flow-pass").trim();
+              const baseBranch = (process.env.SCHEDULED_REMOTE_CODER_BASE_BRANCH || "main").trim();
+
+              if (enabled !== "true") {
+                core.setOutput("should_run", "false");
+                core.setOutput("skip_reason", "Scheduled remote coder is disabled. Set REMOTE_CODER_SCHEDULED_ENABLED=true to enable it.");
+                return;
+              }
+
+              if (!task) {
+                core.setOutput("should_run", "false");
+                core.setOutput("skip_reason", "Scheduled remote coder task is empty. Set REMOTE_CODER_SCHEDULED_TASK to enable background work.");
+                return;
+              }
+
+              if (workBranch === "main" || workBranch === "master") {
+                core.setFailed("Scheduled remote coder cannot write directly to the default branch.");
+                return;
+              }
+
+              core.setOutput("should_run", "true");
+              core.setOutput("task", task);
+              core.setOutput("work_branch", workBranch);
+              core.setOutput("base_branch", baseBranch);
+              core.setOutput("pr_number", "");
+              core.setOutput("comment_target", "none");
               return;
             }
 
