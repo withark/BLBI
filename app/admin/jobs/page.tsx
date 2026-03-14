@@ -73,6 +73,9 @@ export default async function AdminJobsPage(): Promise<React.ReactNode> {
             <Link href="/admin/seo-references/candidates" className="btn btn-secondary">
               후보 검토 큐
             </Link>
+            <Link href="/admin/seo-learning" className="btn btn-secondary">
+              학습 패턴 보기
+            </Link>
           </div>
         </article>
       </section>

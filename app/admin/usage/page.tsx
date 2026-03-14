@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { applyLimitBypass, getUsageSnapshot } from "@/lib/domain/usage";
 import { listAllPosts, listAllUsers } from "@/lib/store/db";
 
@@ -54,6 +56,22 @@ export default async function AdminUsagePage(): Promise<React.ReactNode> {
               <strong>우회 적용</strong>
               <div>{bypassCount}명</div>
             </div>
+          </div>
+        </article>
+
+        <article className="card section-stack tone-surface">
+          <span className="eyebrow">Related Pages</span>
+          <h2 className="section-title">함께 볼 화면</h2>
+          <div className="inline-actions">
+            <Link href="/admin/users" className="btn btn-secondary">
+              사용자 보기
+            </Link>
+            <Link href="/admin/subscription" className="btn btn-secondary">
+              구독 보기
+            </Link>
+            <Link href="/settings" className="btn btn-secondary">
+              사용자 설정 화면
+            </Link>
           </div>
         </article>
       </section>

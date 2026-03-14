@@ -53,6 +53,22 @@ export default async function AdminPostsPage(): Promise<React.ReactNode> {
             </div>
           </div>
         </article>
+
+        <article className="card section-stack tone-surface">
+          <span className="eyebrow">Related Pages</span>
+          <h2 className="section-title">함께 볼 화면</h2>
+          <div className="inline-actions">
+            <Link href="/admin/users" className="btn btn-secondary">
+              사용자 보기
+            </Link>
+            <Link href="/admin/usage" className="btn btn-secondary">
+              사용량 보기
+            </Link>
+            <Link href="/history" className="btn btn-secondary">
+              사용자 히스토리 화면
+            </Link>
+          </div>
+        </article>
       </section>
 
       <section className="history-list">
