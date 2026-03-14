@@ -32,18 +32,33 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
           <footer className="footer">
             <div className="container footer-inner">
               <div className="footer-grid">
-                <div className="section-stack" style={{ gap: "0.3rem" }}>
-                  <strong>블비</strong>
-                  <span>키워드 한 개 입력으로 시작하는 지역 사장님용 블로그 자동 운영 도구</span>
-                </div>
-                <div className="section-stack" style={{ gap: "0.45rem", justifyItems: "end" }}>
+                <section className="footer-panel section-stack">
+                  <span className="eyebrow">BLBI</span>
+                  <strong>지역 사장님용 블로그 운영 스튜디오</strong>
+                  <span>키워드 한 개 입력으로 시작하고, 결과는 바로 복붙 가능하게 정리하는 운영 도구입니다.</span>
+                </section>
+
+                <section className="footer-panel section-stack">
+                  <span className="eyebrow">Quick Routes</span>
                   <div className="footer-links">
+                    <Link href="/dashboard">만들기</Link>
+                    <Link href="/history">히스토리</Link>
+                    <Link href="/onboarding">가게 정보</Link>
                     <Link href="/features">기능</Link>
                     <Link href="/guide">가이드</Link>
                     <Link href="/support">지원</Link>
                   </div>
+                </section>
+
+                <section className="footer-panel section-stack">
+                  <span className="eyebrow">Best Next</span>
+                  <div className="footer-links">
+                    <Link href="/dashboard">키워드로 바로 생성</Link>
+                    <Link href="/pricing">플랜 판단</Link>
+                    <Link href="/admin">관리자 허브</Link>
+                  </div>
                   <div className="footer-note">겉은 단순하게, 결과는 바로 복붙 가능하게.</div>
-                </div>
+                </section>
               </div>
             </div>
           </footer>
