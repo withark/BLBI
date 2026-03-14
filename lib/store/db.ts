@@ -263,6 +263,11 @@ export async function getOrCreateUser(userId: string): Promise<UserRecord> {
   });
 }
 
+export async function getUser(userId: string): Promise<UserRecord | null> {
+  const db = await readDb();
+  return db.users.find((user) => user.id === userId) ?? null;
+}
+
 export async function setUserPlan(userId: string, plan: UserPlan): Promise<UserRecord> {
   return mutateDb((db) => {
     const existing = db.users.find((user) => user.id === userId);
