@@ -111,40 +111,31 @@ export default async function AdminRankingWatchPage(): Promise<React.ReactNode> 
 
   return (
     <div className="page-stack">
-      <section className="card section-stack tone-surface">
-        <span className="eyebrow">Keyword Watch</span>
-        <h1 className="section-title">랭킹 감시 키워드군</h1>
-        <p className="help">최근 생성 글, 추천 키워드, SEO 참고 URL에서 반복되는 키워드군을 묶어 어떤 주제가 실제로 쌓이고 있는지 운영자가 점검하는 화면입니다.</p>
-      </section>
-
-      <section className="admin-overview-grid">
-        <article className="card section-stack tone-surface">
-          <span className="eyebrow">Watch Summary</span>
-          <div className="info-grid">
-            <div className="compact-card">
-              <strong>관찰 키워드군</strong>
-              <div>{watchRows.length}개</div>
-            </div>
-            <div className="compact-card">
-              <strong>승인 참고 보유</strong>
-              <div>{approvedKeywordCount}개</div>
-            </div>
-            <div className="compact-card">
-              <strong>후보 우세</strong>
-              <div>{candidateHeavyCount}개</div>
-            </div>
-            <div className="compact-card">
-              <strong>추천 신호 있음</strong>
-              <div>{recommendationHeavyCount}개</div>
-            </div>
-            <div className="compact-card">
-              <strong>즉시 승인 검토 필요</strong>
-              <div>{actionPriorityCount}개</div>
-            </div>
+      <section className="two-column">
+        <section className="card section-stack admin-section-hero">
+          <span className="eyebrow">Keyword Watch</span>
+          <h1 className="section-title">랭킹 감시 키워드군</h1>
+          <p className="help">최근 생성 글, 추천 키워드, SEO 참고 URL에서 반복되는 키워드군을 묶어 어떤 주제가 실제로 쌓이고 있는지 운영자가 점검하는 화면입니다.</p>
+          <div className="admin-summary-band">
+            <article className="admin-summary-tile">
+              <span className="eyebrow">관찰</span>
+              <strong>{watchRows.length}개</strong>
+              <div className="meta-line">현재 추적 중인 키워드군</div>
+            </article>
+            <article className="admin-summary-tile">
+              <span className="eyebrow">승인</span>
+              <strong>{approvedKeywordCount}개</strong>
+              <div className="meta-line">승인 참고 보유</div>
+            </article>
+            <article className="admin-summary-tile">
+              <span className="eyebrow">Action</span>
+              <strong>{actionPriorityCount}개</strong>
+              <div className="meta-line">즉시 검토 필요</div>
+            </article>
           </div>
-        </article>
+        </section>
 
-        <article className="card section-stack tone-surface">
+        <section className="card section-stack tone-surface admin-side-reference">
           <span className="eyebrow">Fast Jump</span>
           <h2 className="section-title">바로 이동</h2>
           <div className="inline-actions">
@@ -154,11 +145,43 @@ export default async function AdminRankingWatchPage(): Promise<React.ReactNode> 
             <Link href="/admin/seo-learning" className="btn btn-secondary">
               학습 패턴 보기
             </Link>
+            <Link href="/admin/seo-references" className="btn btn-secondary">
+              참고 URL 운영
+            </Link>
           </div>
+        </section>
+      </section>
+
+      <section className="admin-overview-grid">
+        <article className="card section-stack tone-surface admin-data-card">
+          <span className="eyebrow">Watch Summary</span>
+          <h2 className="section-title">신호 분포</h2>
+          <div className="info-grid">
+            <div className="compact-card">
+              <strong>후보 우세</strong>
+              <div>{candidateHeavyCount}개</div>
+            </div>
+            <div className="compact-card">
+              <strong>추천 신호 있음</strong>
+              <div>{recommendationHeavyCount}개</div>
+            </div>
+          </div>
+        </article>
+
+        <article className="card section-stack tone-surface admin-data-card">
+          <span className="eyebrow">Interpretation</span>
+          <h2 className="section-title">운영 판단 기준</h2>
+          <ul className="list-clean">
+            <li>승인 URL이 없고 후보만 많으면 후보 검토를 먼저 닫는 편이 맞습니다.</li>
+            <li>학습 신호는 있으나 생성 글이 없으면 대시보드 테스트 생성으로 연결하는 편이 낫습니다.</li>
+            <li>추천 신호까지 같이 쌓이면 시리즈 주제로 연결할 가치가 있습니다.</li>
+          </ul>
         </article>
       </section>
 
-      <section className="card section-stack">
+      <section className="card section-stack tone-surface">
+        <span className="eyebrow">Watch Feed</span>
+        <h2 className="section-title">키워드군 상태</h2>
         {watchRows.length === 0 ? (
           <div className="surface-muted">
             <p className="small-note">아직 관찰할 키워드군이 없습니다.</p>

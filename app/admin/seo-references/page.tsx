@@ -62,19 +62,71 @@ export default async function AdminSeoReferencesPage(): Promise<React.ReactNode>
 
   return (
     <div className="page-stack">
+      <section className="two-column">
+        <section className="card section-stack admin-section-hero">
+          <span className="eyebrow">Reference Control</span>
+          <h2 className="section-title">SEO 참고 URL 운영</h2>
+          <p className="help">후보, 승인, 제외 상태와 누적 학습 신호를 함께 보면서 어떤 참고 URL을 살릴지 빠르게 판단하는 화면입니다.</p>
+          <div className="admin-summary-band">
+            <article className="admin-summary-tile">
+              <span className="eyebrow">후보</span>
+              <strong>{statusCounts.candidate}개</strong>
+              <div className="meta-line">검토 대기 URL</div>
+            </article>
+            <article className="admin-summary-tile">
+              <span className="eyebrow">승인</span>
+              <strong>{statusCounts.approved}개</strong>
+              <div className="meta-line">재분석 가능한 풀</div>
+            </article>
+            <article className="admin-summary-tile">
+              <span className="eyebrow">Snapshot</span>
+              <strong>{snapshots.length}개</strong>
+              <div className="meta-line">누적 학습 스냅샷</div>
+            </article>
+          </div>
+        </section>
+
+        <section className="card section-stack tone-surface admin-side-reference">
+          <span className="eyebrow">Related Pages</span>
+          <h2 className="section-title">함께 볼 화면</h2>
+          <div className="inline-actions">
+            <Link href="/admin/seo-references/candidates" className="btn btn-secondary">
+              후보 검토 큐
+            </Link>
+            <Link href="/admin/seo-learning" className="btn btn-secondary">
+              학습 패턴 보기
+            </Link>
+            <Link href="/admin/jobs" className="btn btn-secondary">
+              작업 로그 보기
+            </Link>
+          </div>
+        </section>
+      </section>
+
       <section className="admin-overview-grid">
-        <article className="card section-stack tone-surface">
-          <span className="eyebrow">Queue Status</span>
-          <h2 className="section-title">참고 URL 상태</h2>
+        <article className="card section-stack tone-surface admin-data-card">
+          <span className="eyebrow">Learned Signals</span>
+          <h2 className="section-title">누적 학습 시그널</h2>
+          <div className="section-stack">
+            <div>
+              <strong>상위 키워드 패턴</strong>
+              <div className="chips">
+                {topKeywordPatterns.length === 0 ? <span className="help">아직 없음</span> : topKeywordPatterns.map((item) => <span key={item.label} className="chip">{item.label} · {item.count}</span>)}
+              </div>
+            </div>
+            <div>
+              <strong>상위 톤 패턴</strong>
+              <div className="chips">
+                {topTonePatterns.length === 0 ? <span className="help">아직 없음</span> : topTonePatterns.map((item) => <span key={item.label} className="chip">{item.label} · {item.count}</span>)}
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article className="card section-stack tone-surface admin-data-card">
+          <span className="eyebrow">Automation</span>
+          <h2 className="section-title">빠른 운영 액션</h2>
           <div className="info-grid">
-            <div className="compact-card">
-              <strong>후보</strong>
-              <div>{statusCounts.candidate}개</div>
-            </div>
-            <div className="compact-card">
-              <strong>승인</strong>
-              <div>{statusCounts.approved}개</div>
-            </div>
             <div className="compact-card">
               <strong>제외</strong>
               <div>{statusCounts.rejected}개</div>
@@ -84,71 +136,26 @@ export default async function AdminSeoReferencesPage(): Promise<React.ReactNode>
               <div>{statusCounts.archived}개</div>
             </div>
           </div>
-        </article>
-
-        <article className="card section-stack tone-surface">
-          <span className="eyebrow">Learned Signals</span>
-          <h2 className="section-title">누적 학습 시그널</h2>
-          <div className="history-list">
-            <div className="compact-card">
-              <strong>상위 키워드 패턴</strong>
-              <div className="chips">
-                {topKeywordPatterns.length === 0 ? <span className="help">아직 없음</span> : topKeywordPatterns.map((item) => <span key={item.label} className="chip">{item.label} · {item.count}</span>)}
-              </div>
-            </div>
-            <div className="compact-card">
-              <strong>상위 톤 패턴</strong>
-              <div className="chips">
-                {topTonePatterns.length === 0 ? <span className="help">아직 없음</span> : topTonePatterns.map((item) => <span key={item.label} className="chip">{item.label} · {item.count}</span>)}
-              </div>
-            </div>
+          <div className="inline-actions">
+            <form action={generateSeoCandidatesAction}>
+              <button type="submit" className="btn btn-primary">
+                내부 데이터로 후보 생성
+              </button>
+            </form>
+            <form action={analyzeApprovedSeoReferencesAction}>
+              <input type="hidden" name="limit" value="8" />
+              <button type="submit" className="btn btn-secondary">
+                승인 참고 일괄 재분석
+              </button>
+            </form>
           </div>
         </article>
-      </section>
-
-      <section className="admin-overview-grid">
-        <Link href="/admin/seo-references/candidates" className="card section-stack admin-link-card">
-          <span className="eyebrow">Candidate Queue</span>
-          <strong>후보만 따로 보기</strong>
-          <p className="help">검토해야 할 후보만 분리해서 승인과 제외를 빠르게 처리합니다.</p>
-        </Link>
-        <Link href="/admin/seo-learning" className="card section-stack admin-link-card">
-          <span className="eyebrow">Learning View</span>
-          <strong>학습 규칙 보기</strong>
-          <p className="help">누적된 키워드와 소제목 패턴이 생성 엔진에 어떤 방향을 주는지 확인합니다.</p>
-        </Link>
-        <Link href="/admin/ranking-watch" className="card section-stack admin-link-card">
-          <span className="eyebrow">Ranking Watch</span>
-          <strong>키워드군 감시</strong>
-          <p className="help">후보, 승인 참고, 생성 글이 함께 쌓이는 키워드군을 우선순위로 확인합니다.</p>
-        </Link>
       </section>
 
       <section className="two-column">
-        <section className="card section-stack tone-surface">
-          <span className="eyebrow">Manual Input</span>
-          <h2 className="section-title">상위노출 참고 URL 등록</h2>
-          <p className="help">운영자는 직접 참고 URL을 등록할 수 있고, 외부 API 연동 전 단계에서는 내부 데이터로 후보를 먼저 자동 생성해 검토 큐를 늘릴 수 있습니다.</p>
-
-          <div className="compact-card">
-            <strong>내부 데이터 기반 후보 생성</strong>
-            <p className="small-note">최근 생성 글, 추천 키워드, 가게 정보를 합쳐 네이버 블로그 검색 후보를 자동으로 만들고 `candidate` 상태로 큐에 추가합니다.</p>
-            <div className="inline-actions">
-              <form action={generateSeoCandidatesAction}>
-                <input type="hidden" name="limit" value="12" />
-                <button type="submit" className="btn btn-secondary">
-                  내부 데이터로 후보 생성
-                </button>
-              </form>
-              <form action={analyzeApprovedSeoReferencesAction}>
-                <input type="hidden" name="limit" value="6" />
-                <button type="submit" className="btn btn-secondary">
-                  승인 참고 일괄 재분석
-                </button>
-              </form>
-            </div>
-          </div>
-
+        <section className="card section-stack tone-surface admin-data-card">
+          <span className="eyebrow">Manual Add</span>
+          <h2 className="section-title">참고 URL 직접 등록</h2>
           <form action={createSeoReferenceAction} className="section-stack">
             <div className="row">
               <div className="field-stack">
@@ -202,9 +209,9 @@ export default async function AdminSeoReferencesPage(): Promise<React.ReactNode>
           </form>
         </section>
 
-        <section className="card section-stack tone-surface">
+        <section className="card section-stack tone-surface admin-data-card">
           <span className="eyebrow">Automation Status</span>
-          <h2 className="section-title">최근 자동 후보 작업</h2>
+          <h2 className="section-title">최근 자동 작업</h2>
           {latestCandidateJobs.length === 0 ? (
             <div className="surface-muted">
               <p className="small-note">아직 실행된 자동 후보 생성 작업이 없습니다.</p>
@@ -223,7 +230,7 @@ export default async function AdminSeoReferencesPage(): Promise<React.ReactNode>
           )}
 
           <div className="section-stack">
-            <span className="eyebrow">Learning Summary</span>
+            <span className="eyebrow">Latest Snapshots</span>
             <h3 className="section-title">최근 학습 스냅샷</h3>
             {latestSnapshots.length === 0 ? (
               <div className="surface-muted">
@@ -254,7 +261,7 @@ export default async function AdminSeoReferencesPage(): Promise<React.ReactNode>
         </section>
       </section>
 
-      <section className="card section-stack tone-surface">
+      <section className="card section-stack tone-surface admin-data-card">
         <span className="eyebrow">Section Intelligence</span>
         <h2 className="section-title">자주 학습된 소제목 구조</h2>
         {topSectionPatterns.length === 0 ? (
@@ -272,7 +279,7 @@ export default async function AdminSeoReferencesPage(): Promise<React.ReactNode>
         )}
       </section>
 
-      <section className="card section-stack">
+      <section className="card section-stack tone-surface">
         <span className="eyebrow">Reference Queue</span>
         <h2 className="section-title">참고 URL 큐</h2>
         {references.length === 0 ? (

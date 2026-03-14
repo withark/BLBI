@@ -58,90 +58,100 @@ export default async function AdminSeoLearningPage(): Promise<React.ReactNode> {
 
   return (
     <div className="page-stack">
-      <section className="admin-overview-grid">
-        <article className="card section-stack tone-surface">
-          <span className="eyebrow">Learning Coverage</span>
-          <h2 className="section-title">학습 풀 상태</h2>
-          <div className="info-grid">
-            <div className="compact-card">
-              <strong>승인 참고 URL</strong>
-              <div>{approvedReferences.length}개</div>
-            </div>
-            <div className="compact-card">
-              <strong>학습 스냅샷</strong>
-              <div>{snapshots.length}개</div>
-            </div>
-            <div className="compact-card">
-              <strong>평균 품질</strong>
-              <div>{averageQuality}점</div>
-            </div>
-          </div>
-        </article>
-
-        <article className="card section-stack tone-surface">
-          <span className="eyebrow">Tone Direction</span>
-          <h2 className="section-title">현재 많이 반영되는 톤</h2>
-          <div className="chips">
-            {topTonePatterns.length === 0 ? (
-              <span className="help">아직 누적된 톤 패턴이 없습니다.</span>
-            ) : (
-              topTonePatterns.map((item) => (
-                <span key={item.label} className="chip">
-                  {item.label} · {item.count}
-                </span>
-              ))
-            )}
-          </div>
-        </article>
-      </section>
-
       <section className="two-column">
-        <section className="card section-stack tone-surface">
-          <span className="eyebrow">Next Action</span>
-          <h2 className="section-title">학습 풀을 바로 보강하기</h2>
-          <p className="help">패턴을 확인한 뒤 같은 화면에서 바로 후보를 늘리고, 승인된 참고 URL을 다시 분석할 수 있어야 운영 속도가 유지됩니다.</p>
+        <section className="card section-stack admin-section-hero">
+          <span className="eyebrow">Learning Coverage</span>
+          <h2 className="section-title">SEO 학습 풀 상태</h2>
+          <p className="help">승인 참고 URL과 스냅샷 품질을 같이 보면서 생성 엔진이 너무 얕거나 한쪽 톤으로 쏠리지 않았는지 판단하는 화면입니다.</p>
+          <div className="admin-summary-band">
+            <article className="admin-summary-tile">
+              <span className="eyebrow">승인 풀</span>
+              <strong>{approvedReferences.length}개</strong>
+              <div className="meta-line">재분석 가능한 참고 URL</div>
+            </article>
+            <article className="admin-summary-tile">
+              <span className="eyebrow">Snapshot</span>
+              <strong>{snapshots.length}개</strong>
+              <div className="meta-line">누적 학습 조각</div>
+            </article>
+            <article className="admin-summary-tile">
+              <span className="eyebrow">품질 평균</span>
+              <strong>{averageQuality}점</strong>
+              <div className="meta-line">현재 학습 안정도</div>
+            </article>
+          </div>
+        </section>
+
+        <section className="card section-stack tone-surface admin-side-reference">
+          <span className="eyebrow">Related Pages</span>
+          <h2 className="section-title">함께 볼 화면</h2>
           <div className="inline-actions">
-            <form action={generateSeoCandidatesAction}>
-              <input type="hidden" name="limit" value="12" />
-              <button type="submit" className="btn btn-primary">
-                후보 12개 다시 생성
-              </button>
-            </form>
-            <form action={analyzeApprovedSeoReferencesAction}>
-              <input type="hidden" name="limit" value="6" />
-              <button type="submit" className="btn btn-secondary">
-                승인 참고 6개 재분석
-              </button>
-            </form>
+            <Link href="/admin/seo-references" className="btn btn-secondary">
+              참고 URL 운영
+            </Link>
             <Link href="/admin/seo-references/candidates" className="btn btn-secondary">
-              후보 검토 큐로 이동
+              후보 검토 큐
+            </Link>
+            <Link href="/admin/ranking-watch" className="btn btn-secondary">
+              랭킹 감시 보기
             </Link>
           </div>
         </section>
+      </section>
 
-        <section className="card section-stack tone-surface">
-          <span className="eyebrow">Coverage Gaps</span>
-          <h2 className="section-title">지금 보강이 필요한 부분</h2>
+      <section className="admin-overview-grid">
+        <article className="card section-stack tone-surface admin-data-card">
+          <span className="eyebrow">Coverage Warnings</span>
+          <h2 className="section-title">지금 보강해야 할 부분</h2>
           {lowCoverageReasons.length === 0 ? (
             <div className="surface-muted">
-              <p className="small-note">기본 학습 풀이 안정권입니다. 이제는 품질 점수가 낮은 스냅샷을 줄이고, 지역/메뉴별 세부 패턴을 더 쌓는 쪽이 맞습니다.</p>
+              <p className="small-note">현재 기준으로는 승인 풀과 패턴 폭이 크게 부족하지 않습니다.</p>
             </div>
           ) : (
-            <div className="history-list">
+            <ul className="list-clean">
               {lowCoverageReasons.map((reason) => (
-                <article key={reason} className="compact-card history-card">
-                  <strong>{reason}</strong>
-                </article>
+                <li key={reason}>{reason}</li>
+              ))}
+            </ul>
+          )}
+          <div className="inline-actions">
+            <form action={generateSeoCandidatesAction}>
+              <button type="submit" className="btn btn-primary">
+                학습 풀 보강하기
+              </button>
+            </form>
+            <form action={analyzeApprovedSeoReferencesAction}>
+              <input type="hidden" name="limit" value="8" />
+              <button type="submit" className="btn btn-secondary">
+                승인 참고 재분석
+              </button>
+            </form>
+          </div>
+        </article>
+
+        <article className="card section-stack tone-surface admin-data-card">
+          <span className="eyebrow">Tone Direction</span>
+          <h2 className="section-title">지금 많이 반영되는 톤</h2>
+          {topTonePatterns.length === 0 ? (
+            <div className="surface-muted">
+              <p className="small-note">아직 누적된 톤 패턴이 없습니다.</p>
+            </div>
+          ) : (
+            <div className="chips">
+              {topTonePatterns.map((item) => (
+                <span key={item.label} className="chip">
+                  {item.label} · {item.count}
+                </span>
               ))}
             </div>
           )}
-        </section>
+        </article>
       </section>
 
-      <section className="two-column">
-        <section className="card section-stack tone-surface">
+      <section className="admin-overview-grid">
+        <section className="card section-stack tone-surface admin-data-card">
           <span className="eyebrow">Keyword Rules</span>
-          <h2 className="section-title">자주 학습된 키워드 결합</h2>
+          <h2 className="section-title">상위 키워드 패턴</h2>
           {topKeywordPatterns.length === 0 ? (
             <div className="surface-muted">
               <p className="small-note">아직 학습된 키워드 패턴이 없습니다.</p>
@@ -157,7 +167,7 @@ export default async function AdminSeoLearningPage(): Promise<React.ReactNode> {
           )}
         </section>
 
-        <section className="card section-stack tone-surface">
+        <section className="card section-stack tone-surface admin-data-card">
           <span className="eyebrow">CTA Rules</span>
           <h2 className="section-title">자주 학습된 마무리 문장</h2>
           {topCtaPatterns.length === 0 ? (
@@ -177,7 +187,7 @@ export default async function AdminSeoLearningPage(): Promise<React.ReactNode> {
         </section>
       </section>
 
-      <section className="card section-stack tone-surface">
+      <section className="card section-stack tone-surface admin-data-card">
         <span className="eyebrow">Section Rules</span>
         <h2 className="section-title">자주 학습된 소제목 구조</h2>
         {topSectionPatterns.length === 0 ? (
@@ -196,7 +206,7 @@ export default async function AdminSeoLearningPage(): Promise<React.ReactNode> {
         )}
       </section>
 
-      <section className="card section-stack">
+      <section className="card section-stack tone-surface">
         <span className="eyebrow">Best Snapshots</span>
         <h2 className="section-title">품질이 높은 최근 스냅샷</h2>
         {strongestSnapshots.length === 0 ? (
