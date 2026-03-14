@@ -15,6 +15,9 @@ function formatDate(value: string): string {
 export default async function AdminUsersPage(): Promise<React.ReactNode> {
   const [users, posts, profiles] = await Promise.all([listAllUsers(), listAllPosts(), listAllBusinessProfiles()]);
   const profileMap = new Map(profiles.map((profile) => [profile.userId, profile]));
+  const usersWithoutProfile = users.filter((user) => !profileMap.has(user.id)).length;
+  const usersWithoutPosts = users.filter((user) => posts.every((post) => post.userId !== user.id)).length;
+  const bypassCount = users.filter((user) => user.limitBypass).length;
 
   return (
     <div className="page-stack">
@@ -22,6 +25,30 @@ export default async function AdminUsersPage(): Promise<React.ReactNode> {
         <span className="eyebrow">Users</span>
         <h2 className="section-title">사용자 운영</h2>
         <p className="help">플랜 상태, 생성 이력, 가게 정보 연결 여부, 한도 우회 여부를 함께 점검합니다.</p>
+      </section>
+
+      <section className="admin-overview-grid">
+        <article className="card section-stack tone-surface">
+          <span className="eyebrow">Coverage</span>
+          <div className="info-grid">
+            <div className="compact-card">
+              <strong>전체 사용자</strong>
+              <div>{users.length}명</div>
+            </div>
+            <div className="compact-card">
+              <strong>온보딩 미완료</strong>
+              <div>{usersWithoutProfile}명</div>
+            </div>
+            <div className="compact-card">
+              <strong>생성 이력 없음</strong>
+              <div>{usersWithoutPosts}명</div>
+            </div>
+            <div className="compact-card">
+              <strong>한도 우회</strong>
+              <div>{bypassCount}명</div>
+            </div>
+          </div>
+        </article>
       </section>
 
       <section className="history-list">

@@ -57,6 +57,24 @@ export default function FeaturesPage(): React.ReactNode {
           </Link>
         </div>
       </section>
+
+      <section className="overview-grid">
+        <Link href="/onboarding" className="card section-stack admin-link-card">
+          <span className="eyebrow">Onboarding</span>
+          <strong>가게 정보 준비</strong>
+          <p className="help">상호명, 지역, 메뉴를 한 번 정리해 두면 이후 모든 글에 반영됩니다.</p>
+        </Link>
+        <Link href="/history" className="card section-stack admin-link-card">
+          <span className="eyebrow">History</span>
+          <strong>운영형 히스토리</strong>
+          <p className="help">다시 보기, 복사, 편집, 키워드 재사용까지 저장된 글을 운영 도구처럼 다룹니다.</p>
+        </Link>
+        <Link href="/admin" className="card section-stack admin-link-card">
+          <span className="eyebrow">Admin</span>
+          <strong>학습과 운영 허브</strong>
+          <p className="help">사용량, 사용자, SEO 참고, 학습 스냅샷, 작업 로그를 한곳에서 관리합니다.</p>
+        </Link>
+      </section>
     </div>
   );
 }

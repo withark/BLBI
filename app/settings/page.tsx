@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { PLAN_DISPLAY, PRICING_CARDS } from "@/lib/domain/plan";
+import { PLAN_DISPLAY, PLAN_LIMITS, PRICING_CARDS } from "@/lib/domain/plan";
 
 type Plan = "FREE" | "BASIC" | "PREMIUM";
 
@@ -14,11 +14,29 @@ type UsageState = {
   window: "daily" | "monthly" | "unlimited";
 };
 
+function formatWindowLabel(window: UsageState["window"] | undefined): string {
+  if (window === "daily") {
+    return "하루 단위";
+  }
+
+  if (window === "monthly") {
+    return "월 단위";
+  }
+
+  if (window === "unlimited") {
+    return "무제한";
+  }
+
+  return "확인 중";
+}
+
 export default function SettingsPage(): React.ReactNode {
   const [plan, setPlan] = useState<Plan>("FREE");
   const [usage, setUsage] = useState<UsageState | null>(null);
   const [status, setStatus] = useState<{ type: "info" | "error" | "success"; message: string } | null>(null);
   const [saving, setSaving] = useState(false);
+  const selectedCard = PRICING_CARDS.find((card) => card.plan === plan) ?? PRICING_CARDS[0];
+  const selectedLimits = PLAN_LIMITS[plan];
 
   useEffect(() => {
     async function loadSettings(): Promise<void> {
@@ -152,6 +170,24 @@ export default function SettingsPage(): React.ReactNode {
       {status && <div className={`status ${status.type === "error" ? "error" : status.type === "success" ? "success" : ""}`}>{status.message}</div>}
 
       <section className="two-column">
+        <section className="card section-stack tone-surface">
+          <h2 className="section-title">저장 후 바로 바뀌는 것</h2>
+          <div className="compact-card">
+            <strong>{PLAN_DISPLAY[plan].name}</strong>
+            <div>{selectedCard.price}</div>
+            <div className="meta-line">
+              집계 창 {formatWindowLabel(selectedLimits.window)} · 생성 제한 {selectedLimits.limit === null ? "무제한" : `${selectedLimits.limit}회`}
+            </div>
+          </div>
+          <div className="history-list">
+            {selectedCard.features.map((feature) => (
+              <article key={feature} className="compact-card history-card">
+                <strong>{feature}</strong>
+              </article>
+            ))}
+          </div>
+        </section>
+
         <section className="card section-stack">
           <h2 className="section-title">바로 이어서 할 일</h2>
           <div className="step-grid">
@@ -172,21 +208,24 @@ export default function SettingsPage(): React.ReactNode {
             </div>
           </div>
         </section>
+      </section>
 
-        <section className="card section-stack">
-          <h2 className="section-title">연결된 화면</h2>
-          <div className="inline-actions">
-            <Link href="/onboarding" className="btn btn-secondary">
-              가게 정보 수정
-            </Link>
-            <Link href="/dashboard" className="btn btn-secondary">
-              대시보드
-            </Link>
-            <Link href="/billing" className="btn btn-secondary">
-              결제 준비 상태
-            </Link>
-          </div>
-        </section>
+      <section className="card section-stack">
+        <h2 className="section-title">연결된 화면</h2>
+        <div className="inline-actions">
+          <Link href="/onboarding" className="btn btn-secondary">
+            가게 정보 수정
+          </Link>
+          <Link href="/dashboard" className="btn btn-secondary">
+            대시보드
+          </Link>
+          <Link href="/pricing" className="btn btn-secondary">
+            요금제 안내
+          </Link>
+          <Link href="/billing" className="btn btn-secondary">
+            결제 준비 상태
+          </Link>
+        </div>
       </section>
     </div>
   );
