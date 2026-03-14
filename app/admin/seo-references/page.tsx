@@ -1,7 +1,9 @@
 import Link from "next/link";
 
 import {
+  analyzeApprovedSeoReferencesAction,
   analyzeSeoReferenceAction,
+  approveAndAnalyzeSeoReferenceAction,
   createSeoReferenceAction,
   generateSeoCandidatesAction,
   updateSeoReferenceStatusAction
@@ -126,12 +128,20 @@ export default async function AdminSeoReferencesPage(): Promise<React.ReactNode>
           <div className="compact-card">
             <strong>내부 데이터 기반 후보 생성</strong>
             <p className="small-note">최근 생성 글, 추천 키워드, 가게 정보를 합쳐 네이버 블로그 검색 후보를 자동으로 만들고 `candidate` 상태로 큐에 추가합니다.</p>
-            <form action={generateSeoCandidatesAction} className="inline-actions">
-              <input type="hidden" name="limit" value="12" />
-              <button type="submit" className="btn btn-secondary">
-                내부 데이터로 후보 생성
-              </button>
-            </form>
+            <div className="inline-actions">
+              <form action={generateSeoCandidatesAction}>
+                <input type="hidden" name="limit" value="12" />
+                <button type="submit" className="btn btn-secondary">
+                  내부 데이터로 후보 생성
+                </button>
+              </form>
+              <form action={analyzeApprovedSeoReferencesAction}>
+                <input type="hidden" name="limit" value="6" />
+                <button type="submit" className="btn btn-secondary">
+                  승인 참고 일괄 재분석
+                </button>
+              </form>
+            </div>
           </div>
 
           <form action={createSeoReferenceAction} className="section-stack">
@@ -283,6 +293,12 @@ export default async function AdminSeoReferencesPage(): Promise<React.ReactNode>
                     <input type="hidden" name="status" value="approved" />
                     <button type="submit" className={reference.status === "approved" ? "btn btn-primary" : "btn btn-secondary"}>
                       승인
+                    </button>
+                  </form>
+                  <form action={approveAndAnalyzeSeoReferenceAction}>
+                    <input type="hidden" name="referenceId" value={reference.id} />
+                    <button type="submit" className="btn btn-secondary">
+                      승인 후 분석
                     </button>
                   </form>
                   <form action={updateSeoReferenceStatusAction}>

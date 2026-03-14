@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 
 import type { SeoReferenceStatus, UserPlan } from "@/lib/domain/types";
 import {
+  analyzeApprovedSeoReferences,
   analyzeSeoReference,
+  approveAndAnalyzeSeoReference,
   createSeoReference,
   generateSeoReferenceCandidates,
   setUserLimitBypass,
@@ -94,6 +96,22 @@ export async function analyzeSeoReferenceAction(formData: FormData): Promise<voi
   revalidatePath("/admin");
   revalidatePath("/admin/seo-references");
   revalidatePath("/admin/jobs");
+  revalidatePath("/admin/seo-learning");
+}
+
+export async function approveAndAnalyzeSeoReferenceAction(formData: FormData): Promise<void> {
+  const referenceId = String(formData.get("referenceId") || "").trim();
+
+  if (!referenceId) {
+    return;
+  }
+
+  await approveAndAnalyzeSeoReference(referenceId);
+  revalidatePath("/admin");
+  revalidatePath("/admin/seo-references");
+  revalidatePath("/admin/seo-references/candidates");
+  revalidatePath("/admin/jobs");
+  revalidatePath("/admin/seo-learning");
 }
 
 export async function generateSeoCandidatesAction(formData: FormData): Promise<void> {
@@ -104,4 +122,16 @@ export async function generateSeoCandidatesAction(formData: FormData): Promise<v
   revalidatePath("/admin");
   revalidatePath("/admin/seo-references");
   revalidatePath("/admin/jobs");
+  revalidatePath("/admin/seo-references/candidates");
+}
+
+export async function analyzeApprovedSeoReferencesAction(formData: FormData): Promise<void> {
+  const rawLimit = Number(formData.get("limit") || 6);
+  const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(Math.floor(rawLimit), 1), 20) : 6;
+
+  await analyzeApprovedSeoReferences(limit);
+  revalidatePath("/admin");
+  revalidatePath("/admin/seo-references");
+  revalidatePath("/admin/jobs");
+  revalidatePath("/admin/seo-learning");
 }

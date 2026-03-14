@@ -1,4 +1,9 @@
-import { analyzeSeoReferenceAction, updateSeoReferenceStatusAction } from "@/app/admin/actions";
+import {
+  analyzeApprovedSeoReferencesAction,
+  analyzeSeoReferenceAction,
+  approveAndAnalyzeSeoReferenceAction,
+  updateSeoReferenceStatusAction
+} from "@/app/admin/actions";
 import { listSeoReferences } from "@/lib/store/db";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +24,7 @@ function formatDate(value: string | null): string {
 export default async function AdminSeoReferenceCandidatesPage(): Promise<React.ReactNode> {
   const references = await listSeoReferences();
   const candidates = references.filter((reference) => reference.status === "candidate");
+  const autoCandidates = candidates.filter((reference) => reference.sourceType === "search_api").length;
 
   return (
     <div className="page-stack">
@@ -26,6 +32,24 @@ export default async function AdminSeoReferenceCandidatesPage(): Promise<React.R
         <span className="eyebrow">Candidate Queue</span>
         <h1 className="section-title">자동 후보 검토 큐</h1>
         <p className="help">내부 데이터 기반 후보와 수동 등록 후보 중 아직 승인되지 않은 SEO 참고 URL만 모아 운영자가 빠르게 검토하는 화면입니다.</p>
+        <div className="info-grid">
+          <div className="compact-card">
+            <strong>전체 후보</strong>
+            <div>{candidates.length}개</div>
+          </div>
+          <div className="compact-card">
+            <strong>자동 생성 후보</strong>
+            <div>{autoCandidates}개</div>
+          </div>
+        </div>
+        <div className="inline-actions">
+          <form action={analyzeApprovedSeoReferencesAction}>
+            <input type="hidden" name="limit" value="6" />
+            <button type="submit" className="btn btn-secondary">
+              승인된 참고 일괄 재분석
+            </button>
+          </form>
+        </div>
       </section>
 
       <section className="card section-stack">
@@ -53,6 +77,12 @@ export default async function AdminSeoReferenceCandidatesPage(): Promise<React.R
                     <input type="hidden" name="status" value="approved" />
                     <button type="submit" className="btn btn-primary">
                       승인
+                    </button>
+                  </form>
+                  <form action={approveAndAnalyzeSeoReferenceAction}>
+                    <input type="hidden" name="referenceId" value={reference.id} />
+                    <button type="submit" className="btn btn-primary">
+                      승인 후 분석
                     </button>
                   </form>
                   <form action={updateSeoReferenceStatusAction}>

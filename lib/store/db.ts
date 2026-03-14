@@ -197,6 +197,50 @@ function buildSeoReferenceSignature(input: {
   return [input.keyword, input.region, input.businessType].map((value) => normalizeToken(value)).join("|");
 }
 
+function buildSeoSnapshot(record: SeoReferenceRecord): SeoLearnedSnapshot {
+  const now = nowIso();
+  const completenessScore = [record.keyword, record.region, record.businessType, record.title, record.summary]
+    .filter((value) => value.trim().length > 0).length;
+
+  const qualityScore = Math.min(100, 45 + completenessScore * 11);
+  const freshnessScore = record.lastAnalyzedAt ? 72 : 88;
+
+  return {
+    id: randomUUID(),
+    referenceId: record.id,
+    fetchedAt: now,
+    headingCount: 4,
+    photoGuideCount: 3,
+    faqExists: true,
+    ctaExists: true,
+    avgParagraphLength: 3,
+    keywordPatterns: Array.from(
+      new Set(
+        [
+          record.keyword,
+          record.region ? `${record.region} ${record.keyword}` : "",
+          record.businessType ? `${record.businessType} 추천` : "",
+          record.region && record.businessType ? `${record.region} ${record.businessType}` : ""
+        ].filter(Boolean)
+      )
+    ),
+    sectionPatterns: [
+      `${record.keyword}로 찾는 손님이 먼저 보는 정보`,
+      "대표 메뉴 설명과 주문 흐름",
+      "매장 분위기와 방문 상황 안내",
+      "방문 전 체크와 마무리 CTA"
+    ],
+    ctaPatterns: [
+      `${record.region || "매장 주변"} 방문 전에 위치와 영업시간을 확인해 주세요.`,
+      `${record.businessType || "매장"} 강점을 마지막 문단에서 다시 강조합니다.`
+    ],
+    tonePatterns: ["지역 기반 안내형", "과장 없는 후기형", "사장님 운영 관점 설명형"],
+    freshnessScore,
+    qualityScore,
+    notes: `${record.keyword} 기준으로 제목 구조, 소제목 흐름, CTA 문장을 요약 학습했습니다.`
+  };
+}
+
 export async function getOrCreateUser(userId: string): Promise<UserRecord> {
   return mutateDb((db) => {
     const current = db.users.find((user) => user.id === userId);
@@ -707,49 +751,9 @@ export async function analyzeSeoReference(referenceId: string): Promise<SeoLearn
       return null;
     }
 
-    const now = nowIso();
-    const completenessScore = [record.keyword, record.region, record.businessType, record.title, record.summary]
-      .filter((value) => value.trim().length > 0).length;
-
-    const qualityScore = Math.min(100, 45 + completenessScore * 11);
-    const freshnessScore = record.lastAnalyzedAt ? 72 : 88;
-    const snapshot: SeoLearnedSnapshot = {
-      id: randomUUID(),
-      referenceId: record.id,
-      fetchedAt: now,
-      headingCount: 4,
-      photoGuideCount: 3,
-      faqExists: true,
-      ctaExists: true,
-      avgParagraphLength: 3,
-      keywordPatterns: Array.from(
-        new Set(
-          [
-            record.keyword,
-            record.region ? `${record.region} ${record.keyword}` : "",
-            record.businessType ? `${record.businessType} 추천` : "",
-            record.region && record.businessType ? `${record.region} ${record.businessType}` : ""
-          ].filter(Boolean)
-        )
-      ),
-      sectionPatterns: [
-        `${record.keyword}로 찾는 손님이 먼저 보는 정보`,
-        "대표 메뉴 설명과 주문 흐름",
-        "매장 분위기와 방문 상황 안내",
-        "방문 전 체크와 마무리 CTA"
-      ],
-      ctaPatterns: [
-        `${record.region || "매장 주변"} 방문 전에 위치와 영업시간을 확인해 주세요.`,
-        `${record.businessType || "매장"} 강점을 마지막 문단에서 다시 강조합니다.`
-      ],
-      tonePatterns: ["지역 기반 안내형", "과장 없는 후기형", "사장님 운영 관점 설명형"],
-      freshnessScore,
-      qualityScore,
-      notes: `${record.keyword} 기준으로 제목 구조, 소제목 흐름, CTA 문장을 요약 학습했습니다.`
-    };
-
-    record.lastAnalyzedAt = now;
-    record.updatedAt = now;
+    const snapshot = buildSeoSnapshot(record);
+    record.lastAnalyzedAt = snapshot.fetchedAt;
+    record.updatedAt = snapshot.fetchedAt;
     if (record.status === "candidate") {
       record.status = "approved";
     }
@@ -761,6 +765,70 @@ export async function analyzeSeoReference(referenceId: string): Promise<SeoLearn
       affectedCount: 1
     });
     return snapshot;
+  });
+}
+
+export async function approveAndAnalyzeSeoReference(referenceId: string): Promise<SeoLearnedSnapshot | null> {
+  return mutateDb((db) => {
+    const record = db.seoReferences.find((item) => item.id === referenceId);
+
+    if (!record) {
+      appendAdminJob(db, {
+        jobType: "seo_reference_analysis",
+        status: "failed",
+        summary: "승인 후 분석할 대상을 찾지 못했습니다.",
+        affectedCount: 0
+      });
+      return null;
+    }
+
+    record.status = "approved";
+    const snapshot = buildSeoSnapshot(record);
+    record.lastAnalyzedAt = snapshot.fetchedAt;
+    record.updatedAt = snapshot.fetchedAt;
+    db.seoLearnedSnapshots.push(snapshot);
+    appendAdminJob(db, {
+      jobType: "seo_reference_analysis",
+      status: "success",
+      summary: `${record.keyword} 참고 URL을 승인 후 바로 분석했습니다.`,
+      affectedCount: 1
+    });
+    return snapshot;
+  });
+}
+
+export async function analyzeApprovedSeoReferences(limit = 6): Promise<SeoLearnedSnapshot[]> {
+  return mutateDb((db) => {
+    const targets = db.seoReferences
+      .filter((reference) => reference.status === "approved")
+      .sort((a, b) => {
+        const aTime = a.lastAnalyzedAt ? new Date(a.lastAnalyzedAt).getTime() : 0;
+        const bTime = b.lastAnalyzedAt ? new Date(b.lastAnalyzedAt).getTime() : 0;
+        return aTime - bTime || new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
+      })
+      .slice(0, limit);
+
+    const snapshots: SeoLearnedSnapshot[] = [];
+
+    for (const record of targets) {
+      const snapshot = buildSeoSnapshot(record);
+      record.lastAnalyzedAt = snapshot.fetchedAt;
+      record.updatedAt = snapshot.fetchedAt;
+      db.seoLearnedSnapshots.push(snapshot);
+      snapshots.push(snapshot);
+    }
+
+    appendAdminJob(db, {
+      jobType: "seo_reference_analysis",
+      status: "success",
+      summary:
+        snapshots.length === 0
+          ? "재분석할 승인 참고 URL이 없었습니다."
+          : `승인된 참고 URL ${snapshots.length}개를 일괄 재분석했습니다.`,
+      affectedCount: snapshots.length
+    });
+
+    return snapshots;
   });
 }
 
