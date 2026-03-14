@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { setUserPlanAction } from "@/app/admin/actions";
 import { listAllUsers } from "@/lib/store/db";
 
@@ -11,6 +13,10 @@ export default async function AdminSubscriptionPage(): Promise<React.ReactNode> 
     FREE: users.filter((user) => user.plan === "FREE").length,
     BASIC: users.filter((user) => user.plan === "BASIC").length,
     PREMIUM: users.filter((user) => user.plan === "PREMIUM").length
+  };
+  const upgradeTargets = {
+    freeToBasic: counts.FREE,
+    basicToPremium: counts.BASIC
   };
 
   return (
@@ -49,28 +55,63 @@ export default async function AdminSubscriptionPage(): Promise<React.ReactNode> 
         </section>
       </section>
 
+      <section className="admin-overview-grid">
+        <article className="card section-stack tone-surface">
+          <span className="eyebrow">Upgrade Watch</span>
+          <div className="info-grid">
+            <div className="compact-card">
+              <strong>Free → Basic 후보</strong>
+              <div>{upgradeTargets.freeToBasic}명</div>
+            </div>
+            <div className="compact-card">
+              <strong>Basic → Premium 후보</strong>
+              <div>{upgradeTargets.basicToPremium}명</div>
+            </div>
+          </div>
+        </article>
+
+        <article className="card section-stack tone-surface">
+          <span className="eyebrow">Related Pages</span>
+          <h2 className="section-title">함께 볼 화면</h2>
+          <div className="inline-actions">
+            <Link href="/admin/usage" className="btn btn-secondary">
+              사용량 보기
+            </Link>
+            <Link href="/pricing" className="btn btn-secondary">
+              사용자 요금제 화면
+            </Link>
+          </div>
+        </article>
+      </section>
+
       <section className="card section-stack">
         <span className="eyebrow">Plan Control</span>
         <h2 className="section-title">사용자 플랜 변경</h2>
-        <div className="history-list">
-          {users.map((user) => (
-            <article key={user.id} className="compact-card history-card">
-              <strong>{user.id}</strong>
-              <div className="meta-line">현재 플랜 {user.plan}</div>
-              <div className="inline-actions">
-                {PLAN_OPTIONS.map((plan) => (
-                  <form key={plan} action={setUserPlanAction}>
-                    <input type="hidden" name="userId" value={user.id} />
-                    <input type="hidden" name="plan" value={plan} />
-                    <button type="submit" className={plan === user.plan ? "btn btn-primary" : "btn btn-secondary"}>
-                      {plan}
-                    </button>
-                  </form>
-                ))}
-              </div>
-            </article>
-          ))}
-        </div>
+        {users.length === 0 ? (
+          <div className="surface-muted">
+            <p className="small-note">아직 구독 상태를 점검할 사용자가 없습니다.</p>
+          </div>
+        ) : (
+          <div className="history-list">
+            {users.map((user) => (
+              <article key={user.id} className="compact-card history-card">
+                <strong>{user.id}</strong>
+                <div className="meta-line">현재 플랜 {user.plan}</div>
+                <div className="inline-actions">
+                  {PLAN_OPTIONS.map((plan) => (
+                    <form key={plan} action={setUserPlanAction}>
+                      <input type="hidden" name="userId" value={user.id} />
+                      <input type="hidden" name="plan" value={plan} />
+                      <button type="submit" className={plan === user.plan ? "btn btn-primary" : "btn btn-secondary"}>
+                        {plan}
+                      </button>
+                    </form>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

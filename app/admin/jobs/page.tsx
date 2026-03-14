@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { listAdminJobs } from "@/lib/store/db";
 
 export const dynamic = "force-dynamic";
@@ -63,6 +65,14 @@ export default async function AdminJobsPage(): Promise<React.ReactNode> {
               <strong>참고 분석</strong>
               <div>{analysisJobs.length}건</div>
             </div>
+          </div>
+          <div className="inline-actions">
+            <Link href="/admin/seo-references" className="btn btn-secondary">
+              SEO 참고 관리
+            </Link>
+            <Link href="/admin/seo-references/candidates" className="btn btn-secondary">
+              후보 검토 큐
+            </Link>
           </div>
         </article>
       </section>

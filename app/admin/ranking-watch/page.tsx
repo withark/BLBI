@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { listAllPosts, listAllRecommendations, listSeoReferences } from "@/lib/store/db";
 
 export const dynamic = "force-dynamic";
@@ -102,6 +104,9 @@ export default async function AdminRankingWatchPage(): Promise<React.ReactNode> 
       return bScore - aScore || new Date(b.lastTouchedAt).getTime() - new Date(a.lastTouchedAt).getTime();
     })
     .slice(0, 16);
+  const approvedKeywordCount = watchRows.filter((row) => row.approvedCount > 0).length;
+  const candidateHeavyCount = watchRows.filter((row) => row.candidateCount > row.approvedCount).length;
+  const recommendationHeavyCount = watchRows.filter((row) => row.recommendationCount > 0).length;
 
   return (
     <div className="page-stack">
@@ -109,6 +114,43 @@ export default async function AdminRankingWatchPage(): Promise<React.ReactNode> 
         <span className="eyebrow">Keyword Watch</span>
         <h1 className="section-title">랭킹 감시 키워드군</h1>
         <p className="help">최근 생성 글, 추천 키워드, SEO 참고 URL에서 반복되는 키워드군을 묶어 어떤 주제가 실제로 쌓이고 있는지 운영자가 점검하는 화면입니다.</p>
+      </section>
+
+      <section className="admin-overview-grid">
+        <article className="card section-stack tone-surface">
+          <span className="eyebrow">Watch Summary</span>
+          <div className="info-grid">
+            <div className="compact-card">
+              <strong>관찰 키워드군</strong>
+              <div>{watchRows.length}개</div>
+            </div>
+            <div className="compact-card">
+              <strong>승인 참고 보유</strong>
+              <div>{approvedKeywordCount}개</div>
+            </div>
+            <div className="compact-card">
+              <strong>후보 우세</strong>
+              <div>{candidateHeavyCount}개</div>
+            </div>
+            <div className="compact-card">
+              <strong>추천 신호 있음</strong>
+              <div>{recommendationHeavyCount}개</div>
+            </div>
+          </div>
+        </article>
+
+        <article className="card section-stack tone-surface">
+          <span className="eyebrow">Fast Jump</span>
+          <h2 className="section-title">바로 이동</h2>
+          <div className="inline-actions">
+            <Link href="/admin/seo-references/candidates" className="btn btn-secondary">
+              후보 검토 큐
+            </Link>
+            <Link href="/admin/seo-learning" className="btn btn-secondary">
+              학습 패턴 보기
+            </Link>
+          </div>
+        </article>
       </section>
 
       <section className="card section-stack">
@@ -128,6 +170,14 @@ export default async function AdminRankingWatchPage(): Promise<React.ReactNode> 
                     <span className="chip">후보 URL {row.candidateCount}</span>
                     <span className="chip">생성 글 {row.postCount}</span>
                     <span className="chip">추천 {row.recommendationCount}</span>
+                  </div>
+                  <div className="inline-actions">
+                    <Link href={`/dashboard?keyword=${encodeURIComponent(row.keyword)}`} className="btn btn-secondary">
+                      이 키워드로 생성 보기
+                    </Link>
+                    <Link href="/admin/seo-references/candidates" className="btn btn-secondary">
+                      후보 검토 이동
+                    </Link>
                   </div>
                 </div>
               </article>
